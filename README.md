@@ -1,6 +1,11 @@
 # Introduction
 
-durable-exec-serverless is a Rust project that implements an AWS Lambda function in Rust.
+lambda-workflow is a serverless workflow engine.
+
+* Written for AWS
+* Choose between a local or DynamoDB based backend
+* Write workflows as Rust code
+* Call asynchronous services via SQS callbacks
 
 ## Prerequisites
 

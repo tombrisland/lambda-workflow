@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/durable-exec-serverless.iml" filepath="$PROJECT_DIR$/.idea/durable-exec-serverless.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/lambda-workflow.iml" filepath="$PROJECT_DIR$/.idea/lambda-workflow.iml" />
     </modules>
   </component>
 </project>

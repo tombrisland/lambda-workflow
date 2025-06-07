@@ -613,20 +613,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "92773504d58c093f6de2459af4af33faa518c13451eb8f2b5698ed3d36e7c813"
 
 [[package]]
-name = "durable-exec-serverless"
-version = "0.1.0"
-dependencies = [
- "aws-sdk-sqs",
- "aws-types",
- "aws_lambda_events",
- "lambda_runtime",
- "serde",
- "serde_derive",
- "serde_json",
- "tokio",
-]
-
-[[package]]
 name = "either"
 version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1144,6 +1130,20 @@ checksum = "1cfaf33c695fc6e08064efbc1f72ec937429614f25eef83af942d0e227c3a28f"
 dependencies = [
  "once_cell",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "lambda-workflow"
+version = "0.1.0"
+dependencies = [
+ "aws-sdk-sqs",
+ "aws-types",
+ "aws_lambda_events",
+ "lambda_runtime",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "tokio",
 ]
 
 [[package]]
