@@ -1,10 +1,11 @@
+use aws_config::BehaviorVersion;
+use lambda_runtime::tracing::info;
 use lambda_runtime::{service_fn, tracing};
 use model::{Error, WorkflowError, WorkflowId};
 use serde::{Deserialize, Serialize};
-use service::DummyService;
+use service::{ExampleService, ServiceRequest};
 use state_in_memory::InMemoryStateStore;
 use std::sync::Arc;
-use lambda_runtime::tracing::info;
 use workflow::engine::{WorkflowContext, WorkflowEngine};
 use workflow::{workflow_handler, WorkflowLambdaEvent};
 
@@ -30,11 +31,19 @@ struct ResponseExample {
 async fn workflow_example(
     ctx: WorkflowContext<RequestExample>,
 ) -> Result<ResponseExample, WorkflowError> {
-    let request: &RequestExample = ctx.get_request();
-    
+    let request: &RequestExample = ctx.request();
+
     info!("Making request in workflow example: {:?}", request);
 
-    let result: String = ctx.call(DummyService {}, request.item_id.as_str()).await?;
+    let result: String = ctx
+        .call(
+            ExampleService {},
+            ServiceRequest {
+                call_id: request.item_id.clone(),
+                inner: request.item_id.clone(),
+            },
+        )
+        .await?;
 
     Ok(ResponseExample {
         id: request.id.clone(),
@@ -47,9 +56,12 @@ async fn workflow_example(
 async fn main() -> Result<(), Error> {
     tracing::init_default_subscriber();
 
+    let sqs_client: aws_sdk_sqs::Client =
+        aws_sdk_sqs::Client::new(&aws_config::load_defaults(BehaviorVersion::latest()).await);
+
     let engine: WorkflowEngine<RequestExample> =
-        WorkflowEngine::new(Arc::new(InMemoryStateStore::default()));
-    
+        WorkflowEngine::new(Arc::new(InMemoryStateStore::default()), sqs_client);
+
     lambda_runtime::run(service_fn(
         async |event: WorkflowLambdaEvent<RequestExample>| {
             return workflow_handler(&engine, event, workflow_example).await;
@@ -73,8 +85,13 @@ mod tests {
     async fn test_event_handler() {
         tracing::init_default_subscriber();
 
-        let engine: WorkflowEngine<RequestExample> =
-            WorkflowEngine::new(Arc::new(InMemoryStateStore::default()));
+        let sqs_client: aws_sdk_sqs::Client =
+            aws_sdk_sqs::Client::new(&aws_config::load_defaults(BehaviorVersion::latest()).await);
+        
+        let engine: WorkflowEngine<RequestExample> = WorkflowEngine::new(
+            Arc::new(InMemoryStateStore::default()),
+            sqs_client,
+        );
 
         let request = WorkflowEvent::Request(RequestExample {
             id: "id_1".to_string(),

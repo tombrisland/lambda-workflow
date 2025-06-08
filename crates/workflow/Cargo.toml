@@ -8,6 +8,8 @@ serde = { workspace = true }
 
 lambda_runtime = { workspace = true }
 aws_lambda_events = { workspace = true }
+aws-types = { workspace = true }
+aws-sdk-sqs = { workspace = true }
 
 futures = { workspace = true }
 

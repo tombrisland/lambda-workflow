@@ -5,6 +5,7 @@ resolver = "3"
 [workspace.dependencies]
 aws_lambda_events = { version = "0.16.0", default-features = false, features = ["sqs"] }
 aws-sdk-sqs = "1.72.0"
+aws-config = "1.6.3"
 aws-types = "1.3.7"
 
 serde = "1.0.219"

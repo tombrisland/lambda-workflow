@@ -4,14 +4,16 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-serde = { version = "1.0.219", features = ["derive"] }
+serde = { workspace = true }
 
-aws_lambda_events = { version = "0.16.0", default-features = false, features = ["sqs"] }
-lambda_runtime = "0.14.1"
+aws_lambda_events = { workspace = true }
+aws-config = { workspace = true }
+aws-sdk-sqs = { workspace = true }
+lambda_runtime = { workspace = true }
 
-tokio = { version = "1", features = ["macros"] }
+tokio = { workspace = true }
 
-model = {path = "../../crates/model"}
-service = {path = "../../crates/service"}
-workflow = {path = "../../crates/workflow"}
-state_in_memory = {path = "../../crates/state_in_memory"}
+model = { path = "../../crates/model" }
+service = { path = "../../crates/service" }
+workflow = { path = "../../crates/workflow" }
+state_in_memory = { path = "../../crates/state_in_memory" }
