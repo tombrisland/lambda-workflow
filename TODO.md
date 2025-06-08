@@ -1,12 +1,10 @@
 # What's next?
 
-1. Fix the configuration and module for SQS
-   1. Make sure the SDK config is easily configurable
+1. Flesh out the workflow_sqs so that it works in lambda
+   2. Might need a test Lambda to do something else unless it can be fully mocked
 2. Create a DynamoDB module for the state store
    1. It should load all the items for the workflow in and use transactions
    2. Consider using the same table model as lambda-powertools idempotency store
-3. Establish a neat way to store services distinct
-   1. Manage the types between them - how do indicate what something returns by service?
 4. Some tests around the engine and workflow
 5. Some clever way of storing what things a particular workflow is waiting for
    1. e.g. no point running the workflow through again if we're waiting on multiple things to happen

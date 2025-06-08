@@ -1,9 +1,12 @@
+mod service_example;
+
+use crate::service_example::ExampleService;
 use aws_config::BehaviorVersion;
 use lambda_runtime::tracing::info;
 use lambda_runtime::{service_fn, tracing};
 use model::{Error, WorkflowError, WorkflowId};
 use serde::{Deserialize, Serialize};
-use service::{ExampleService, ServiceRequest};
+use service::ServiceRequest;
 use state_in_memory::InMemoryStateStore;
 use std::sync::Arc;
 use workflow::engine::{WorkflowContext, WorkflowEngine};
@@ -28,7 +31,7 @@ struct ResponseExample {
     payload: String,
 }
 
-async fn workflow_example(
+async fn workflow_sqs(
     ctx: WorkflowContext<RequestExample>,
 ) -> Result<ResponseExample, WorkflowError> {
     let request: &RequestExample = ctx.request();
@@ -64,7 +67,7 @@ async fn main() -> Result<(), Error> {
 
     lambda_runtime::run(service_fn(
         async |event: WorkflowLambdaEvent<RequestExample>| {
-            return workflow_handler(&engine, event, workflow_example).await;
+            return workflow_handler(&engine, event, workflow_sqs).await;
         },
     ))
     .await
@@ -87,11 +90,9 @@ mod tests {
 
         let sqs_client: aws_sdk_sqs::Client =
             aws_sdk_sqs::Client::new(&aws_config::load_defaults(BehaviorVersion::latest()).await);
-        
-        let engine: WorkflowEngine<RequestExample> = WorkflowEngine::new(
-            Arc::new(InMemoryStateStore::default()),
-            sqs_client,
-        );
+
+        let engine: WorkflowEngine<RequestExample> =
+            WorkflowEngine::new(Arc::new(InMemoryStateStore::default()), sqs_client);
 
         let request = WorkflowEvent::Request(RequestExample {
             id: "id_1".to_string(),
@@ -115,7 +116,7 @@ mod tests {
             LambdaEvent::new(sqs_event, Context::default());
 
         let response: Result<SqsBatchResponse, Error> =
-            workflow_handler(&engine, event, workflow_example).await;
+            workflow_handler(&engine, event, workflow_sqs).await;
 
         tracing::info!("Batch handler results {:?}", response)
     }

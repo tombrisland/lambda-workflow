@@ -23,20 +23,16 @@
       <package file="$PROJECT_DIR$/examples/workflow_simple">
         <enabledFeature name="default" />
       </package>
+      <package file="$PROJECT_DIR$/examples/workflow_sqs">
+        <enabledFeature name="default" />
+      </package>
     </cargoProject>
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c43fb571-a2e5-44dc-9fde-bf0022301c76" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/crates/service/src/sqs.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/workflow_sqs/src/model.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/workflow_sqs/src/service_greeter.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/service/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/service/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/service/src/service_sqs.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/service/src/service_sqs.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/workflow/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/workflow/src/engine.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/engine.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_simple/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_simple/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_simple/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_simple/src/lib.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -98,7 +94,7 @@
     "RunOnceActivity.rust.reset.selective.auto.import": "true",
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "/Users/tomb/code/lambda-workflow/crates/service/src",
+    "last_opened_file_path": "/Users/tomb/code/lambda-workflow/examples",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -113,6 +109,7 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/examples" />
       <recent name="$PROJECT_DIR$/crates/service/src" />
       <recent name="$PROJECT_DIR$/crates/workflow/src" />
       <recent name="$PROJECT_DIR$/src" />
@@ -155,7 +152,7 @@
       <option name="presentableId" value="Default" />
       <updated>1749334440845</updated>
       <workItem from="1749334441939" duration="6713000" />
-      <workItem from="1749373223917" duration="19342000" />
+      <workItem from="1749373223917" duration="20395000" />
     </task>
     <servers />
   </component>
