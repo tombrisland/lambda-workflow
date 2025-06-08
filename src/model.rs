@@ -2,6 +2,8 @@ use serde::de::{DeserializeOwned, StdError};
 use serde::Serialize;
 use serde_derive::Deserialize;
 use std::fmt::Debug;
+use aws_lambda_events::sqs::{SqsEventObj, SqsMessageObj};
+use lambda_runtime::LambdaEvent;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CallResult {
@@ -49,3 +51,7 @@ impl From<Box<dyn StdError + Send + Sync>> for WorkflowError {
         WorkflowError::Error(value.to_string())
     }
 }
+
+pub(crate) type WorkflowSqsEvent<T> = SqsEventObj<WorkflowEvent<T>>;
+pub(crate) type WorkflowSqsMessage<T> = SqsMessageObj<WorkflowEvent<T>>;
+pub(crate) type WorkflowLambdaEvent<T> = LambdaEvent<WorkflowSqsEvent<T>>;
