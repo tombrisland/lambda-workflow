@@ -1,6 +1,6 @@
-use crate::model::CallState;
-use lambda_runtime::Error;
 use serde::de::DeserializeOwned;
+use ::model::Error;
+use model::CallState;
 
 pub trait StateStore<T: DeserializeOwned + Clone> {
     fn put_invocation(&self, workflow_id: &str, request: T) -> Result<(), Error>;

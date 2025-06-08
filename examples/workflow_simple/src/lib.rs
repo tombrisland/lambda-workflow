@@ -1,22 +1,51 @@
-use crate::model::WorkflowLambdaEvent;
-use crate::workflow_engine::WorkflowEngine;
-use crate::workflow_example::{workflow_example, RequestExample};
-use crate::workflow_handler::workflow_handler;
-use lambda_runtime::{service_fn, tracing, Error};
+use lambda_runtime::{service_fn, tracing};
+use model::{Error, WorkflowError, WorkflowId};
+use serde::{Deserialize, Serialize};
+use service::DummyService;
+use state_in_memory::InMemoryStateStore;
+use std::sync::Arc;
+use workflow::engine::{WorkflowContext, WorkflowEngine};
+use workflow::{workflow_handler, WorkflowLambdaEvent};
 
-mod in_memory_state;
-mod model;
-mod service;
-pub mod sqs_service;
-mod state;
-mod workflow_engine;
-mod workflow_example;
-mod workflow_handler;
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct RequestExample {
+    pub(crate) id: String,
+    pub(crate) item_id: String,
+}
+
+impl WorkflowId for RequestExample {
+    fn workflow_id(&self) -> &str {
+        &self.id
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct ResponseExample {
+    id: String,
+    item_id: String,
+    payload: String,
+}
+
+async fn workflow_example(
+    ctx: WorkflowContext<RequestExample>,
+) -> Result<ResponseExample, WorkflowError> {
+    let request: &RequestExample = ctx.get_request();
+
+    let result: String = ctx.call(DummyService {}, request.item_id.as_str()).await?;
+
+    Ok(ResponseExample {
+        id: request.id.clone(),
+        item_id: request.item_id.clone(),
+        payload: result,
+    })
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
     tracing::init_default_subscriber();
-    let engine: WorkflowEngine<RequestExample> = WorkflowEngine::new();
+
+    let engine: WorkflowEngine<RequestExample> =
+        WorkflowEngine::new(Arc::new(InMemoryStateStore::default()));
 
     lambda_runtime::run(service_fn(
         async |event: WorkflowLambdaEvent<RequestExample>| {
@@ -29,16 +58,20 @@ async fn main() -> Result<(), Error> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::model::{CallResult, WorkflowEvent, WorkflowSqsEvent, WorkflowSqsMessage};
-    use crate::workflow_example::workflow_example;
     use aws_lambda_events::sqs::{SqsBatchResponse, SqsEventObj, SqsMessageObj};
-    use lambda_runtime::{Context, LambdaEvent};
+    use lambda_runtime::{tracing, Context, LambdaEvent};
+    use model::{CallResult, Error, WorkflowEvent, WorkflowSqsEvent, WorkflowSqsMessage};
+    use state_in_memory::InMemoryStateStore;
+    use std::sync::Arc;
+    use workflow::engine::WorkflowEngine;
+    use workflow::{workflow_handler, WorkflowLambdaEvent};
 
     #[tokio::test]
     async fn test_event_handler() {
         tracing::init_default_subscriber();
 
-        let engine: WorkflowEngine<RequestExample> = WorkflowEngine::new();
+        let engine: WorkflowEngine<RequestExample> =
+            WorkflowEngine::new(Arc::new(InMemoryStateStore::default()));
 
         let request = WorkflowEvent::Request(RequestExample {
             id: "id_1".to_string(),

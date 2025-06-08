@@ -1,22 +1,25 @@
-use lambda_runtime::Error;
+mod service_sqs;
+
 use serde::Serialize;
+use model::Error;
 
 /// A service which doesn't expect a response immediately.
 /// The response is returned using a callback mechanism over SQS.
-pub(crate) trait AsyncService<Request>
+pub trait AsyncService<Request>
 where
     Request: ?Sized + Serialize,
 {
+    #[allow(async_fn_in_trait)]
     async fn call(&self, request: Request) -> Result<(), Error>;
 }
 
 pub struct DummyService {}
 
-impl<T> AsyncService<T> for DummyService
+impl<Request> AsyncService<Request> for DummyService
 where
-    T: Serialize,
+    Request: Serialize,
 {
-    async fn call(&self, _request: T) -> Result<(), Error> {
+    async fn call(&self, _request: Request) -> Result<(), Error> {
         Ok(())
     }
 }

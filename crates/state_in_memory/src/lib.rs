@@ -1,9 +1,8 @@
-use crate::model::CallState;
-use crate::state::StateStore;
-use lambda_runtime::Error;
 use serde::de::DeserializeOwned;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
+use model::{CallState, Error};
+use state::StateStore;
 
 pub struct InMemoryStateStore<Request: DeserializeOwned + Clone> {
     invocations: Arc<Mutex<HashMap<String, Request>>>,

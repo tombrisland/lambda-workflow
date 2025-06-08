@@ -1,0 +1,17 @@
+[package]
+name = "workflow_simple"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+serde = { version = "1.0.219", features = ["derive"] }
+
+aws_lambda_events = { version = "0.16.0", default-features = false, features = ["sqs"] }
+lambda_runtime = "0.14.1"
+
+tokio = { version = "1", features = ["macros"] }
+
+model = {path = "../../crates/model"}
+service = {path = "../../crates/service"}
+workflow = {path = "../../crates/workflow"}
+state_in_memory = {path = "../../crates/state_in_memory"}

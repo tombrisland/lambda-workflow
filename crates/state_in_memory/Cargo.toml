@@ -1,0 +1,10 @@
+[package]
+name = "state_in_memory"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+serde = { workspace = true }
+
+state = {path = "../state"}
+model = {path = "../model"}

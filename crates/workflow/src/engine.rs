@@ -1,22 +1,18 @@
-use crate::in_memory_state::InMemoryStateStore;
-use crate::model::{CallResult, CallState, WorkflowError, WorkflowEvent, WorkflowId};
-use crate::service::AsyncService;
-use crate::state::StateStore;
-use lambda_runtime::Error;
 use serde::de::DeserializeOwned;
 use std::sync::Arc;
+use model::{CallResult, CallState, Error, WorkflowError, WorkflowEvent, WorkflowId};
+use service::AsyncService;
+use state::StateStore;
 
 #[derive(Clone)]
 pub struct WorkflowEngine<T: DeserializeOwned + Clone + WorkflowId> {
     state_store: Arc<dyn StateStore<T>>,
 }
 
-impl<'a, Request: DeserializeOwned + Clone + WorkflowId + 'static> WorkflowEngine<Request> {
-    pub fn new() -> WorkflowEngine<Request> {
-        let state_store: InMemoryStateStore<Request> = InMemoryStateStore::default();
-
+impl<Request: DeserializeOwned + Clone + WorkflowId + 'static> WorkflowEngine<Request> {
+    pub fn new(state_store: Arc<dyn StateStore<Request>>) -> WorkflowEngine<Request> {
         WorkflowEngine {
-            state_store: Arc::new(state_store),
+            state_store,
         }
     }
 
@@ -68,6 +64,8 @@ impl<T: DeserializeOwned + Clone + WorkflowId> WorkflowContext<T> {
         &self.request
     }
 
+    /// Call an async service which isn't expected to return immediately.
+    /// This will suspend execution until a response is received.
     pub async fn call(
         &self,
         service: impl AsyncService<String>,

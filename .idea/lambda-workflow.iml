@@ -2,7 +2,20 @@
 <module type="EMPTY_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/crates/model/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/service/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/state/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/state_in_memory/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/workflow/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/workflow_simple/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/model/target" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/service/target" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/state/target" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/state_in_memory/target" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/workflow/target" />
+      <excludeFolder url="file://$MODULE_DIR$/examples/workflow_simple/target" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />

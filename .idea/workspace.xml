@@ -5,16 +5,41 @@
   </component>
   <component name="CargoProjects">
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml">
-      <package file="$PROJECT_DIR$">
+      <package file="$PROJECT_DIR$/crates/model">
+        <enabledFeature name="default" />
+      </package>
+      <package file="$PROJECT_DIR$/crates/service">
+        <enabledFeature name="default" />
+      </package>
+      <package file="$PROJECT_DIR$/crates/state">
+        <enabledFeature name="default" />
+      </package>
+      <package file="$PROJECT_DIR$/crates/state_in_memory">
+        <enabledFeature name="default" />
+      </package>
+      <package file="$PROJECT_DIR$/crates/workflow">
+        <enabledFeature name="default" />
+      </package>
+      <package file="$PROJECT_DIR$/examples/workflow_simple">
         <enabledFeature name="default" />
       </package>
     </cargoProject>
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c43fb571-a2e5-44dc-9fde-bf0022301c76" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/src/in_memory_state.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/in_memory_state.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/state.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/state.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/workflow_engine.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/workflow_engine.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/lambda-workflow.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/lambda-workflow.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/in_memory_state.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/model.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/sqs_service.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/service/src/service_sqs.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/state.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/workflow_engine.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/engine.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/workflow_example.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/workflow_handler.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/batch_handler.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,6 +91,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Cargo.Test tests::test_event_handler (1).executor": "Run",
     "Cargo.Test tests::test_event_handler.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -74,7 +100,7 @@
     "RunOnceActivity.rust.reset.selective.auto.import": "true",
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "/Users/tomb/code/lambda-workflow/Cargo.toml",
+    "last_opened_file_path": "/Users/tomb/code/lambda-workflow/crates/service/src",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -89,10 +115,13 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/crates/service/src" />
+      <recent name="$PROJECT_DIR$/crates/workflow/src" />
+      <recent name="$PROJECT_DIR$/src" />
       <recent name="C:\Users\tombr\Documents\Code\lambda-workflow\src" />
     </key>
   </component>
-  <component name="RunManager" selected="Cargo.Test tests::test_event_handler">
+  <component name="RunManager" selected="Cargo.Test tests::test_event_handler (2)">
     <configuration name="Run lambda-workflow" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
       <option name="buildProfileId" value="dev" />
       <option name="command" value="run --package lambda-workflow --bin lambda-workflow" />
@@ -128,6 +157,40 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
+    <configuration name="Test tests::test_event_handler (1)" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package workflow_simple --lib tests::test_event_handler -- --exact" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$/examples/workflow_simple" />
+      <envs />
+      <option name="emulateTerminal" value="true" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test tests::test_event_handler (2)" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package workflow_simple --lib tests::test_event_handler -- --exact" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <option name="emulateTerminal" value="true" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="Test tests::test_event_handler" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="buildProfileId" value="test" />
       <option name="command" value="test --package lambda-workflow --bin lambda-workflow tests::test_event_handler -- --exact" />
@@ -148,6 +211,8 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Cargo.Test tests::test_event_handler (2)" />
+        <item itemvalue="Cargo.Test tests::test_event_handler (1)" />
         <item itemvalue="Cargo.Test tests::test_event_handler" />
       </list>
     </recent_temporary>
@@ -163,7 +228,7 @@
       <option name="presentableId" value="Default" />
       <updated>1749334440845</updated>
       <workItem from="1749334441939" duration="6713000" />
-      <workItem from="1749373223917" duration="10565000" />
+      <workItem from="1749373223917" duration="14418000" />
     </task>
     <servers />
   </component>

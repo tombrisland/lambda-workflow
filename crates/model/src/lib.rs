@@ -1,9 +1,19 @@
-use serde::de::{DeserializeOwned, StdError};
-use serde::Serialize;
-use serde_derive::Deserialize;
+use serde::de::DeserializeOwned;
+use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use aws_lambda_events::sqs::{SqsEventObj, SqsMessageObj};
-use lambda_runtime::LambdaEvent;
+
+pub type Error = Box<dyn std::error::Error + Send + Sync>;
+
+pub trait WorkflowId {
+    fn workflow_id(&self) -> &str;
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub enum WorkflowEvent<T: Clone + WorkflowId> {
+    Request(T),
+    Update(CallResult),
+}
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CallResult {
@@ -17,16 +27,6 @@ pub struct CallResult {
 pub enum CallState {
     Running,
     Completed(CallResult),
-}
-
-pub trait WorkflowId {
-    fn workflow_id(&self) -> &str;
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum WorkflowEvent<T: Clone + WorkflowId> {
-    Request(T),
-    Update(CallResult),
 }
 
 impl<T: Debug + Clone + DeserializeOwned + WorkflowId> WorkflowId for WorkflowEvent<T> {
@@ -45,13 +45,12 @@ pub enum WorkflowError {
     Error(String),
 }
 
-impl From<Box<dyn StdError + Send + Sync>> for WorkflowError {
-    fn from(value: Box<dyn StdError + Send + Sync>) -> Self {
+impl From<Error> for WorkflowError {
+    fn from(value: Error) -> Self {
         // TODO properly deal with this
         WorkflowError::Error(value.to_string())
     }
 }
 
-pub(crate) type WorkflowSqsEvent<T> = SqsEventObj<WorkflowEvent<T>>;
-pub(crate) type WorkflowSqsMessage<T> = SqsMessageObj<WorkflowEvent<T>>;
-pub(crate) type WorkflowLambdaEvent<T> = LambdaEvent<WorkflowSqsEvent<T>>;
+pub type WorkflowSqsEvent<T> = SqsEventObj<WorkflowEvent<T>>;
+pub type WorkflowSqsMessage<T> = SqsMessageObj<WorkflowEvent<T>>;

@@ -1,7 +1,7 @@
-use crate::service::AsyncService;
 use aws_types::sdk_config::Builder;
-use lambda_runtime::Error;
 use serde::Serialize;
+use model::Error;
+use crate::AsyncService;
 
 pub struct SqsService {
     queue_url: String,

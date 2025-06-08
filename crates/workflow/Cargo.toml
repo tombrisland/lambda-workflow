@@ -1,0 +1,16 @@
+[package]
+name = "workflow"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+serde = { workspace = true }
+
+lambda_runtime = { workspace = true }
+aws_lambda_events = { workspace = true }
+
+futures = { workspace = true }
+
+model = { path = "../model" }
+state = { path = "../state" }
+service = { path = "../service" }
