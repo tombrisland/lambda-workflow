@@ -27,19 +27,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c43fb571-a2e5-44dc-9fde-bf0022301c76" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/lambda-workflow.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/lambda-workflow.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/in_memory_state.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/model.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/sqs_service.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/service/src/service_sqs.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/state.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/workflow_engine.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/engine.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/workflow_example.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/workflow_handler.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/batch_handler.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/TODO.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,6 +80,7 @@
   "keyToString": {
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Cargo.Test tests::test_event_handler (1).executor": "Run",
+    "Cargo.Test tests::test_event_handler (2).executor": "Run",
     "Cargo.Test tests::test_event_handler.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -228,7 +217,7 @@
       <option name="presentableId" value="Default" />
       <updated>1749334440845</updated>
       <workItem from="1749334441939" duration="6713000" />
-      <workItem from="1749373223917" duration="14418000" />
+      <workItem from="1749373223917" duration="14751000" />
     </task>
     <servers />
   </component>
