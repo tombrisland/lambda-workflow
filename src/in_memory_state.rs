@@ -36,7 +36,7 @@ impl<T: DeserializeOwned + Clone> StateStore<T> for InMemoryStateStore<T> {
         Some(state)
     }
 
-    fn put_call(&self, call_id: &str, state: CallState) -> Result<(), Error> {
+    fn put_call(&self, _workflow_id: &str, call_id: &str, state: CallState) -> Result<(), Error> {
         self.calls
             .lock()
             .unwrap()
@@ -45,7 +45,7 @@ impl<T: DeserializeOwned + Clone> StateStore<T> for InMemoryStateStore<T> {
         Ok(())
     }
 
-    fn get_call(&self, call_id: &str) -> Option<CallState> {
+    fn get_call(&self, _workflow_id: &str, call_id: &str) -> Option<CallState> {
         let state = self
             .calls
             .lock()

@@ -1,7 +1,5 @@
 use crate::in_memory_state::InMemoryStateStore;
-use crate::model::{
-    CallResult, CallState, WorkflowError, WorkflowEvent, WorkflowId,
-};
+use crate::model::{CallResult, CallState, WorkflowError, WorkflowEvent, WorkflowId};
 use crate::service::AsyncService;
 use crate::state::StateStore;
 use lambda_runtime::Error;
@@ -16,7 +14,7 @@ pub struct WorkflowEngine<T: DeserializeOwned + Clone + WorkflowId> {
 impl<'a, Request: DeserializeOwned + Clone + WorkflowId + 'static> WorkflowEngine<Request> {
     pub fn new() -> WorkflowEngine<Request> {
         let state_store: InMemoryStateStore<Request> = InMemoryStateStore::default();
-        
+
         WorkflowEngine {
             state_store: Arc::new(state_store),
         }
@@ -37,7 +35,7 @@ impl<'a, Request: DeserializeOwned + Clone + WorkflowId + 'static> WorkflowEngin
     }
 
     fn update_ctx(&self, call_result: CallResult) -> Result<WorkflowContext<Request>, Error> {
-        let workflow_id: &str = &call_result.workflow_id;
+        let workflow_id: &str = &call_result.workflow_id.clone();
         let call_id: &str = &call_result.call_id.clone();
 
         let request: Request = self
@@ -47,7 +45,7 @@ impl<'a, Request: DeserializeOwned + Clone + WorkflowId + 'static> WorkflowEngin
 
         // Update the state with any calls
         self.state_store
-            .put_call(call_id, CallState::Completed(call_result))?;
+            .put_call(workflow_id, call_id, CallState::Completed(call_result))?;
 
         Ok(WorkflowContext::new(request, self.state_store.clone()))
     }
@@ -75,8 +73,10 @@ impl<T: DeserializeOwned + Clone + WorkflowId> WorkflowContext<T> {
         service: impl AsyncService<String>,
         call_id: &str,
     ) -> Result<String, WorkflowError> {
+        let workflow_id: &str = self.request.workflow_id();
+
         // Check if the result is already available in state
-        if let Some(state) = self.state_store.get_call(call_id) {
+        if let Some(state) = self.state_store.get_call(workflow_id, call_id) {
             return match state {
                 // Suspend if it's not available
                 CallState::Running => Err(WorkflowError::Suspended),
@@ -86,62 +86,10 @@ impl<T: DeserializeOwned + Clone + WorkflowId> WorkflowContext<T> {
         }
 
         // Set the state running and then call the service
-        self.state_store.put_call(call_id, CallState::Running)?;
+        self.state_store
+            .put_call(workflow_id, call_id, CallState::Running)?;
         service.call(call_id.to_string()).await?;
 
         Err(WorkflowError::Suspended)
     }
 }
-
-// pub(crate) async fn workflow_fn(
-//     engine: &WorkflowEngine<RequestExample>,
-//     event: LambdaEvent<SqsEvent>,
-// ) -> Result<(), Error> {
-//     info!("Starting workflow event handler");
-// 
-//     info!("Finishing workflow event handler");
-// 
-//     Ok(())
-// }
-// 
-// async fn run<'a, Function, Request, Response, Fut>(f: Function) -> Result<(), Error>
-// where
-//     Request: Debug + Clone + DeserializeOwned + WorkflowId,
-//     Function: FnMut(WorkflowContext<Request>) -> Fut,
-//     Fut: Future<Output = Result<Response, WorkflowError>>,
-// {
-//     let engine: WorkflowEngine<Request> = WorkflowEngine::new();
-//     let engine_ref: &WorkflowEngine<Request> = &engine;
-// 
-//     let fn_ref: &Function = &f;
-// 
-//     let handler = move |event: LambdaEvent<SqsEvent>| async move {
-//         let records: Vec<SqsMessage> = event.payload.records;
-// 
-//         // Iterate the events from the SQS queue
-//         for record in records {
-//             let body: String = record.body.unwrap();
-//             
-//             let body = body.clone();
-//             let workflow_event: WorkflowEvent<Request> = serde_json::from_str(body.deref()).unwrap();
-// 
-//             info!(
-//                 "Handling {:?} event for workflow_id {}",
-//                 workflow_event,
-//                 workflow_event.workflow_id()
-//             );
-// 
-//             let ctx: WorkflowContext<Request> = engine_ref.accept(workflow_event).unwrap();
-//             
-//             // For some reason it's requiring that Request have static lt
-//             // Function can't be passed in
-// 
-//             // let x = fn_ref(ctx).await;
-//         }
-// 
-//         let x: Result<(), Error> = Ok(());
-//         x
-//     };
-// 
-//     lambda_runtime::run(service_fn(handler)).await
-// }
