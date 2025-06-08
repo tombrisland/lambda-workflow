@@ -5,6 +5,7 @@ use aws_lambda_events::sqs::{SqsEventObj, SqsMessageObj};
 
 pub type Error = Box<dyn std::error::Error + Send + Sync>;
 
+/// This id is used for tracing and storage.
 pub trait WorkflowId {
     fn workflow_id(&self) -> &str;
 }

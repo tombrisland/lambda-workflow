@@ -1,13 +1,13 @@
+use aws_lambda_events::sqs::{BatchItemFailure, SqsBatchResponse, SqsEventObj, SqsMessageObj};
+use lambda_runtime::tracing::instrument::Instrumented;
+use lambda_runtime::tracing::{Instrument, Span};
+use lambda_runtime::{tracing, Error, LambdaEvent};
+use model::WorkflowError;
+use serde::de::DeserializeOwned;
+use serde::Serialize;
 use std::future::Future;
 use std::iter::Zip;
 use std::vec::IntoIter;
-use aws_lambda_events::sqs::{BatchItemFailure, SqsBatchResponse, SqsEventObj, SqsMessageObj};
-use lambda_runtime::{tracing, Error, LambdaEvent};
-use lambda_runtime::tracing::instrument::Instrumented;
-use lambda_runtime::tracing::{Instrument, Span};
-use serde::de::DeserializeOwned;
-use serde::Serialize;
-use model::WorkflowError;
 
 pub(crate) async fn batch_handler<Handler, Body, Fut>(
     handler: Handler,
@@ -30,19 +30,11 @@ where
             let message_id: String = message.message_id.unwrap_or_default();
             let body: Body = message.body;
 
-            let message_span: Span = tracing::span!(
-                tracing::Level::INFO,
-                "Handling message from SQS",
-                message_id
-            );
+            let message_span: Span =
+                tracing::span!(tracing::Level::INFO, "SQS Handler", message_id);
 
             // TODO catch panics as well as errors - see lambda runtime for reference
-            let task: Instrumented<_> = async {
-                tracing::info!("Handling message from SQS");
-
-                handler(body).await
-            }
-                .instrument(message_span);
+            let task: Instrumented<_> = async { handler(body).await }.instrument(message_span);
 
             (message_id, task)
         })

@@ -1,19 +1,20 @@
-use std::fmt::Debug;
-use aws_lambda_events::sqs::SqsBatchResponse;
-use lambda_runtime::{tracing, LambdaEvent};
-use serde::de::DeserializeOwned;
-use serde::Serialize;
-use model::{Error, WorkflowError, WorkflowEvent, WorkflowId, WorkflowSqsEvent};
 use crate::batch_handler::batch_handler;
 use crate::engine::{WorkflowContext, WorkflowEngine};
+use aws_lambda_events::sqs::SqsBatchResponse;
+use lambda_runtime::tracing::{Instrument, Span};
+use lambda_runtime::{tracing, LambdaEvent};
+use model::{Error, WorkflowError, WorkflowEvent, WorkflowId, WorkflowSqsEvent};
+use serde::de::DeserializeOwned;
+use serde::Serialize;
+use std::fmt::Debug;
 
-pub mod engine;
 mod batch_handler;
+pub mod engine;
 
 /// Creates a handler function for a workflow designed for use with `lambda_runtime::run()`
 ///
 /// Expects the function to receive an `SqsEvent` and returns an `SqsBatchResponse`.
-/// Therefore, the function *must* have `ReportBatchItemFailures` set to true. 
+/// Therefore, the function *must* have `ReportBatchItemFailures` set to true.
 ///
 /// # Example
 /// ```no_run
@@ -49,15 +50,23 @@ where
     Response: Serialize + Debug,
     Fut: Future<Output = Result<Response, WorkflowError>>,
 {
-    batch_handler(async |request: WorkflowEvent<Request>| {
-        let ctx: WorkflowContext<Request> = engine.accept(request)?;
+    batch_handler(
+        async |request: WorkflowEvent<Request>| {
+            let workflow_id: String = request.workflow_id().to_string().clone();
+            let ctx: WorkflowContext<Request> = engine.accept(request)?;
 
-        let response: Response = workflow(ctx).await?;
+            let workflow_span: Span =
+                tracing::span!(tracing::Level::INFO, "Workflow", workflow_id);
 
-        tracing::info!("Response from handler {:?}", response);
+            let response: Response = workflow(ctx).instrument(workflow_span).await?;
 
-        Ok(())
-    }, event).await
+            tracing::info!("Completed workflow {:?}", response);
+
+            Ok(())
+        },
+        event,
+    )
+    .await
 }
 
 pub type WorkflowLambdaEvent<T> = LambdaEvent<WorkflowSqsEvent<T>>;

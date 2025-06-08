@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use service::DummyService;
 use state_in_memory::InMemoryStateStore;
 use std::sync::Arc;
+use lambda_runtime::tracing::info;
 use workflow::engine::{WorkflowContext, WorkflowEngine};
 use workflow::{workflow_handler, WorkflowLambdaEvent};
 
@@ -30,6 +31,8 @@ async fn workflow_example(
     ctx: WorkflowContext<RequestExample>,
 ) -> Result<ResponseExample, WorkflowError> {
     let request: &RequestExample = ctx.get_request();
+    
+    info!("Making request in workflow example: {:?}", request);
 
     let result: String = ctx.call(DummyService {}, request.item_id.as_str()).await?;
 
@@ -46,7 +49,7 @@ async fn main() -> Result<(), Error> {
 
     let engine: WorkflowEngine<RequestExample> =
         WorkflowEngine::new(Arc::new(InMemoryStateStore::default()));
-
+    
     lambda_runtime::run(service_fn(
         async |event: WorkflowLambdaEvent<RequestExample>| {
             return workflow_handler(&engine, event, workflow_example).await;
