@@ -1139,6 +1139,7 @@ dependencies = [
  "aws-sdk-sqs",
  "aws-types",
  "aws_lambda_events",
+ "futures",
  "lambda_runtime",
  "serde",
  "serde_derive",

@@ -1,26 +1,19 @@
-use std::fmt::Debug;
 use crate::in_memory_state::InMemoryStateStore;
 use crate::model::{
     CallResult, CallState, WorkflowError, WorkflowEvent, WorkflowId,
 };
 use crate::service::AsyncService;
 use crate::state::StateStore;
-use crate::{workflow_example, RequestExample};
-use aws_lambda_events::sqs::{SqsEvent, SqsMessage};
-use lambda_runtime::tracing::log::info;
-use lambda_runtime::{service_fn, Error, LambdaEvent};
-use serde::Deserialize;
-use std::future::Future;
-use std::ops::Deref;
-use std::sync::Arc;
+use lambda_runtime::Error;
 use serde::de::DeserializeOwned;
+use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct WorkflowEngine<T: DeserializeOwned + Clone + WorkflowId> {
     state_store: Arc<dyn StateStore<T>>,
 }
 
-impl<'a, Request: DeserializeOwned + Clone + WorkflowId> WorkflowEngine<Request> {
+impl<'a, Request: DeserializeOwned + Clone + WorkflowId + 'static> WorkflowEngine<Request> {
     pub fn new() -> WorkflowEngine<Request> {
         let state_store: InMemoryStateStore<Request> = InMemoryStateStore::default();
         
@@ -100,55 +93,55 @@ impl<T: DeserializeOwned + Clone + WorkflowId> WorkflowContext<T> {
     }
 }
 
-pub(crate) async fn workflow_fn(
-    engine: &WorkflowEngine<RequestExample>,
-    event: LambdaEvent<SqsEvent>,
-) -> Result<(), Error> {
-    info!("Starting workflow event handler");
-
-    info!("Finishing workflow event handler");
-
-    Ok(())
-}
-
-async fn run<'a, Function, Request, Response, Fut>(f: Function) -> Result<(), Error>
-where
-    Request: Debug + Clone + DeserializeOwned + WorkflowId,
-    Function: FnMut(WorkflowContext<Request>) -> Fut,
-    Fut: Future<Output = Result<Response, WorkflowError>>,
-{
-    let engine: WorkflowEngine<Request> = WorkflowEngine::new();
-    let engine_ref: &WorkflowEngine<Request> = &engine;
-
-    let fn_ref: &Function = &f;
-
-    let handler = move |event: LambdaEvent<SqsEvent>| async move {
-        let records: Vec<SqsMessage> = event.payload.records;
-
-        // Iterate the events from the SQS queue
-        for record in records {
-            let body: String = record.body.unwrap();
-            
-            let body = body.clone();
-            let workflow_event: WorkflowEvent<Request> = serde_json::from_str(body.deref()).unwrap();
-
-            info!(
-                "Handling {:?} event for workflow_id {}",
-                workflow_event,
-                workflow_event.workflow_id()
-            );
-
-            let ctx: WorkflowContext<Request> = engine_ref.accept(workflow_event).unwrap();
-            
-            // For some reason it's requiring that Request have static lt
-            // Function can't be passed in
-
-            let x = fn_ref(ctx).await;
-        }
-
-        let x: Result<(), Error> = Ok(());
-        x
-    };
-
-    lambda_runtime::run(service_fn(handler)).await
-}
+// pub(crate) async fn workflow_fn(
+//     engine: &WorkflowEngine<RequestExample>,
+//     event: LambdaEvent<SqsEvent>,
+// ) -> Result<(), Error> {
+//     info!("Starting workflow event handler");
+// 
+//     info!("Finishing workflow event handler");
+// 
+//     Ok(())
+// }
+// 
+// async fn run<'a, Function, Request, Response, Fut>(f: Function) -> Result<(), Error>
+// where
+//     Request: Debug + Clone + DeserializeOwned + WorkflowId,
+//     Function: FnMut(WorkflowContext<Request>) -> Fut,
+//     Fut: Future<Output = Result<Response, WorkflowError>>,
+// {
+//     let engine: WorkflowEngine<Request> = WorkflowEngine::new();
+//     let engine_ref: &WorkflowEngine<Request> = &engine;
+// 
+//     let fn_ref: &Function = &f;
+// 
+//     let handler = move |event: LambdaEvent<SqsEvent>| async move {
+//         let records: Vec<SqsMessage> = event.payload.records;
+// 
+//         // Iterate the events from the SQS queue
+//         for record in records {
+//             let body: String = record.body.unwrap();
+//             
+//             let body = body.clone();
+//             let workflow_event: WorkflowEvent<Request> = serde_json::from_str(body.deref()).unwrap();
+// 
+//             info!(
+//                 "Handling {:?} event for workflow_id {}",
+//                 workflow_event,
+//                 workflow_event.workflow_id()
+//             );
+// 
+//             let ctx: WorkflowContext<Request> = engine_ref.accept(workflow_event).unwrap();
+//             
+//             // For some reason it's requiring that Request have static lt
+//             // Function can't be passed in
+// 
+//             // let x = fn_ref(ctx).await;
+//         }
+// 
+//         let x: Result<(), Error> = Ok(());
+//         x
+//     };
+// 
+//     lambda_runtime::run(service_fn(handler)).await
+// }
