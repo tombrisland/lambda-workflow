@@ -1,8 +1,8 @@
 use crate::model::CallState;
 use lambda_runtime::Error;
-use serde::Deserialize;
+use serde::de::DeserializeOwned;
 
-pub trait StateStore<T: Deserialize<'static> + Clone> {
+pub trait StateStore<T: DeserializeOwned + Clone> {
     fn put_invocation(&self, workflow_id: &str, request: T) -> Result<(), Error>;
     fn get_invocation(&self, workflow_id: &str) -> Option<T>;
     // fn remove_invocation(&self, workflow_id: &str);

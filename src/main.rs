@@ -3,8 +3,9 @@ use crate::service::DummyService;
 use crate::workflow_engine::{WorkflowContext, WorkflowEngine};
 use aws_lambda_events::sqs::SqsEvent;
 use lambda_runtime::tracing::log::info;
-use lambda_runtime::{run, service_fn, tracing, Error, LambdaEvent};
+use lambda_runtime::{service_fn, tracing, Error, LambdaEvent};
 use serde_derive::{Deserialize, Serialize};
+use std::fmt::Debug;
 
 mod in_memory_state;
 mod logger;
@@ -13,6 +14,7 @@ mod service;
 pub mod sqs_service;
 mod state;
 mod workflow_engine;
+mod workflow_fn;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct RequestExample {
@@ -39,7 +41,7 @@ async fn workflow_example(ctx: WorkflowContext<RequestExample>) -> Result<(), Wo
     Ok(())
 }
 
-pub(crate) async fn function_handler(
+pub(crate) async fn workflow_fn(
     engine: &WorkflowEngine<RequestExample>,
     event: LambdaEvent<SqsEvent>,
 ) -> Result<(), Error> {
@@ -66,17 +68,28 @@ pub(crate) async fn function_handler(
     Ok(())
 }
 
+// async fn run<Function, Request, Response, Fut>(f: Function) -> Result<(), Error>
+// where
+//     Request: Debug + Clone + serde::Deserialize<'static> + WorkflowId,
+//     Function: FnMut(WorkflowContext<Request>) -> Fut,
+//     Fut: std::future::Future<Output=Result<Response, WorkflowError>>,
+// {
+//     let engine: WorkflowEngine<RequestExample> = WorkflowEngine::new();
+//     let engine_ref: &WorkflowEngine<RequestExample> = &engine;
+// 
+//     lambda_runtime::run(service_fn(move |event: LambdaEvent<SqsEvent>| async move {
+//         return workflow_fn(engine_ref, event).await;
+//     }))
+//     .await
+// }
+
 #[tokio::main]
 async fn main() -> Result<(), Error> {
     tracing::init_default_subscriber();
-
-    let engine: WorkflowEngine<RequestExample> = WorkflowEngine::new();
-    let engine_ref: &WorkflowEngine<RequestExample> = &engine;
-
-    run(service_fn(move |event: LambdaEvent<SqsEvent>| async move {
-        return function_handler(engine_ref, event).await;
-    }))
-    .await
+    
+    Ok(())
+    
+    // run(workflow_example).await
 }
 
 #[cfg(test)]
@@ -119,7 +132,7 @@ mod tests {
         };
         let event: LambdaEvent<SqsEvent> = LambdaEvent::new(sqs_event, Context::default());
 
-        let response = function_handler(&engine, event).await.unwrap();
+        let response = workflow_fn(&engine, event).await.unwrap();
         assert_eq!((), response);
     }
 

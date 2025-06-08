@@ -1,6 +1,7 @@
-use serde::de::StdError;
+use serde::de::{DeserializeOwned, StdError};
 use serde::Serialize;
 use serde_derive::Deserialize;
+use std::fmt::Debug;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CallResult {
@@ -21,12 +22,12 @@ pub trait WorkflowId {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum WorkflowEvent<T: WorkflowId> {
+pub enum WorkflowEvent<T: Clone + WorkflowId> {
     Request(T),
     Update(CallResult),
 }
 
-impl<T: WorkflowId> WorkflowId for WorkflowEvent<T> {
+impl<T: Debug + Clone + DeserializeOwned + WorkflowId> WorkflowId for WorkflowEvent<T> {
     fn workflow_id(&self) -> &str {
         match self {
             WorkflowEvent::Request(request) => request.workflow_id(),

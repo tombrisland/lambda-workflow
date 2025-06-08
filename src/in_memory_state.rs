@@ -1,16 +1,16 @@
 use crate::model::CallState;
 use crate::state::StateStore;
 use lambda_runtime::Error;
-use serde::Deserialize;
+use serde::de::DeserializeOwned;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
-pub struct InMemoryStateStore<Request: Deserialize<'static> + Clone> {
+pub struct InMemoryStateStore<Request: DeserializeOwned + Clone> {
     invocations: Arc<Mutex<HashMap<String, Request>>>,
     calls: Arc<Mutex<HashMap<String, CallState>>>,
 }
 
-impl<T: Deserialize<'static> + Clone> Default for InMemoryStateStore<T> {
+impl<T: DeserializeOwned + Clone> Default for InMemoryStateStore<T> {
     fn default() -> Self {
         InMemoryStateStore {
             invocations: Arc::new(Mutex::new(Default::default())),
@@ -19,7 +19,7 @@ impl<T: Deserialize<'static> + Clone> Default for InMemoryStateStore<T> {
     }
 }
 
-impl<T: Deserialize<'static> + Clone> StateStore<T> for InMemoryStateStore<T> {
+impl<T: DeserializeOwned + Clone> StateStore<T> for InMemoryStateStore<T> {
     fn put_invocation(&self, workflow_id: &str, request: T) -> Result<(), Error> {
         self.invocations
             .lock()
