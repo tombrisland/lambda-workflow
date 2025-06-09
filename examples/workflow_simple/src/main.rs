@@ -4,7 +4,7 @@ use crate::service_example::ExampleService;
 use aws_config::BehaviorVersion;
 use lambda_runtime::tracing::info;
 use lambda_runtime::{service_fn, tracing};
-use model::{Error, WorkflowError, InvocationId};
+use model::{Error, InvocationId, WorkflowError};
 use serde::{Deserialize, Serialize};
 use service::ServiceRequest;
 use state_in_memory::InMemoryStateStore;
@@ -31,22 +31,19 @@ struct ResponseExample {
     payload: String,
 }
 
-async fn workflow_sqs(
+async fn workflow_example(
     ctx: WorkflowContext<RequestExample>,
 ) -> Result<ResponseExample, WorkflowError> {
     let request: &RequestExample = ctx.request();
 
     info!("Making request in workflow example: {:?}", request);
 
-    let result: String = ctx
-        .call(
-            ExampleService {},
-            ServiceRequest {
-                call_id: request.item_id.clone(),
-                inner: request.item_id.clone(),
-            },
-        )
-        .await?;
+    let service_request = ServiceRequest {
+        call_id: request.item_id.clone(),
+        inner: request.item_id.clone(),
+    };
+
+    let result: String = ctx.call(ExampleService {}, service_request).await?;
 
     Ok(ResponseExample {
         id: request.id.clone(),
@@ -67,7 +64,7 @@ async fn main() -> Result<(), Error> {
 
     lambda_runtime::run(service_fn(
         async |event: WorkflowLambdaEvent<RequestExample>| {
-            return workflow_handler(&engine, event, workflow_sqs).await;
+            return workflow_handler(&engine, event, workflow_example).await;
         },
     ))
     .await
@@ -76,11 +73,12 @@ async fn main() -> Result<(), Error> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use aws_lambda_events::sqs::{SqsBatchResponse, SqsEventObj, SqsMessageObj};
+    use aws_lambda_events::sqs::{SqsBatchResponse, SqsEventObj};
     use lambda_runtime::{tracing, Context, LambdaEvent};
-    use model::{CallResult, Error, WorkflowEvent, WorkflowSqsEvent, WorkflowSqsMessage};
+    use model::{CallResult, Error, WorkflowEvent, WorkflowSqsEvent};
     use state_in_memory::InMemoryStateStore;
     use std::sync::Arc;
+    use test_utils::sqs_message_with_body;
     use workflow::engine::WorkflowEngine;
     use workflow::{workflow_handler, WorkflowLambdaEvent};
 
@@ -108,34 +106,17 @@ mod tests {
 
         let sqs_event: WorkflowSqsEvent<RequestExample> = SqsEventObj {
             records: vec![
-                create_test_sqs_message(request.clone()),
-                create_test_sqs_message(request2.clone()),
-                create_test_sqs_message(request.clone()),
+                sqs_message_with_body(request.clone()),
+                sqs_message_with_body(request2.clone()),
+                sqs_message_with_body(request.clone()),
             ],
         };
         let event: WorkflowLambdaEvent<RequestExample> =
             LambdaEvent::new(sqs_event, Context::default());
 
         let response: Result<SqsBatchResponse, Error> =
-            workflow_handler(&engine, event, workflow_sqs).await;
+            workflow_handler(&engine, event, workflow_example).await;
 
         tracing::info!("Batch handler results {:?}", response)
-    }
-
-    fn create_test_sqs_message(
-        body: WorkflowEvent<RequestExample>,
-    ) -> WorkflowSqsMessage<RequestExample> {
-        SqsMessageObj {
-            message_id: None,
-            receipt_handle: None,
-            body,
-            md5_of_body: None,
-            md5_of_message_attributes: None,
-            attributes: Default::default(),
-            message_attributes: Default::default(),
-            event_source_arn: None,
-            event_source: None,
-            aws_region: None,
-        }
     }
 }

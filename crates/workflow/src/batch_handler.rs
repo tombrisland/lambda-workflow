@@ -9,6 +9,7 @@ use std::future::Future;
 use std::iter::Zip;
 use std::vec::IntoIter;
 
+/// Use the specified `Handler` to process a batch of SQS messages.
 pub(crate) async fn batch_handler<Handler, Body, Fut>(
     handler: Handler,
     event: LambdaEvent<SqsEventObj<Body>>,
@@ -33,7 +34,6 @@ where
             let message_span: Span =
                 tracing::span!(tracing::Level::INFO, "SQS Handler", message_id);
 
-            // TODO catch panics as well as errors - see lambda runtime for reference
             let task: Instrumented<_> = async { handler(body).await }.instrument(message_span);
 
             (message_id, task)
@@ -56,13 +56,13 @@ fn collect_batch_failures(
 ) -> Vec<BatchItemFailure> {
     results
         .filter_map(
-            // Keep message ids where failure was not Suspended
+            // Keep message ids only where failure was not Suspended
             |(message_id, result): (String, Result<(), WorkflowError>)| match result {
                 Ok(()) => None,
                 Err(workflow_err) => match workflow_err {
                     WorkflowError::Suspended => None,
                     WorkflowError::Error(err) => {
-                        tracing::error!("Failed to process msg {message_id}, {err}");
+                        tracing::error!("Failed to process msg {message_id} with {err}");
 
                         Some(message_id)
                     }
@@ -73,4 +73,100 @@ fn collect_batch_failures(
             item_identifier: id,
         })
         .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::batch_handler::batch_handler;
+    use aws_lambda_events::sqs::SqsEventObj;
+    use lambda_runtime::{Context, LambdaEvent};
+    use model::WorkflowError;
+    use model::WorkflowError::Suspended;
+    use test_utils::sqs_message_with_body;
+
+    #[tokio::test]
+    async fn test_successful_batch() {
+        // NOOP handler
+        let handler = async |_req: String| {
+            return Result::<(), WorkflowError>::Ok(());
+        };
+
+        // Two messages with distinct values
+        let sqs_event = SqsEventObj {
+            records: vec![
+                sqs_message_with_body("value 1".to_string()),
+                sqs_message_with_body("value 2".to_string()),
+            ],
+        };
+
+        let response = batch_handler(handler, LambdaEvent::new(sqs_event, Context::default()))
+            .await
+            .unwrap();
+        assert!(matches!(response.batch_item_failures.len(), 0));
+    }
+
+    #[tokio::test]
+    async fn test_suspension_err_ignored() {
+        // Handler which will throw suspension error
+        let handler = async |_req: String| {
+            return Result::<(), WorkflowError>::Err(Suspended);
+        };
+
+        let sqs_event = SqsEventObj {
+            records: vec![sqs_message_with_body("value 1".to_string())],
+        };
+
+        let response = batch_handler(handler, LambdaEvent::new(sqs_event, Context::default()))
+            .await
+            .unwrap();
+        assert!(matches!(response.batch_item_failures.len(), 0));
+    }
+
+    #[tokio::test]
+    async fn test_single_item_fail() {
+        // Throw only on item 2
+        let handler = async |req: String| {
+            return if req == "value 1" {
+                Result::<(), WorkflowError>::Ok(())
+            } else {
+                Result::<(), WorkflowError>::Err(WorkflowError::Error(req.to_string()))
+            };
+        };
+
+        let sqs_event = SqsEventObj {
+            records: vec![
+                sqs_message_with_body("value 1".to_string()),
+                sqs_message_with_body("value 2".to_string()),
+            ],
+        };
+
+        let response = batch_handler(handler, LambdaEvent::new(sqs_event, Context::default()))
+            .await
+            .unwrap();
+        assert!(matches!(response.batch_item_failures.len(), 1));
+    }
+
+    #[tokio::test]
+    #[ignore]
+    /// TODO catch panics as well as errors
+    /// See panic within the lambda_runtime crate
+    async fn test_single_item_panic() {
+        // Throw only on item 2
+        let handler = async |req: String| {
+            return if req == "value 1" {
+                Result::<(), WorkflowError>::Ok(())
+            } else {
+                panic!("Batch handler should catch this")
+            };
+        };
+
+        let sqs_event = SqsEventObj {
+            records: vec![sqs_message_with_body("value 1".to_string())],
+        };
+
+        let response = batch_handler(handler, LambdaEvent::new(sqs_event, Context::default()))
+            .await
+            .unwrap();
+        assert!(matches!(response.batch_item_failures.len(), 1));
+    }
 }

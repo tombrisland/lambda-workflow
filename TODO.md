@@ -5,7 +5,6 @@
 2. Create a DynamoDB module for the state store
    1. It should load all the items for the workflow in and use transactions
    2. Consider using the same table model as lambda-powertools idempotency store
-4. Some tests around the engine and workflow
 5. Some clever way of storing what things a particular workflow is waiting for
    1. e.g. no point running the workflow through again if we're waiting on multiple things to happen
 6. A persistent state store which writes to disk

@@ -1,0 +1,10 @@
+[package]
+name = "test_utils"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+serde = {workspace = true}
+aws_lambda_events = {workspace = true}
+
+model = { path = "../model" }

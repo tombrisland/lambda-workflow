@@ -16,19 +16,31 @@ pub mod engine;
 /// Expects the function to receive an `SqsEvent` and returns an `SqsBatchResponse`.
 /// Therefore, the function *must* have `ReportBatchItemFailures` set to true.
 ///
-/// # Example
-/// ```no_run
-/// use lambda_runtime::{Error, service_fn, LambdaEvent};
-/// use lambda_workflow::{WorkflowEngine, WorkflowContext, WorkflowLambdaEvent, WorkflowError};
-/// use serde_json::Value;
+/// ```compile_fail
+/// use lambda_runtime::{service_fn, LambdaEvent};
+/// use workflow::engine::{WorkflowEngine, WorkflowContext};
+/// use workflow::{WorkflowLambdaEvent, workflow_handler};
+/// use model::{InvocationId, Error};
+/// use serde::Serialize;
+///
+/// #[derive(Clone, Serialize, Debug)]
+/// struct ExampleRequest {
+///     id: String,
+/// }
+///
+/// impl InvocationId for ExampleRequest {
+///     fn invocation_id(&self) -> &str {
+///        &self.id
+///     }
+/// }
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Error> {
-///     let engine: WorkflowEngine<Value> = WorkflowEngine::new();
+/// let engine: WorkflowEngine<ExampleRequest> = WorkflowEngine::new(Arc::new(()), ());
 ///
 ///     let service_func = service_fn(
-///        async |event: WorkflowLambdaEvent<Value>| {
-///            return lambda_workflow::workflow_handler(&engine, event, workflow_example).await;
+///        async |event: WorkflowLambdaEvent<ExampleRequest>| {
+///            return workflow_handler(&engine, event, workflow_example).await;
 ///        }
 ///     ));
 ///     lambda_runtime::run(service_func).await?;
@@ -36,7 +48,7 @@ pub mod engine;
 ///     Ok(())
 /// }
 ///
-/// async fn workflow(ctx: WorkflowContext<Value>) -> Result<Value, WorkflowError> {
+/// async fn workflow_example(ctx: WorkflowContext<Value>) -> Result<Value, WorkflowError> {
 ///     Ok(())
 /// }
 /// ```

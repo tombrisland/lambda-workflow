@@ -17,6 +17,9 @@
       <package file="$PROJECT_DIR$/crates/state_in_memory">
         <enabledFeature name="default" />
       </package>
+      <package file="$PROJECT_DIR$/crates/test_utils">
+        <enabledFeature name="default" />
+      </package>
       <package file="$PROJECT_DIR$/crates/workflow">
         <enabledFeature name="default" />
       </package>
@@ -32,24 +35,18 @@
     <list default="true" id="c43fb571-a2e5-44dc-9fde-bf0022301c76" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/model/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/model/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/model/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/model/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/state/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/state/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/state_in_memory/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/state_in_memory/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/test_utils/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/test_utils/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/test_utils/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/test_utils/src/lib.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crates/workflow/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/Cargo.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crates/workflow/src/engine.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/engine.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/workflow/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_simple/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_simple/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_sqs/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_sqs/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_sqs/src/model.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_sqs/src/service_greeter.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_sqs/src/service_greeter.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="RsBuildProfile:dev" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="RsBuildProfile:test" />
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
@@ -94,7 +91,16 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Cargo.Doctest of workflow_handler (line 19).executor": "Run",
+    "Cargo.Run workflow_simple.executor": "Run",
     "Cargo.Run workflow_sqs.executor": "Run",
+    "Cargo.Test batch_handler::tests.executor": "Run",
+    "Cargo.Test batch_handler::tests::test_single_item_fail.executor": "Run",
+    "Cargo.Test batch_handler::tests::test_single_item_panic (1).executor": "Run",
+    "Cargo.Test batch_handler::tests::test_single_item_panic.executor": "Run",
+    "Cargo.Test batch_handler::tests::test_successful_batch.executor": "Run",
+    "Cargo.Test batch_handler::tests::test_suspension_treated_as_success.executor": "Run",
+    "Cargo.Test engine::tests::test_event_handler.executor": "Run",
     "Cargo.Test tests::test_event_handler (1).executor": "Run",
     "Cargo.Test tests::test_event_handler (2).executor": "Run",
     "Cargo.Test tests::test_event_handler.executor": "Run",
@@ -127,10 +133,9 @@
       <recent name="C:\Users\tombr\Documents\Code\lambda-workflow\src" />
     </key>
   </component>
-  <component name="RunManager" selected="Cargo.Run workflow_sqs">
-    <configuration name="Run workflow_sqs" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="buildProfileId" value="dev" />
-      <option name="command" value="run --package workflow_sqs --bin workflow_sqs" />
+  <component name="RunManager" selected="Cargo.Test engine::tests::test_event_handler">
+    <configuration name="Doctest of workflow_handler (line 19)" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package workflow --doc &quot;workflow_handler\ (line\ 19)&quot;" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />
@@ -146,9 +151,61 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test tests::test_event_handler" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+    <configuration name="Run workflow_simple" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="buildProfileId" value="dev" />
+      <option name="command" value="run --package workflow_simple --bin workflow_simple" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <option name="emulateTerminal" value="true" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test batch_handler::tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package workflow --lib batch_handler::tests" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <option name="emulateTerminal" value="true" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test batch_handler::tests::test_single_item_panic (1)" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package workflow --lib batch_handler::tests::test_single_item_panic -- --ignored --exact" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <option name="emulateTerminal" value="true" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test engine::tests::test_event_handler" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="buildProfileId" value="test" />
-      <option name="command" value="test --package workflow_simple --lib tests::test_event_handler -- --exact" />
+      <option name="command" value="test --package workflow --lib engine::tests::test_event_handler -- --exact" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />
@@ -166,8 +223,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Cargo.Run workflow_sqs" />
-        <item itemvalue="Cargo.Test tests::test_event_handler" />
+        <item itemvalue="Cargo.Test engine::tests::test_event_handler" />
+        <item itemvalue="Cargo.Run workflow_simple" />
+        <item itemvalue="Cargo.Doctest of workflow_handler (line 19)" />
+        <item itemvalue="Cargo.Test batch_handler::tests" />
+        <item itemvalue="Cargo.Test batch_handler::tests::test_single_item_panic (1)" />
       </list>
     </recent_temporary>
   </component>
@@ -182,7 +242,7 @@
       <option name="presentableId" value="Default" />
       <updated>1749334440845</updated>
       <workItem from="1749334441939" duration="6713000" />
-      <workItem from="1749373223917" duration="23159000" />
+      <workItem from="1749373223917" duration="30368000" />
     </task>
     <servers />
   </component>

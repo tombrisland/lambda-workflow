@@ -9,7 +9,6 @@ serde_json = { workspace = true }
 
 lambda_runtime = { workspace = true }
 aws_lambda_events = { workspace = true }
-aws-types = { workspace = true }
 aws-sdk-sqs = { workspace = true }
 
 futures = { workspace = true }
@@ -17,3 +16,11 @@ futures = { workspace = true }
 model = { path = "../model" }
 state = { path = "../state" }
 service = { path = "../service" }
+
+[dev-dependencies]
+tokio = { workspace = true }
+aws-sdk-sqs = {workspace = true, features = ["test-util"]}
+aws-smithy-mocks = {workspace = true}
+
+state_in_memory = { path = "../state_in_memory" }
+test_utils = { path = "../test_utils" }

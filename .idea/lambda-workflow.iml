@@ -6,6 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/service/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/state/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/state_in_memory/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/test_utils/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/workflow/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/workflow_simple/src" isTestSource="false" />
