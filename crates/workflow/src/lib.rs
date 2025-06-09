@@ -3,7 +3,7 @@ use crate::engine::{WorkflowContext, WorkflowEngine};
 use aws_lambda_events::sqs::SqsBatchResponse;
 use lambda_runtime::tracing::{Instrument, Span};
 use lambda_runtime::{tracing, LambdaEvent};
-use model::{Error, WorkflowError, WorkflowEvent, WorkflowId, WorkflowSqsEvent};
+use model::{Error, InvocationId, WorkflowError, WorkflowEvent, WorkflowSqsEvent};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use std::fmt::Debug;
@@ -46,17 +46,16 @@ pub async fn workflow_handler<Fut, Request, Response>(
     workflow: fn(WorkflowContext<Request>) -> Fut,
 ) -> Result<SqsBatchResponse, Error>
 where
-    Request: DeserializeOwned + Serialize + Clone + WorkflowId + Debug + 'static,
+    Request: DeserializeOwned + Serialize + Clone + InvocationId + Debug,
     Response: Serialize + Debug,
     Fut: Future<Output = Result<Response, WorkflowError>>,
 {
     batch_handler(
         async |request: WorkflowEvent<Request>| {
-            let workflow_id: String = request.workflow_id().to_string().clone();
+            let workflow_id: String = request.invocation_id().to_string().clone();
             let ctx: WorkflowContext<Request> = engine.accept(request)?;
 
-            let workflow_span: Span =
-                tracing::span!(tracing::Level::INFO, "Workflow", workflow_id);
+            let workflow_span: Span = tracing::span!(tracing::Level::INFO, "Workflow", workflow_id);
 
             let response: Response = workflow(ctx).instrument(workflow_span).await?;
 

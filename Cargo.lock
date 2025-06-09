@@ -1508,6 +1508,7 @@ version = "0.1.0"
 dependencies = [
  "aws_lambda_events",
  "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -2662,6 +2663,7 @@ dependencies = [
  "lambda_runtime",
  "model",
  "serde",
+ "serde_json",
  "service",
  "state",
 ]

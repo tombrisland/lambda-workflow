@@ -1,4 +1,4 @@
-use model::{CallResult, CallState, Error, WorkflowError, WorkflowEvent, WorkflowId};
+use model::{CallResult, CallState, Error, InvocationId, WorkflowError, WorkflowEvent};
 use serde::de::DeserializeOwned;
 use service::{Service, ServiceRequest};
 use state::StateStore;
@@ -6,12 +6,12 @@ use std::rc::Rc;
 use std::sync::Arc;
 
 #[derive(Clone)]
-pub struct WorkflowEngine<T: DeserializeOwned + Clone + WorkflowId> {
+pub struct WorkflowEngine<T: DeserializeOwned + Clone + InvocationId> {
     state_store: Arc<dyn StateStore<T>>,
     sqs_client: Rc<aws_sdk_sqs::Client>,
 }
 
-impl<Request: DeserializeOwned + Clone + WorkflowId> WorkflowEngine<Request> {
+impl<Request: DeserializeOwned + Clone + InvocationId> WorkflowEngine<Request> {
     pub fn new(
         state_store: Arc<dyn StateStore<Request>>,
         sqs_client: aws_sdk_sqs::Client,
@@ -31,7 +31,7 @@ impl<Request: DeserializeOwned + Clone + WorkflowId> WorkflowEngine<Request> {
 
     fn create_ctx(&self, request: Request) -> Result<WorkflowContext<Request>, Error> {
         self.state_store
-            .put_invocation(request.workflow_id(), request.clone())?;
+            .put_invocation(request.invocation_id(), request.clone())?;
 
         Ok(WorkflowContext::new(
             request,
@@ -61,13 +61,13 @@ impl<Request: DeserializeOwned + Clone + WorkflowId> WorkflowEngine<Request> {
     }
 }
 
-pub struct WorkflowContext<T: DeserializeOwned + Clone + WorkflowId> {
+pub struct WorkflowContext<T: DeserializeOwned + Clone + InvocationId> {
     request: T,
     state_store: Arc<dyn StateStore<T>>,
     sqs_client: Rc<aws_sdk_sqs::Client>,
 }
 
-impl<T: DeserializeOwned + Clone + WorkflowId> WorkflowContext<T> {
+impl<T: DeserializeOwned + Clone + InvocationId> WorkflowContext<T> {
     pub fn new(
         request: T,
         state_store: Arc<dyn StateStore<T>>,
@@ -94,8 +94,8 @@ impl<T: DeserializeOwned + Clone + WorkflowId> WorkflowContext<T> {
         &self,
         service: impl Service<Request, Response>,
         request: ServiceRequest<Request>,
-    ) -> Result<String, WorkflowError> {
-        let workflow_id: &str = self.request.workflow_id();
+    ) -> Result<Response, WorkflowError> {
+        let workflow_id: &str = self.request.invocation_id();
         let call_id: &str = request.call_id.as_str();
 
         // Check if the result is already available in state
@@ -104,7 +104,11 @@ impl<T: DeserializeOwned + Clone + WorkflowId> WorkflowContext<T> {
                 // Suspend if it's not available
                 CallState::Running => Err(WorkflowError::Suspended),
                 // Return the completed result
-                CallState::Completed(result) => Ok(result.value.clone()),
+                CallState::Completed(result) => {
+                    // Try and mutate the result into the expected value
+                    serde_json::from_value(result.value.clone())
+                        .map_err(|e| WorkflowError::Error(e.to_string()))
+                }
             };
         }
 

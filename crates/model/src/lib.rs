@@ -1,17 +1,17 @@
+use aws_lambda_events::sqs::{SqsEventObj, SqsMessageObj};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
-use aws_lambda_events::sqs::{SqsEventObj, SqsMessageObj};
 
 pub type Error = Box<dyn std::error::Error + Send + Sync>;
 
 /// This id is used for tracing and storage.
-pub trait WorkflowId {
-    fn workflow_id(&self) -> &str;
+pub trait InvocationId {
+    fn invocation_id(&self) -> &str;
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum WorkflowEvent<T: Clone + WorkflowId> {
+pub enum WorkflowEvent<T: Clone + InvocationId> {
     Request(T),
     Update(CallResult),
 }
@@ -21,7 +21,8 @@ pub struct CallResult {
     pub workflow_id: String,
     pub call_id: String,
 
-    pub value: String,
+    // Any JSON value is acceptable
+    pub value: serde_json::Value,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -30,10 +31,10 @@ pub enum CallState {
     Completed(CallResult),
 }
 
-impl<T: Debug + Clone + DeserializeOwned + WorkflowId> WorkflowId for WorkflowEvent<T> {
-    fn workflow_id(&self) -> &str {
+impl<T: Debug + Clone + DeserializeOwned + InvocationId> InvocationId for WorkflowEvent<T> {
+    fn invocation_id(&self) -> &str {
         match self {
-            WorkflowEvent::Request(request) => request.workflow_id(),
+            WorkflowEvent::Request(request) => request.invocation_id(),
             WorkflowEvent::Update(result) => result.workflow_id.as_str(),
         }
     }

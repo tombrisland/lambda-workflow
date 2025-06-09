@@ -19,23 +19,23 @@ impl<T: DeserializeOwned + Clone> Default for InMemoryStateStore<T> {
 }
 
 impl<T: DeserializeOwned + Clone> StateStore<T> for InMemoryStateStore<T> {
-    fn put_invocation(&self, workflow_id: &str, request: T) -> Result<(), Error> {
+    fn put_invocation(&self, invocation_id: &str, request: T) -> Result<(), Error> {
         self.invocations
             .lock()
             .unwrap()
-            .insert(workflow_id.to_string(), request);
+            .insert(invocation_id.to_string(), request);
 
         Ok(())
     }
 
-    fn get_invocation(&self, workflow_id: &str) -> Option<T> {
+    fn get_invocation(&self, invocation_id: &str) -> Option<T> {
         let guard = self.invocations.lock().unwrap();
-        let state: T = guard.get(workflow_id)?.clone();
+        let state: T = guard.get(invocation_id)?.clone();
 
         Some(state)
     }
 
-    fn put_call(&self, _workflow_id: &str, call_id: &str, state: CallState) -> Result<(), Error> {
+    fn put_call(&self, _invocation_id: &str, call_id: &str, state: CallState) -> Result<(), Error> {
         self.calls
             .lock()
             .unwrap()
@@ -44,7 +44,7 @@ impl<T: DeserializeOwned + Clone> StateStore<T> for InMemoryStateStore<T> {
         Ok(())
     }
 
-    fn get_call(&self, _workflow_id: &str, call_id: &str) -> Option<CallState> {
+    fn get_call(&self, _invocation_id: &str, call_id: &str) -> Option<CallState> {
         let state = self
             .calls
             .lock()

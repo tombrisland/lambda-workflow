@@ -4,7 +4,7 @@ use crate::service_example::ExampleService;
 use aws_config::BehaviorVersion;
 use lambda_runtime::tracing::info;
 use lambda_runtime::{service_fn, tracing};
-use model::{Error, WorkflowError, WorkflowId};
+use model::{Error, WorkflowError, InvocationId};
 use serde::{Deserialize, Serialize};
 use service::ServiceRequest;
 use state_in_memory::InMemoryStateStore;
@@ -18,8 +18,8 @@ struct RequestExample {
     pub(crate) item_id: String,
 }
 
-impl WorkflowId for RequestExample {
-    fn workflow_id(&self) -> &str {
+impl InvocationId for RequestExample {
+    fn invocation_id(&self) -> &str {
         &self.id
     }
 }
@@ -102,7 +102,8 @@ mod tests {
         let request2: WorkflowEvent<RequestExample> = WorkflowEvent::Update(CallResult {
             workflow_id: "id_1".to_string(),
             call_id: "item_1".to_string(),
-            value: "value 1".to_string(),
+            // Value must be valid JSON
+            value: "\"value 1\"".to_string().parse().unwrap(),
         });
 
         let sqs_event: WorkflowSqsEvent<RequestExample> = SqsEventObj {

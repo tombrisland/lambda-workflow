@@ -1,10 +1,9 @@
-mod model;
 mod service_greeter;
 
-use crate::service_greeter::{GreeterRequest, GreeterService};
+use crate::service_greeter::{NameRequest, NameResponse, NameService};
 use aws_config::BehaviorVersion;
 use lambda_runtime::{service_fn, tracing};
-use ::model::{Error, WorkflowError, WorkflowId};
+use ::model::{Error, InvocationId, WorkflowError};
 use serde::{Deserialize, Serialize};
 use service::ServiceRequest;
 use state_in_memory::InMemoryStateStore;
@@ -14,12 +13,13 @@ use workflow::{workflow_handler, WorkflowLambdaEvent};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct SqsWorkflowRequest {
-    pub(crate) name: String,
+    pub(crate) request_id: String,
+    pub(crate) first_letter: String,
 }
 
-impl WorkflowId for SqsWorkflowRequest {
-    fn workflow_id(&self) -> &str {
-        &self.name
+impl InvocationId for SqsWorkflowRequest {
+    fn invocation_id(&self) -> &str {
+        &self.request_id
     }
 }
 
@@ -33,19 +33,20 @@ async fn workflow_greeter(
 ) -> Result<SqsWorkflowResponse, WorkflowError> {
     let request: &SqsWorkflowRequest = ctx.request();
 
-    let result: String = ctx
-        .call(
-            GreeterService::new(&ctx.sqs_client()),
-            ServiceRequest {
-                call_id: request.name.clone(),
-                inner: GreeterRequest {
-                    name: request.name.clone(),
-                },
-            },
-        )
+    let service_request: ServiceRequest<NameRequest> = ServiceRequest {
+        call_id: request.first_letter.clone(),
+        inner: NameRequest {
+            first_letter: request.first_letter.clone(),
+        },
+    };
+
+    let response: NameResponse = ctx
+        .call(NameService::instance(&ctx.sqs_client()), service_request)
         .await?;
 
-    Ok(SqsWorkflowResponse { sentence: result })
+    let sentence: String = format!("Hello {}!", response.name);
+
+    Ok(SqsWorkflowResponse { sentence })
 }
 
 #[tokio::main]

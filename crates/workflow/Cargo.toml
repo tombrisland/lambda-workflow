@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 serde = { workspace = true }
+serde_json = { workspace = true }
 
 lambda_runtime = { workspace = true }
 aws_lambda_events = { workspace = true }
