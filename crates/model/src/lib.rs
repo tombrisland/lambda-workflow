@@ -1,7 +1,7 @@
 use aws_lambda_events::sqs::{SqsEventObj, SqsMessageObj};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
-use std::fmt::Debug;
+use std::fmt::{Debug, Display, Formatter};
 
 pub type Error = Box<dyn std::error::Error + Send + Sync>;
 
@@ -44,13 +44,18 @@ impl<T: Debug + Clone + DeserializeOwned + InvocationId> InvocationId for Workfl
 pub enum WorkflowError {
     Suspended,
     #[allow(dead_code)]
-    Error(String),
+    Error(Error),
+}
+
+impl Display for WorkflowError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str(format!("{:?}", self).as_str())
+    }
 }
 
 impl From<Error> for WorkflowError {
     fn from(value: Error) -> Self {
-        // TODO properly deal with this
-        WorkflowError::Error(value.to_string())
+        WorkflowError::Error(value)
     }
 }
 

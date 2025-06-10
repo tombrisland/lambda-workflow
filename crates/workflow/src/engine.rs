@@ -1,6 +1,6 @@
 use model::{CallResult, CallState, Error, InvocationId, WorkflowError, WorkflowEvent};
 use serde::de::DeserializeOwned;
-use service::{Service, ServiceRequest};
+use service::{Service, ServiceError, ServiceRequest};
 use state::StateStore;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -11,7 +11,7 @@ pub struct WorkflowEngine<T: DeserializeOwned + Clone + InvocationId> {
     sqs_client: Rc<aws_sdk_sqs::Client>,
 }
 
-impl<Request: DeserializeOwned + Clone + InvocationId> WorkflowEngine<Request> {
+impl<Request: DeserializeOwned + Clone + InvocationId + Send> WorkflowEngine<Request> {
     pub fn new(
         state_store: Arc<dyn StateStore<Request>>,
         sqs_client: aws_sdk_sqs::Client,
@@ -22,16 +22,20 @@ impl<Request: DeserializeOwned + Clone + InvocationId> WorkflowEngine<Request> {
         }
     }
 
-    pub fn accept(&self, event: WorkflowEvent<Request>) -> Result<WorkflowContext<Request>, Error> {
+    pub async fn accept(
+        &self,
+        event: WorkflowEvent<Request>,
+    ) -> Result<WorkflowContext<Request>, Error> {
         match event {
-            WorkflowEvent::Request(request) => self.create_ctx(request),
-            WorkflowEvent::Update(state) => self.update_ctx(state),
+            WorkflowEvent::Request(request) => self.create_ctx(request).await,
+            WorkflowEvent::Update(state) => self.update_ctx(state).await,
         }
     }
 
-    fn create_ctx(&self, request: Request) -> Result<WorkflowContext<Request>, Error> {
+    async fn create_ctx(&self, request: Request) -> Result<WorkflowContext<Request>, Error> {
         self.state_store
-            .put_invocation(request.invocation_id(), request.clone())?;
+            .put_invocation(request.invocation_id(), request.clone())
+            .await?;
 
         Ok(WorkflowContext::new(
             request,
@@ -40,18 +44,16 @@ impl<Request: DeserializeOwned + Clone + InvocationId> WorkflowEngine<Request> {
         ))
     }
 
-    fn update_ctx(&self, call_result: CallResult) -> Result<WorkflowContext<Request>, Error> {
+    async fn update_ctx(&self, call_result: CallResult) -> Result<WorkflowContext<Request>, Error> {
         let workflow_id: &str = &call_result.workflow_id.clone();
         let call_id: &str = &call_result.call_id.clone();
 
-        let request: Request = self
-            .state_store
-            .get_invocation(workflow_id)
-            .ok_or(format!("Failed to get workflow id {}", workflow_id).as_str())?;
+        let request: Request = self.state_store.get_invocation(workflow_id).await?;
 
         // Update the state with any calls
         self.state_store
-            .put_call(workflow_id, call_id, CallState::Completed(call_result))?;
+            .put_call(workflow_id, call_id, CallState::Completed(call_result))
+            .await?;
 
         Ok(WorkflowContext::new(
             request,
@@ -67,7 +69,7 @@ pub struct WorkflowContext<T: DeserializeOwned + Clone + InvocationId> {
     sqs_client: Rc<aws_sdk_sqs::Client>,
 }
 
-impl<T: DeserializeOwned + Clone + InvocationId> WorkflowContext<T> {
+impl<T: DeserializeOwned + Clone + InvocationId + Send> WorkflowContext<T> {
     pub fn new(
         request: T,
         state_store: Arc<dyn StateStore<T>>,
@@ -99,22 +101,25 @@ impl<T: DeserializeOwned + Clone + InvocationId> WorkflowContext<T> {
         let call_id: &str = request.call_id.as_str();
 
         // Check if the result is already available in state
-        if let Some(state) = self.state_store.get_call(workflow_id, call_id) {
+        if let Ok(state) = self.state_store.get_call(workflow_id, call_id).await {
             return match state {
                 // Suspend if it's not available
                 CallState::Running => Err(WorkflowError::Suspended),
                 // Return the completed result
                 CallState::Completed(result) => {
                     // Try and mutate the result into the expected value
-                    serde_json::from_value(result.value.clone())
-                        .map_err(|err| WorkflowError::Error(err.to_string()))
+                    serde_json::from_value(result.value.clone()).map_err(|err| {
+                        WorkflowError::Error(ServiceError::BadResponse(err.to_string()).into())
+                    })
                 }
             };
         }
 
         // Set the state running and then call the service
         self.state_store
-            .put_call(workflow_id, call_id, CallState::Running)?;
+            .put_call(workflow_id, call_id, CallState::Running)
+            .await
+            .map_err(|err| WorkflowError::Error(err.into()))?;
         service.call(request.inner).await?;
 
         Err(WorkflowError::Suspended)
@@ -126,13 +131,13 @@ mod tests {
     use crate::engine::{WorkflowContext, WorkflowEngine};
     use aws_sdk_sqs::operation::send_message::SendMessageOutput;
     use aws_smithy_mocks::mock_client;
-    use model::{Error, InvocationId, WorkflowEvent};
+    use model::{InvocationId, WorkflowEvent};
     use state_in_memory::InMemoryStateStore;
     use std::sync::Arc;
     use test_utils::TestRequest;
 
-    #[test]
-    fn test_engine_initialises_request() {
+    #[tokio::test]
+    async fn test_engine_initialises_request() {
         let send_message_rule = aws_smithy_mocks::mock!(aws_sdk_sqs::Client::send_message)
             .then_output(|| {
                 let output = SendMessageOutput::builder();
@@ -150,15 +155,17 @@ mod tests {
 
         let context: WorkflowContext<TestRequest> = engine
             .accept(request)
+            .await
             .expect("Initial request should succeed");
 
         // Invocation should be stored in the state store
         let invocation: TestRequest = context
             .state_store
             .get_invocation(&request_string)
+            .await
             .expect("Invocation should exist in state store");
         let invocation_id: String = invocation.invocation_id().to_string();
-        
+
         assert_eq!(request_string, invocation_id);
     }
 }

@@ -1,6 +1,7 @@
 use model::Error;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
+use std::fmt::{Display, Formatter};
 
 pub struct ServiceRequest<Request: serde::Serialize> {
     // The call id is used as an idempotency key
@@ -15,6 +16,20 @@ where
     Request: Serialize,
     Response: DeserializeOwned,
 {
-    #[allow(async_fn_in_trait)]
-    async fn call(&self, request: Request) -> Result<(), Error>;
+    fn call(&self, request: Request) -> impl Future<Output = Result<(), Error>>;
 }
+
+/// Errors arising from parsing state.
+#[derive(Debug)]
+pub enum ServiceError {
+    // The service returned an invalid response
+    BadResponse(String),
+}
+
+impl Display for ServiceError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str(format!("{:?}", self).as_str())
+    }
+}
+
+impl std::error::Error for ServiceError {}

@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 serde = { workspace = true }
+async-trait = {workspace = true}
 
 state = {path = "../state"}
 model = {path = "../model"}

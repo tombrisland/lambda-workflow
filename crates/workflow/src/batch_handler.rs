@@ -1,10 +1,10 @@
 use aws_lambda_events::sqs::{BatchItemFailure, SqsBatchResponse, SqsEventObj, SqsMessageObj};
 use lambda_runtime::tracing::instrument::Instrumented;
 use lambda_runtime::tracing::{Instrument, Span};
-use lambda_runtime::{tracing, Error, LambdaEvent};
+use lambda_runtime::{Error, LambdaEvent, tracing};
 use model::WorkflowError;
-use serde::de::DeserializeOwned;
 use serde::Serialize;
+use serde::de::DeserializeOwned;
 use std::future::Future;
 use std::iter::Zip;
 use std::vec::IntoIter;
@@ -82,6 +82,7 @@ mod tests {
     use lambda_runtime::{Context, LambdaEvent};
     use model::WorkflowError;
     use model::WorkflowError::Suspended;
+    use state::StateError;
     use test_utils::sqs_message_with_body;
 
     #[tokio::test]
@@ -129,7 +130,9 @@ mod tests {
             return if req == "value 1" {
                 Result::<(), WorkflowError>::Ok(())
             } else {
-                Result::<(), WorkflowError>::Err(WorkflowError::Error(req.to_string()))
+                Result::<(), WorkflowError>::Err(WorkflowError::Error(
+                    StateError::MissingState("value 1".to_string()).into(),
+                ))
             };
         };
 

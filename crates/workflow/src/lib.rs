@@ -58,14 +58,14 @@ pub async fn workflow_handler<Fut, Request, Response>(
     workflow: fn(WorkflowContext<Request>) -> Fut,
 ) -> Result<SqsBatchResponse, Error>
 where
-    Request: DeserializeOwned + Serialize + Clone + InvocationId + Debug,
+    Request: DeserializeOwned + Serialize + Clone + InvocationId + Send + Debug,
     Response: Serialize + Debug,
     Fut: Future<Output = Result<Response, WorkflowError>>,
 {
     batch_handler(
         async |request: WorkflowEvent<Request>| {
             let workflow_id: String = request.invocation_id().to_string().clone();
-            let ctx: WorkflowContext<Request> = engine.accept(request)?;
+            let ctx: WorkflowContext<Request> = engine.accept(request).await?;
 
             let workflow_span: Span = tracing::span!(tracing::Level::INFO, "Workflow", workflow_id);
 

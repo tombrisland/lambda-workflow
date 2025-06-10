@@ -2,7 +2,6 @@ mod service_example;
 
 use crate::service_example::ExampleService;
 use aws_config::BehaviorVersion;
-use lambda_runtime::tracing::info;
 use lambda_runtime::{service_fn, tracing};
 use model::{Error, InvocationId, WorkflowError};
 use serde::{Deserialize, Serialize};
@@ -36,7 +35,7 @@ async fn workflow_example(
 ) -> Result<ResponseExample, WorkflowError> {
     let request: &RequestExample = ctx.request();
 
-    info!("Making request in workflow example: {:?}", request);
+    tracing::info!("Making request in workflow example: {:?}", request);
 
     let service_request = ServiceRequest {
         call_id: request.item_id.clone(),
@@ -74,7 +73,7 @@ async fn main() -> Result<(), Error> {
 mod tests {
     use super::*;
     use aws_lambda_events::sqs::{SqsBatchResponse, SqsEventObj};
-    use lambda_runtime::{tracing, Context, LambdaEvent};
+    use lambda_runtime::{Context, LambdaEvent};
     use model::{CallResult, Error, WorkflowEvent, WorkflowSqsEvent};
     use state_in_memory::InMemoryStateStore;
     use std::sync::Arc;
@@ -83,7 +82,7 @@ mod tests {
     use workflow::{workflow_handler, WorkflowLambdaEvent};
 
     #[tokio::test]
-    async fn test_event_handler() {
+    async fn test_simple_workflow_runs() {
         tracing::init_default_subscriber();
 
         let sqs_client: aws_sdk_sqs::Client =
