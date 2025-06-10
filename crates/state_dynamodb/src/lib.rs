@@ -12,20 +12,20 @@ mod idempotency_record;
 
 struct DynamoDbStateStore<T> {
     dynamodb_client: aws_sdk_dynamodb::Client,
-    // Remember expected request type
+    // Hold expected request type
     phantom_data: PhantomData<T>,
 }
 
 #[async_trait]
 impl<T: DeserializeOwned + Clone + Send + Sync> StateStore<T> for DynamoDbStateStore<T> {
     async fn put_invocation(&self, invocation_id: &str, request: T) -> Result<(), StateError> {
-        Ok(())
+        self.put(invocation_id, )
     }
 
     async fn get_invocation(&self, invocation_id: &str) -> Result<T, StateError> {
         let output: GetItemOutput = self.get(invocation_id.to_string()).await?;
 
-        Self::<T>::get_payload(output)
+        Self::get_payload(invocation_id, output)
     }
 
     async fn put_call(
@@ -37,8 +37,10 @@ impl<T: DeserializeOwned + Clone + Send + Sync> StateStore<T> for DynamoDbStateS
         todo!()
     }
 
-    async fn get_call(&self, invocation_id: &str, call_id: &str) -> Result<CallState, StateError> {
-        todo!()
+    async fn get_call(&self, _invocation_id: &str, call_id: &str) -> Result<CallState, StateError> {
+        let output: GetItemOutput = self.get(call_id.to_string()).await?;
+
+        Self::get_payload(call_id, output)
     }
 }
 
@@ -83,7 +85,7 @@ impl<T: DeserializeOwned + Clone> DynamoDbStateStore<T> {
 
     async fn put(&self, key: String) -> Result<GetItemOutput, StateError> {
         self.dynamodb_client
-            .get_item()
+            .put_item().
             .key(IDEMPOTENCY_KEY, AttributeValue::S(key))
             .send()
             .await

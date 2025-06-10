@@ -16,6 +16,7 @@ pub trait StateStore<T: DeserializeOwned + Clone + Send> {
 
     async fn put_call(
         &self,
+        // Supplied in case an impl wants to shard on it
         invocation_id: &str,
         call_id: &str,
         state: CallState,
