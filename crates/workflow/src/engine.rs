@@ -1,4 +1,5 @@
-use model::{CallResult, CallState, Error, InvocationId, WorkflowError, WorkflowEvent};
+use model::task::{CompletedTask, RunningTask, WorkflowTask};
+use model::{Error, InvocationId, WorkflowError, WorkflowEvent};
 use serde::de::DeserializeOwned;
 use service::{Service, ServiceError, ServiceRequest};
 use state::StateStore;
@@ -44,15 +45,18 @@ impl<Request: DeserializeOwned + Clone + InvocationId + Send> WorkflowEngine<Req
         ))
     }
 
-    async fn update_ctx(&self, call_result: CallResult) -> Result<WorkflowContext<Request>, Error> {
-        let workflow_id: &str = &call_result.workflow_id.clone();
-        let call_id: &str = &call_result.call_id.clone();
+    async fn update_ctx(
+        &self,
+        call_result: CompletedTask,
+    ) -> Result<WorkflowContext<Request>, Error> {
+        let invocation_id: &str = &call_result.invocation_id.clone();
+        let task_id: &str = &call_result.task_id.clone();
 
-        let request: Request = self.state_store.get_invocation(workflow_id).await?;
+        let request: Request = self.state_store.get_invocation(invocation_id).await?;
 
         // Update the state with any calls
         self.state_store
-            .put_call(workflow_id, call_id, CallState::Completed(call_result))
+            .put_call(invocation_id, task_id, WorkflowTask::Completed(call_result))
             .await?;
 
         Ok(WorkflowContext::new(
@@ -97,27 +101,32 @@ impl<T: DeserializeOwned + Clone + InvocationId + Send> WorkflowContext<T> {
         service: impl Service<Request, Response>,
         request: ServiceRequest<Request>,
     ) -> Result<Response, WorkflowError> {
-        let workflow_id: &str = self.request.invocation_id();
-        let call_id: &str = request.call_id.as_str();
+        let invocation_id: &str = self.request.invocation_id();
+        let task_id: &str = request.call_id.as_str();
 
         // Check if the result is already available in state
-        if let Ok(state) = self.state_store.get_call(workflow_id, call_id).await {
+        if let Ok(state) = self.state_store.get_call(invocation_id, task_id).await {
             return match state {
                 // Suspend if it's not available
-                CallState::Running => Err(WorkflowError::Suspended),
+                WorkflowTask::Running(_) => Err(WorkflowError::Suspended),
                 // Return the completed result
-                CallState::Completed(result) => {
+                WorkflowTask::Completed(task) => {
                     // Try and mutate the result into the expected value
-                    serde_json::from_value(result.value.clone()).map_err(|err| {
+                    serde_json::from_value(task.payload.clone()).map_err(|err| {
                         WorkflowError::Error(ServiceError::BadResponse(err.to_string()).into())
                     })
                 }
             };
         }
 
+        let running_task: WorkflowTask = WorkflowTask::Running(RunningTask {
+            invocation_id: invocation_id.to_string(),
+            task_id: task_id.to_string(),
+        });
+
         // Set the state running and then call the service
         self.state_store
-            .put_call(workflow_id, call_id, CallState::Running)
+            .put_call(invocation_id, task_id, running_task)
             .await
             .map_err(|err| WorkflowError::Error(err.into()))?;
         service.call(request.inner).await?;

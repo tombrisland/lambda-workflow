@@ -1,13 +1,13 @@
 use async_trait::async_trait;
-use model::CallState;
 use serde::de::DeserializeOwned;
 use state::{StateError, StateStore};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
+use model::task::WorkflowTask;
 
 pub struct InMemoryStateStore<Request: DeserializeOwned + Clone> {
     invocations: Arc<Mutex<HashMap<String, Request>>>,
-    calls: Arc<Mutex<HashMap<String, CallState>>>,
+    calls: Arc<Mutex<HashMap<String, WorkflowTask>>>,
 }
 
 impl<T: DeserializeOwned + Clone> Default for InMemoryStateStore<T> {
@@ -44,7 +44,7 @@ impl<T: DeserializeOwned + Clone + Send> StateStore<T> for InMemoryStateStore<T>
         &self,
         _invocation_id: &str,
         call_id: &str,
-        state: CallState,
+        state: WorkflowTask,
     ) -> Result<(), StateError> {
         self.calls
             .lock()
@@ -54,7 +54,7 @@ impl<T: DeserializeOwned + Clone + Send> StateStore<T> for InMemoryStateStore<T>
         Ok(())
     }
 
-    async fn get_call(&self, _invocation_id: &str, call_id: &str) -> Result<CallState, StateError> {
+    async fn get_call(&self, _invocation_id: &str, call_id: &str) -> Result<WorkflowTask, StateError> {
         let state = self
             .calls
             .lock()

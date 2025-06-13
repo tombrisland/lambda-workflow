@@ -35,7 +35,22 @@
     </cargoProject>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c43fb571-a2e5-44dc-9fde-bf0022301c76" name="Changes" comment="" />
+    <list default="true" id="c43fb571-a2e5-44dc-9fde-bf0022301c76" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/crates/model/src/task.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/model/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/model/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/state/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/state/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/state_dynamodb/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/state_dynamodb/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/state_dynamodb/src/idempotency_record.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/state_dynamodb/src/idempotency_record.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/state_dynamodb/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/state_dynamodb/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/state_in_memory/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/state_in_memory/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/workflow/src/engine.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/engine.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/workflow_simple/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_simple/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/workflow_sqs/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_sqs/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/workflow_sqs/src/service_greeter.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_sqs/src/service_name.rs" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -68,6 +83,7 @@
     <setting file="file://$USER_HOME$/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/aws_lambda_events-0.16.0/src/event/sqs/mod.rs" root0="SKIP_INSPECTION" />
     <setting file="file://$USER_HOME$/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/lambda_runtime-0.14.1/src/lib.rs" root0="SKIP_INSPECTION" />
     <setting file="file://$USER_HOME$/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/lambda_runtime_api_client-0.12.1/src/tracing.rs" root0="SKIP_INSPECTION" />
+    <setting file="file://$USER_HOME$/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_dynamo-4.2.14/src/de/mod.rs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tower-0.5.2/src/util/service_fn.rs" root0="SKIP_INSPECTION" />
     <setting file="file://$USER_HOME$/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tower-service-0.3.3/src/lib.rs" root0="SKIP_INSPECTION" />
     <setting file="file://$USER_HOME$/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-0.1.41/src/macros.rs" root0="SKIP_INSPECTION" />
@@ -239,21 +255,11 @@
       <option name="presentableId" value="Default" />
       <updated>1749334440845</updated>
       <workItem from="1749334441939" duration="6713000" />
-      <workItem from="1749373223917" duration="38851000" />
+      <workItem from="1749373223917" duration="48217000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/crates/model/src/lib.rs</url>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

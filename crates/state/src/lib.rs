@@ -1,8 +1,8 @@
 use async_trait::async_trait;
-use model::CallState;
 use ::model::Error;
 use serde::de::DeserializeOwned;
 use std::fmt::{Debug, Display, Formatter};
+use model::task::WorkflowTask;
 
 /// Store state associated with the workflow.
 /// It is up to the implementation whether invocations and calls are separated.
@@ -19,9 +19,9 @@ pub trait StateStore<T: DeserializeOwned + Clone + Send> {
         // Supplied in case an impl wants to shard on it
         invocation_id: &str,
         call_id: &str,
-        state: CallState,
+        state: WorkflowTask,
     ) -> Result<(), StateError>;
-    async fn get_call(&self, invocation_id: &str, call_id: &str) -> Result<CallState, StateError>;
+    async fn get_call(&self, invocation_id: &str, call_id: &str) -> Result<WorkflowTask, StateError>;
 }
 
 /// Errors arising from parsing state.

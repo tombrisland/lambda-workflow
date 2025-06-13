@@ -1,7 +1,10 @@
+pub mod task;
+
 use aws_lambda_events::sqs::{SqsEventObj, SqsMessageObj};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
-use std::fmt::{Debug, Display, Formatter};
+use std::fmt::Debug;
+use crate::task::CompletedTask;
 
 pub type Error = Box<dyn std::error::Error + Send + Sync>;
 
@@ -13,29 +16,15 @@ pub trait InvocationId {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum WorkflowEvent<T: Clone + InvocationId> {
     Request(T),
-    Update(CallResult),
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct CallResult {
-    pub workflow_id: String,
-    pub call_id: String,
-
-    // Any JSON value is acceptable
-    pub value: serde_json::Value,
-}
-
-#[derive(Debug, Deserialize, Clone)]
-pub enum CallState {
-    Running,
-    Completed(CallResult),
+    
+    Update(CompletedTask),
 }
 
 impl<T: Debug + Clone + DeserializeOwned + InvocationId> InvocationId for WorkflowEvent<T> {
     fn invocation_id(&self) -> &str {
         match self {
-            WorkflowEvent::Request(request) => request.invocation_id(),
-            WorkflowEvent::Update(result) => result.workflow_id.as_str(),
+            WorkflowEvent::Request(inner) => inner.invocation_id(),
+            WorkflowEvent::Update(inner) => &inner.invocation_id,
         }
     }
 }
@@ -47,11 +36,6 @@ pub enum WorkflowError {
     Error(Error),
 }
 
-impl Display for WorkflowError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str(format!("{:?}", self).as_str())
-    }
-}
 
 impl From<Error> for WorkflowError {
     fn from(value: Error) -> Self {

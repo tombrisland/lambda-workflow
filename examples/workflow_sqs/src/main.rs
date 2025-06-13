@@ -1,6 +1,6 @@
-mod service_greeter;
+mod service_name;
 
-use crate::service_greeter::{NameRequest, NameResponse, NameService};
+use crate::service_name::{NameRequest, NameResponse, NameService};
 use aws_config::BehaviorVersion;
 use lambda_runtime::{service_fn, tracing};
 use ::model::{Error, InvocationId, WorkflowError};

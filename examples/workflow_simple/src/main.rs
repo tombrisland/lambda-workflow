@@ -74,9 +74,10 @@ mod tests {
     use super::*;
     use aws_lambda_events::sqs::{SqsBatchResponse, SqsEventObj};
     use lambda_runtime::{Context, LambdaEvent};
-    use model::{CallResult, Error, WorkflowEvent, WorkflowSqsEvent};
+    use model::{Error, WorkflowEvent, WorkflowSqsEvent};
     use state_in_memory::InMemoryStateStore;
     use std::sync::Arc;
+    use model::task::CompletedTask;
     use test_utils::sqs_message_with_body;
     use workflow::engine::WorkflowEngine;
     use workflow::{workflow_handler, WorkflowLambdaEvent};
@@ -96,11 +97,11 @@ mod tests {
             item_id: "item_1".to_string(),
         });
 
-        let request2: WorkflowEvent<RequestExample> = WorkflowEvent::Update(CallResult {
-            workflow_id: "id_1".to_string(),
-            call_id: "item_1".to_string(),
+        let request2: WorkflowEvent<RequestExample> = WorkflowEvent::Update(CompletedTask {
+            invocation_id: "id_1".to_string(),
+            task_id: "item_1".to_string(),
             // Value must be valid JSON
-            value: "\"value 1\"".to_string().parse().unwrap(),
+            payload: "\"value 1\"".to_string().parse().unwrap(),
         });
 
         let sqs_event: WorkflowSqsEvent<RequestExample> = SqsEventObj {

@@ -25,7 +25,6 @@ pub(crate) struct NameRequest {
 }
 
 #[derive(Deserialize, Debug)]
-
 pub(crate) struct NameResponse {
     pub(crate) name: String,
 }
