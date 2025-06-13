@@ -1,10 +1,12 @@
-use model::task::{CompletedTask, RunningTask, WorkflowTask};
+use model::invocation::WorkflowInvocation;
+use model::task::{CompletedTask, WorkflowTask, WorkflowTaskState};
 use model::{Error, InvocationId, WorkflowError, WorkflowEvent};
 use serde::de::DeserializeOwned;
 use service::{Service, ServiceError, ServiceRequest};
 use state::StateStore;
 use std::rc::Rc;
 use std::sync::Arc;
+use serde::Serialize;
 
 #[derive(Clone)]
 pub struct WorkflowEngine<T: DeserializeOwned + Clone + InvocationId> {
@@ -12,7 +14,7 @@ pub struct WorkflowEngine<T: DeserializeOwned + Clone + InvocationId> {
     sqs_client: Rc<aws_sdk_sqs::Client>,
 }
 
-impl<Request: DeserializeOwned + Clone + InvocationId + Send> WorkflowEngine<Request> {
+impl<Request: Serialize + DeserializeOwned + Clone + InvocationId + Send> WorkflowEngine<Request> {
     pub fn new(
         state_store: Arc<dyn StateStore<Request>>,
         sqs_client: aws_sdk_sqs::Client,
@@ -29,14 +31,18 @@ impl<Request: DeserializeOwned + Clone + InvocationId + Send> WorkflowEngine<Req
     ) -> Result<WorkflowContext<Request>, Error> {
         match event {
             WorkflowEvent::Request(request) => self.create_ctx(request).await,
-            WorkflowEvent::Update(state) => self.update_ctx(state).await,
+            WorkflowEvent::Update(task) => self.update_ctx(task).await,
         }
     }
 
     async fn create_ctx(&self, request: Request) -> Result<WorkflowContext<Request>, Error> {
-        self.state_store
-            .put_invocation(request.invocation_id(), request.clone())
-            .await?;
+        // Create a new invocation record
+        let invocation: WorkflowInvocation<Request> = WorkflowInvocation {
+            invocation_id: request.invocation_id().to_string(),
+            request: request.clone(),
+        };
+
+        self.state_store.put_invocation(invocation).await?;
 
         Ok(WorkflowContext::new(
             request,
@@ -50,14 +56,10 @@ impl<Request: DeserializeOwned + Clone + InvocationId + Send> WorkflowEngine<Req
         call_result: CompletedTask,
     ) -> Result<WorkflowContext<Request>, Error> {
         let invocation_id: &str = &call_result.invocation_id.clone();
-        let task_id: &str = &call_result.task_id.clone();
-
         let request: Request = self.state_store.get_invocation(invocation_id).await?;
 
         // Update the state with any calls
-        self.state_store
-            .put_call(invocation_id, task_id, WorkflowTask::Completed(call_result))
-            .await?;
+        self.state_store.put_task(call_result.into()).await?;
 
         Ok(WorkflowContext::new(
             request,
@@ -73,7 +75,7 @@ pub struct WorkflowContext<T: DeserializeOwned + Clone + InvocationId> {
     sqs_client: Rc<aws_sdk_sqs::Client>,
 }
 
-impl<T: DeserializeOwned + Clone + InvocationId + Send> WorkflowContext<T> {
+impl<T: DeserializeOwned + Clone + InvocationId + Send + serde::Serialize> WorkflowContext<T> {
     pub fn new(
         request: T,
         state_store: Arc<dyn StateStore<T>>,
@@ -105,28 +107,29 @@ impl<T: DeserializeOwned + Clone + InvocationId + Send> WorkflowContext<T> {
         let task_id: &str = request.call_id.as_str();
 
         // Check if the result is already available in state
-        if let Ok(state) = self.state_store.get_call(invocation_id, task_id).await {
-            return match state {
+        if let Ok(task) = self.state_store.get_task(invocation_id, task_id).await {
+            return match task.state {
                 // Suspend if it's not available
-                WorkflowTask::Running(_) => Err(WorkflowError::Suspended),
+                WorkflowTaskState::Running => Err(WorkflowError::Suspended),
                 // Return the completed result
-                WorkflowTask::Completed(task) => {
+                WorkflowTaskState::Completed(payload) => {
                     // Try and mutate the result into the expected value
-                    serde_json::from_value(task.payload.clone()).map_err(|err| {
+                    serde_json::from_value(payload.clone()).map_err(|err| {
                         WorkflowError::Error(ServiceError::BadResponse(err.to_string()).into())
                     })
                 }
             };
         }
 
-        let running_task: WorkflowTask = WorkflowTask::Running(RunningTask {
+        let running_task: WorkflowTask = WorkflowTask {
             invocation_id: invocation_id.to_string(),
             task_id: task_id.to_string(),
-        });
+            state: WorkflowTaskState::Running,
+        };
 
         // Set the state running and then call the service
         self.state_store
-            .put_call(invocation_id, task_id, running_task)
+            .put_task(running_task)
             .await
             .map_err(|err| WorkflowError::Error(err.into()))?;
         service.call(request.inner).await?;

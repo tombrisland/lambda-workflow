@@ -1,17 +1,14 @@
 pub mod task;
+pub mod invocation;
 
 use aws_lambda_events::sqs::{SqsEventObj, SqsMessageObj};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
+pub use crate::invocation::InvocationId;
 use crate::task::CompletedTask;
 
 pub type Error = Box<dyn std::error::Error + Send + Sync>;
-
-/// This id is used for tracing and storage.
-pub trait InvocationId {
-    fn invocation_id(&self) -> &str;
-}
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum WorkflowEvent<T: Clone + InvocationId> {

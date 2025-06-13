@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 serde_json = {workspace = true }
 serde = {workspace = true }
+serde_dynamo = {workspace = true}
 
 aws-sdk-dynamodb = { workspace = true }
 

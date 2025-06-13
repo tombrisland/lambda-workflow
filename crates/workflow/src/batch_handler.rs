@@ -1,10 +1,10 @@
 use aws_lambda_events::sqs::{BatchItemFailure, SqsBatchResponse, SqsEventObj, SqsMessageObj};
 use lambda_runtime::tracing::instrument::Instrumented;
 use lambda_runtime::tracing::{Instrument, Span};
-use lambda_runtime::{Error, LambdaEvent, tracing};
+use lambda_runtime::{tracing, Error, LambdaEvent};
 use model::WorkflowError;
-use serde::Serialize;
 use serde::de::DeserializeOwned;
+use serde::Serialize;
 use std::future::Future;
 use std::iter::Zip;
 use std::vec::IntoIter;
@@ -83,6 +83,8 @@ mod tests {
     use model::WorkflowError;
     use model::WorkflowError::Suspended;
     use state::StateError;
+    use state::StateErrorReason::MissingEntry;
+    use state::StateOperation::GetTask;
     use test_utils::sqs_message_with_body;
 
     #[tokio::test]
@@ -131,7 +133,12 @@ mod tests {
                 Result::<(), WorkflowError>::Ok(())
             } else {
                 Result::<(), WorkflowError>::Err(WorkflowError::Error(
-                    StateError::MissingState("value 1".to_string()).into(),
+                    StateError {
+                        state_key: "value 1".to_string(),
+                        operation: GetTask,
+                        reason: MissingEntry,
+                    }
+                    .into(),
                 ))
             };
         };

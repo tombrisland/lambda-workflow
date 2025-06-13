@@ -36,20 +36,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c43fb571-a2e5-44dc-9fde-bf0022301c76" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/crates/model/src/task.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/crates/model/src/invocation.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crates/model/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/model/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/model/src/task.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/model/src/task.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crates/state/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/state/src/lib.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crates/state_dynamodb/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/state_dynamodb/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/state_dynamodb/src/idempotency_record.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/state_dynamodb/src/idempotency_record.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/state_dynamodb/src/idempotency_record.rs" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/crates/state_dynamodb/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/state_dynamodb/src/lib.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crates/state_in_memory/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/state_in_memory/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/workflow/src/batch_handler.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/batch_handler.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crates/workflow/src/engine.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/engine.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_simple/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_simple/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_sqs/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_sqs/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_sqs/src/service_greeter.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_sqs/src/service_name.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -111,6 +108,7 @@
     "Cargo.Test batch_handler::tests::test_single_item_panic.executor": "Run",
     "Cargo.Test batch_handler::tests::test_successful_batch.executor": "Run",
     "Cargo.Test batch_handler::tests::test_suspension_treated_as_success.executor": "Run",
+    "Cargo.Test engine::tests.executor": "Run",
     "Cargo.Test engine::tests::test_engine_initialises_request.executor": "Run",
     "Cargo.Test engine::tests::test_event_handler.executor": "Run",
     "Cargo.Test tests::test_engine_initialises_request.executor": "Run",
@@ -146,10 +144,9 @@
       <recent name="C:\Users\tombr\Documents\Code\lambda-workflow\src" />
     </key>
   </component>
-  <component name="RunManager" selected="Cargo.Test batch_handler::tests">
-    <configuration name="Run workflow_simple" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="buildProfileId" value="dev" />
-      <option name="command" value="run --package workflow_simple --bin workflow_simple" />
+  <component name="RunManager" selected="Cargo.Test engine::tests">
+    <configuration name="Test batch_handler::tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package workflow --lib batch_handler::tests" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />
@@ -165,8 +162,8 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test batch_handler::tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package workflow --lib batch_handler::tests" />
+    <configuration name="Test engine::tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package workflow --lib engine::tests" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />
@@ -236,11 +233,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Cargo.Test engine::tests" />
         <item itemvalue="Cargo.Test batch_handler::tests" />
         <item itemvalue="Cargo.Test engine::tests::test_engine_initialises_request" />
         <item itemvalue="Cargo.Test tests::test_engine_initialises_request" />
         <item itemvalue="Cargo.Test engine::tests::test_event_handler" />
-        <item itemvalue="Cargo.Run workflow_simple" />
       </list>
     </recent_temporary>
   </component>
@@ -255,7 +252,7 @@
       <option name="presentableId" value="Default" />
       <updated>1749334440845</updated>
       <workItem from="1749334441939" duration="6713000" />
-      <workItem from="1749373223917" duration="48217000" />
+      <workItem from="1749373223917" duration="50510000" />
     </task>
     <servers />
   </component>

@@ -1,8 +1,10 @@
 use async_trait::async_trait;
+use model::invocation::WorkflowInvocation;
+use model::task::WorkflowTask;
 use ::model::Error;
 use serde::de::DeserializeOwned;
+use serde::Serialize;
 use std::fmt::{Debug, Display, Formatter};
-use model::task::WorkflowTask;
 
 /// Store state associated with the workflow.
 /// It is up to the implementation whether invocations and calls are separated.
@@ -10,34 +12,57 @@ use model::task::WorkflowTask;
 /// An invocation is the original request to the workflow.
 /// A call is an asynchronous request made from within the workflow.
 #[async_trait]
-pub trait StateStore<T: DeserializeOwned + Clone + Send> {
-    async fn put_invocation(&self, invocation_id: &str, request: T) -> Result<(), StateError>;
-    async fn get_invocation(&self, invocation_id: &str) -> Result<T, StateError>;
-
-    async fn put_call(
+pub trait StateStore<WorkflowRequest: Serialize + DeserializeOwned + Clone + Send> {
+    async fn put_invocation(
         &self,
-        // Supplied in case an impl wants to shard on it
-        invocation_id: &str,
-        call_id: &str,
-        state: WorkflowTask,
+        invocation: WorkflowInvocation<WorkflowRequest>,
     ) -> Result<(), StateError>;
-    async fn get_call(&self, invocation_id: &str, call_id: &str) -> Result<WorkflowTask, StateError>;
+    async fn get_invocation(&self, invocation_id: &str) -> Result<WorkflowRequest, StateError>;
+
+    async fn put_task(&self, task: WorkflowTask) -> Result<(), StateError>;
+    async fn get_task(
+        &self,
+        invocation_id: &str,
+        task_id: &str,
+    ) -> Result<WorkflowTask, StateError>;
 }
 
 /// Errors arising from parsing state.
 #[derive(Debug)]
-pub enum StateError {
-    // An expected state item was missing from the store.
-    MissingState(String),
-    BadState { key: String, reason: BadStateReason },
+pub struct StateError {
+    pub state_key: String,
+
+    pub operation: StateOperation,
+    pub reason: StateErrorReason,
+}
+
+#[derive(Debug)]
+pub enum StateErrorReason {
+    // An expected state entry was missing.
+    MissingEntry,
+    MissingPayload,
+    // The state was not of the expected type
+    BadState(String),
     // An error from the underlying state store
     BackendFailure(Error),
 }
 
-#[derive(Debug)]
-pub enum BadStateReason {
-    MissingPayload,
-    BadPayload(Option<String>),
+#[derive(Debug, Clone)]
+pub enum StateOperation {
+    GetInvocation,
+    PutInvocation,
+    GetTask,
+    PutTask,
+}
+
+impl StateError {
+    pub fn new(state_key: String, operation: StateOperation, reason: StateErrorReason) -> Self {
+        StateError {
+            state_key,
+            operation,
+            reason,
+        }
+    }
 }
 
 impl Display for StateError {

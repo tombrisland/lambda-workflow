@@ -1,7 +1,11 @@
 # In flight
-1Create a DynamoDB module for the state store
-   1. It should load all the items for the workflow in and use transactions
-   2. Consider using the same table model as lambda-powertools idempotency store
+1. Update DynamoDB module
+   1. Use ConsistentRead
+   2. Add an in-memory cachewhich is initialised on first call with a query on the partition key
+      3. This is then used on successive reads
+   3. Look at changing the StateError struct to an enum
+      4. Maybe a wrapper around it which contains the invocation_id + call_id? Could be useful elsewhere too
+   5. Put some tests in around #2
 
 # What's next?
 
