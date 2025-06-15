@@ -1,15 +1,14 @@
-use serde::Serialize;
-use serde::de::DeserializeOwned;
+use serde::{Deserialize, Serialize};
 
 /// This id is used for tracing and storage.
 pub trait InvocationId {
     fn invocation_id(&self) -> &str;
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 pub struct WorkflowInvocation<Request>
 where
-    Request: Clone + Serialize + DeserializeOwned,
+    Request: Clone + Serialize,
 {
     pub invocation_id: String,
     pub request: Request,

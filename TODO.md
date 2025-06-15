@@ -1,7 +1,6 @@
 # In flight
 1. Update DynamoDB module
-   1. Use ConsistentRead
-   2. Add an in-memory cachewhich is initialised on first call with a query on the partition key
+   2. Add an in-memory cache which is initialised on first call with a query on the partition key
       3. This is then used on successive reads
    3. Look at changing the StateError struct to an enum
       4. Maybe a wrapper around it which contains the invocation_id + call_id? Could be useful elsewhere too

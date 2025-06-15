@@ -1,12 +1,13 @@
+use lambda_runtime::tracing;
 use model::invocation::WorkflowInvocation;
 use model::task::{CompletedTask, WorkflowTask, WorkflowTaskState};
 use model::{Error, InvocationId, WorkflowError, WorkflowEvent};
+use serde::Serialize;
 use serde::de::DeserializeOwned;
 use service::{Service, ServiceError, ServiceRequest};
 use state::StateStore;
 use std::rc::Rc;
 use std::sync::Arc;
-use serde::Serialize;
 
 #[derive(Clone)]
 pub struct WorkflowEngine<T: DeserializeOwned + Clone + InvocationId> {
@@ -106,6 +107,12 @@ impl<T: DeserializeOwned + Clone + InvocationId + Send + serde::Serialize> Workf
         let invocation_id: &str = self.request.invocation_id();
         let task_id: &str = request.call_id.as_str();
 
+        tracing::debug!(
+            service = service.name(),
+            task_id = task_id,
+            "Call to service"
+        );
+
         // Check if the result is already available in state
         if let Ok(task) = self.state_store.get_task(invocation_id, task_id).await {
             return match task.state {
@@ -113,7 +120,7 @@ impl<T: DeserializeOwned + Clone + InvocationId + Send + serde::Serialize> Workf
                 WorkflowTaskState::Running => Err(WorkflowError::Suspended),
                 // Return the completed result
                 WorkflowTaskState::Completed(payload) => {
-                    // Try and mutate the result into the expected value
+                    // Try and convert the result into the expected value
                     serde_json::from_value(payload.clone()).map_err(|err| {
                         WorkflowError::Error(ServiceError::BadResponse(err.to_string()).into())
                     })

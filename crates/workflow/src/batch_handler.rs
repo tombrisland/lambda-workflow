@@ -21,7 +21,7 @@ where
 {
     let records: Vec<SqsMessageObj<Body>> = event.payload.records;
 
-    tracing::info!("Handling batch of [{}] from SQS", records.len());
+    tracing::info!(records = records.len(), "Handling batch of SQS messages");
 
     // Start a task for each SQS message
     let (ids, tasks): (Vec<String>, Vec<_>) = records

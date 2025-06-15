@@ -30,6 +30,10 @@ pub(crate) struct NameResponse {
 }
 
 impl<'a> Service<NameRequest, NameResponse> for NameService<'a> {
+    fn name(&self) -> &'static str {
+        "NameService"
+    }
+
     async fn call(&self, request: NameRequest) -> Result<(), Error> {
         let body: String = serde_json::ser::to_string(&request)?;
 

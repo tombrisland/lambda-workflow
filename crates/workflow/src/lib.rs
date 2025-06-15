@@ -64,10 +64,10 @@ where
 {
     batch_handler(
         async |request: WorkflowEvent<Request>| {
-            let workflow_id: String = request.invocation_id().to_string().clone();
+            let invocation_id: String = request.invocation_id().to_string().clone();
             let ctx: WorkflowContext<Request> = engine.accept(request).await?;
 
-            let workflow_span: Span = tracing::span!(tracing::Level::INFO, "Workflow", workflow_id);
+            let workflow_span: Span = tracing::span!(tracing::Level::INFO, "Workflow", invocation_id);
 
             let response: Response = workflow(ctx).instrument(workflow_span).await?;
 

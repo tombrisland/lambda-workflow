@@ -16,6 +16,7 @@ where
     Request: Serialize,
     Response: DeserializeOwned,
 {
+    fn name(&self) -> &'static str;
     fn call(&self, request: Request) -> impl Future<Output = Result<(), Error>>;
 }
 

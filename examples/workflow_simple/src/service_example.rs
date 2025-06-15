@@ -5,6 +5,10 @@ use service::Service;
 pub struct ExampleService {}
 
 impl Service<String, String> for ExampleService {
+    fn name(&self) -> &'static str {
+        "ExampleService"
+    }
+
     async fn call(&self, _request: String) -> Result<(), Error> {
         Ok(())
     }
