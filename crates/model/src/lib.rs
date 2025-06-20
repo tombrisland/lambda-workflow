@@ -11,6 +11,7 @@ use crate::task::CompletedTask;
 pub type Error = Box<dyn std::error::Error + Send + Sync>;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(tag = "type")]
 pub enum WorkflowEvent<T: Clone + InvocationId> {
     Request(T),
     

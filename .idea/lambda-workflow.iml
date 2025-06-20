@@ -21,6 +21,7 @@
       <excludeFolder url="file://$MODULE_DIR$/examples/workflow_simple/target" />
       <excludeFolder url="file://$MODULE_DIR$/examples/workflow_sqs/target" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
+      <excludeFolder url="file://$MODULE_DIR$/examples/workflow_sqs/terraform/.terraform" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

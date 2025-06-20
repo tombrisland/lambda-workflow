@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
-use model::Error;
-use service::Service;
+use service::sqs_service::SqsCall;
+use service::{CallType, Service};
 
 pub struct NameService<'a> {
     sqs_client: &'a aws_sdk_sqs::Client,
@@ -34,16 +34,7 @@ impl<'a> Service<NameRequest, NameResponse> for NameService<'a> {
         "NameService"
     }
 
-    async fn call(&self, request: NameRequest) -> Result<(), Error> {
-        let body: String = serde_json::ser::to_string(&request)?;
-
-        self.sqs_client
-            .send_message()
-            .queue_url(&self.queue_url)
-            .message_body(body)
-            .send()
-            .await?;
-
-        Ok(())
+    fn call_type(&self) -> impl CallType<NameRequest> {
+        SqsCall::new(self.sqs_client, &*self.queue_url)
     }
 }

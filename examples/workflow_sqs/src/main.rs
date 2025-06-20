@@ -1,5 +1,4 @@
 mod service_name;
-
 use crate::service_name::{NameRequest, NameResponse, NameService};
 use aws_config::BehaviorVersion;
 use lambda_runtime::{service_fn, tracing};
@@ -64,5 +63,5 @@ async fn main() -> Result<(), Error> {
             return workflow_handler(&engine, event, workflow_greeter).await;
         },
     ))
-    .await
+        .await
 }

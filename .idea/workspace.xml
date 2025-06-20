@@ -36,24 +36,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c43fb571-a2e5-44dc-9fde-bf0022301c76" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/crates/model/src/invocation.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/crates/service/src/dummy_service.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/crates/service/src/sqs_service.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/lambda-workflow.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/lambda-workflow.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crates/model/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/model/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/model/src/task.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/model/src/task.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/state/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/state/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/state_dynamodb/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/state_dynamodb/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/state_dynamodb/src/idempotency_record.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/state_dynamodb/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/state_dynamodb/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/state_in_memory/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/state_in_memory/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/workflow/src/batch_handler.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/batch_handler.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/service/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/service/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/service/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/service/src/lib.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crates/workflow/src/engine.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/engine.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/workflow_simple/src/service_example.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_simple/src/service_example.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/workflow_sqs/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_sqs/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/workflow_sqs/src/service_name.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_sqs/src/service_name.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="RsBuildProfile:test" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="RsBuildProfile:dev" />
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
@@ -99,6 +101,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Cargo.Build state_dynamodb.executor": "Run",
     "Cargo.Doctest of workflow_handler (line 19).executor": "Run",
     "Cargo.Run workflow_simple.executor": "Run",
     "Cargo.Run workflow_sqs.executor": "Run",
@@ -111,6 +114,7 @@
     "Cargo.Test engine::tests.executor": "Run",
     "Cargo.Test engine::tests::test_engine_initialises_request.executor": "Run",
     "Cargo.Test engine::tests::test_event_handler.executor": "Run",
+    "Cargo.Test main::tests.executor": "Run",
     "Cargo.Test tests::test_engine_initialises_request.executor": "Run",
     "Cargo.Test tests::test_event_handler (1).executor": "Run",
     "Cargo.Test tests::test_event_handler (2).executor": "Run",
@@ -120,9 +124,12 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.rust.reset.selective.auto.import": "true",
+    "SHELLCHECK.PATH": "I do mind",
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "/Users/tomb/code/lambda-workflow/examples",
+    "javascript.nodejs.core.library.configured.version": "16.15.1",
+    "javascript.nodejs.core.library.typings.version": "16.18.126",
+    "last_opened_file_path": "/Users/tomb/code/lambda-workflow/examples/workflow_sqs/terraform",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -131,20 +138,57 @@
     "org.rust.cargo.project.model.PROJECT_DISCOVERY": "true",
     "org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon": "",
     "org.rust.first.attach.projects": "true",
-    "settings.editor.selected.configurable": "preferences.lookFeel",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "ts.external.directory.path": "/Users/tomb/Applications/RustRover.app/Contents/plugins/javascript-plugin/jsLanguageServicesImpl/external",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/examples/workflow_sqs/terraform" />
+      <recent name="$PROJECT_DIR$/terraform/modules" />
       <recent name="$PROJECT_DIR$/examples" />
       <recent name="$PROJECT_DIR$/crates/service/src" />
       <recent name="$PROJECT_DIR$/crates/workflow/src" />
-      <recent name="$PROJECT_DIR$/src" />
-      <recent name="C:\Users\tombr\Documents\Code\lambda-workflow\src" />
     </key>
   </component>
-  <component name="RunManager" selected="Cargo.Test engine::tests">
+  <component name="RunManager" selected="Cargo.Run workflow_sqs">
+    <configuration name="Build state_dynamodb" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="buildProfileId" value="dev" />
+      <option name="command" value="build --package state_dynamodb --lib" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <option name="emulateTerminal" value="true" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Run workflow_sqs" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="buildProfileId" value="dev" />
+      <option name="command" value="run --package workflow_sqs --bin workflow_sqs" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <option name="emulateTerminal" value="true" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="Test batch_handler::tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="command" value="test --package workflow --lib batch_handler::tests" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
@@ -179,43 +223,9 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test engine::tests::test_engine_initialises_request" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package workflow --lib engine::tests::test_engine_initialises_request -- --exact" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
-      <envs />
-      <option name="emulateTerminal" value="true" />
-      <option name="channel" value="DEFAULT" />
-      <option name="requiredFeatures" value="true" />
-      <option name="allFeatures" value="false" />
-      <option name="withSudo" value="false" />
-      <option name="buildTarget" value="REMOTE" />
-      <option name="backtrace" value="SHORT" />
-      <option name="isRedirectInput" value="false" />
-      <option name="redirectInputPath" value="" />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Test engine::tests::test_event_handler" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+    <configuration name="Test main::tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="buildProfileId" value="test" />
-      <option name="command" value="test --package workflow --lib engine::tests::test_event_handler -- --exact" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
-      <envs />
-      <option name="emulateTerminal" value="true" />
-      <option name="channel" value="DEFAULT" />
-      <option name="requiredFeatures" value="true" />
-      <option name="allFeatures" value="false" />
-      <option name="withSudo" value="false" />
-      <option name="buildTarget" value="REMOTE" />
-      <option name="backtrace" value="SHORT" />
-      <option name="isRedirectInput" value="false" />
-      <option name="redirectInputPath" value="" />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Test tests::test_engine_initialises_request" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package state_dynamodb --lib tests::test_engine_initialises_request -- --exact" />
+      <option name="command" value="test --package workflow_simple --bin workflow_simple tests" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />
@@ -233,11 +243,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Cargo.Run workflow_sqs" />
+        <item itemvalue="Cargo.Test main::tests" />
+        <item itemvalue="Cargo.Build state_dynamodb" />
         <item itemvalue="Cargo.Test engine::tests" />
         <item itemvalue="Cargo.Test batch_handler::tests" />
-        <item itemvalue="Cargo.Test engine::tests::test_engine_initialises_request" />
-        <item itemvalue="Cargo.Test tests::test_engine_initialises_request" />
-        <item itemvalue="Cargo.Test engine::tests::test_event_handler" />
       </list>
     </recent_temporary>
   </component>
@@ -253,6 +263,7 @@
       <updated>1749334440845</updated>
       <workItem from="1749334441939" duration="6713000" />
       <workItem from="1749373223917" duration="50510000" />
+      <workItem from="1749838016632" duration="32651000" />
     </task>
     <servers />
   </component>

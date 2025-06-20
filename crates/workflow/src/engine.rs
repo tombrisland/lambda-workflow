@@ -2,9 +2,9 @@ use lambda_runtime::tracing;
 use model::invocation::WorkflowInvocation;
 use model::task::{CompletedTask, WorkflowTask, WorkflowTaskState};
 use model::{Error, InvocationId, WorkflowError, WorkflowEvent};
-use serde::Serialize;
 use serde::de::DeserializeOwned;
-use service::{Service, ServiceError, ServiceRequest};
+use serde::Serialize;
+use service::{CallableService, ServiceError, ServiceRequest};
 use state::StateStore;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -101,7 +101,7 @@ impl<T: DeserializeOwned + Clone + InvocationId + Send + serde::Serialize> Workf
     /// This will suspend execution until a response is received.
     pub async fn call<Request: serde::Serialize, Response: DeserializeOwned>(
         &self,
-        service: impl Service<Request, Response>,
+        service: impl CallableService<Request, Response>,
         request: ServiceRequest<Request>,
     ) -> Result<Response, WorkflowError> {
         let invocation_id: &str = self.request.invocation_id();
@@ -139,7 +139,7 @@ impl<T: DeserializeOwned + Clone + InvocationId + Send + serde::Serialize> Workf
             .put_task(running_task)
             .await
             .map_err(|err| WorkflowError::Error(err.into()))?;
-        service.call(request.inner).await?;
+        service.call(request).await?;
 
         Err(WorkflowError::Suspended)
     }
