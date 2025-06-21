@@ -9,9 +9,9 @@ use std::fmt::{Display, Formatter};
 
 #[derive(Serialize)]
 pub struct ServiceRequest<Request: serde::Serialize> {
-    // The call id is used as an idempotency key
-    pub call_id: String,
-    pub inner: Request,
+    // The task id is used as an idempotency key
+    pub task_id: String,
+    pub payload: Request,
 }
 
 /// A service which doesn't expect a response immediately.

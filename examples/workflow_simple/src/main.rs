@@ -38,8 +38,8 @@ async fn workflow_example(
     tracing::info!("Making request in workflow example: {:?}", request);
 
     let service_request = ServiceRequest {
-        call_id: request.item_id.clone(),
-        inner: request.item_id.clone(),
+        task_id: request.item_id.clone(),
+        payload: request.item_id.clone(),
     };
 
     let result: String = ctx.call(ExampleService {}, service_request).await?;

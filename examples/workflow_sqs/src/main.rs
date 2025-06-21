@@ -33,8 +33,8 @@ async fn workflow_greeter(
     let request: &SqsWorkflowRequest = ctx.request();
 
     let service_request: ServiceRequest<NameRequest> = ServiceRequest {
-        call_id: request.first_letter.clone(),
-        inner: NameRequest {
+        task_id: request.first_letter.clone(),
+        payload: NameRequest {
             first_letter: request.first_letter.clone(),
         },
     };

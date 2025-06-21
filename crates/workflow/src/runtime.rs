@@ -94,7 +94,7 @@ impl<T: DeserializeOwned + Clone + InvocationId + Send + serde::Serialize> Workf
         request: ServiceRequest<Request>,
     ) -> Result<Response, WorkflowError> {
         let invocation_id: &str = self.request.invocation_id();
-        let task_id: &str = request.call_id.as_str();
+        let task_id: &str = request.task_id.as_str();
 
         tracing::debug!(
             service = service.name(),
