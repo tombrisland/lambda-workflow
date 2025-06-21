@@ -1,6 +1,6 @@
 use lambda_runtime::tracing;
 use model::invocation::WorkflowInvocation;
-use model::task::{CompletedTask, WorkflowTask, WorkflowTaskState};
+use model::task::{WorkflowTask, WorkflowTaskState};
 use model::{Error, InvocationId, WorkflowError, WorkflowEvent};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -10,17 +10,17 @@ use std::rc::Rc;
 use std::sync::Arc;
 
 #[derive(Clone)]
-pub struct WorkflowEngine<T: DeserializeOwned + Clone + InvocationId> {
+pub struct WorkflowRuntime<T: DeserializeOwned + Clone + InvocationId> {
     state_store: Arc<dyn StateStore<T>>,
     sqs_client: Rc<aws_sdk_sqs::Client>,
 }
 
-impl<Request: Serialize + DeserializeOwned + Clone + InvocationId + Send> WorkflowEngine<Request> {
+impl<Request: Serialize + DeserializeOwned + Clone + InvocationId + Send> WorkflowRuntime<Request> {
     pub fn new(
         state_store: Arc<dyn StateStore<Request>>,
         sqs_client: aws_sdk_sqs::Client,
-    ) -> WorkflowEngine<Request> {
-        WorkflowEngine {
+    ) -> WorkflowRuntime<Request> {
+        WorkflowRuntime {
             state_store,
             sqs_client: Rc::new(sqs_client),
         }
@@ -30,37 +30,26 @@ impl<Request: Serialize + DeserializeOwned + Clone + InvocationId + Send> Workfl
         &self,
         event: WorkflowEvent<Request>,
     ) -> Result<WorkflowContext<Request>, Error> {
-        match event {
-            WorkflowEvent::Request(request) => self.create_ctx(request).await,
-            WorkflowEvent::Update(task) => self.update_ctx(task).await,
-        }
-    }
+        let request: Request = match event {
+            WorkflowEvent::Request(request) => {
+                // Create a new invocation record
+                let invocation: WorkflowInvocation<Request> = WorkflowInvocation {
+                    invocation_id: request.invocation_id().to_string(),
+                    request: request.clone(),
+                };
 
-    async fn create_ctx(&self, request: Request) -> Result<WorkflowContext<Request>, Error> {
-        // Create a new invocation record
-        let invocation: WorkflowInvocation<Request> = WorkflowInvocation {
-            invocation_id: request.invocation_id().to_string(),
-            request: request.clone(),
-        };
+                self.state_store.put_invocation(invocation).await?;
 
-        self.state_store.put_invocation(invocation).await?;
+                Ok(request)
+            }
+            WorkflowEvent::Update(task) => {
+                let invocation_id: &str = &task.invocation_id.clone();
+                // Update the state with any calls
+                self.state_store.put_task(task.into()).await?;
 
-        Ok(WorkflowContext::new(
-            request,
-            self.state_store.clone(),
-            self.sqs_client.clone(),
-        ))
-    }
-
-    async fn update_ctx(
-        &self,
-        call_result: CompletedTask,
-    ) -> Result<WorkflowContext<Request>, Error> {
-        let invocation_id: &str = &call_result.invocation_id.clone();
-        let request: Request = self.state_store.get_invocation(invocation_id).await?;
-
-        // Update the state with any calls
-        self.state_store.put_task(call_result.into()).await?;
+                self.state_store.get_invocation(invocation_id).await
+            }
+        }?;
 
         Ok(WorkflowContext::new(
             request,
@@ -110,16 +99,22 @@ impl<T: DeserializeOwned + Clone + InvocationId + Send + serde::Serialize> Workf
         tracing::debug!(
             service = service.name(),
             task_id = task_id,
-            "Call to service"
+            "Service call"
         );
 
         // Check if the result is already available in state
         if let Ok(task) = self.state_store.get_task(invocation_id, task_id).await {
             return match task.state {
                 // Suspend if it's not available
-                WorkflowTaskState::Running => Err(WorkflowError::Suspended),
+                WorkflowTaskState::Started => {
+                    tracing::debug!("Suspending as task invoked already");
+                    
+                    Err(WorkflowError::Suspended)
+                },
                 // Return the completed result
                 WorkflowTaskState::Completed(payload) => {
+                    tracing::debug!("Got payload from state store");
+                    
                     // Try and convert the result into the expected value
                     serde_json::from_value(payload.clone()).map_err(|err| {
                         WorkflowError::Error(ServiceError::BadResponse(err.to_string()).into())
@@ -131,7 +126,7 @@ impl<T: DeserializeOwned + Clone + InvocationId + Send + serde::Serialize> Workf
         let running_task: WorkflowTask = WorkflowTask {
             invocation_id: invocation_id.to_string(),
             task_id: task_id.to_string(),
-            state: WorkflowTaskState::Running,
+            state: WorkflowTaskState::Started,
         };
 
         // Set the state running and then call the service
@@ -141,13 +136,15 @@ impl<T: DeserializeOwned + Clone + InvocationId + Send + serde::Serialize> Workf
             .map_err(|err| WorkflowError::Error(err.into()))?;
         service.call(request).await?;
 
+        tracing::debug!("Suspending after invoking task");
+
         Err(WorkflowError::Suspended)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::engine::{WorkflowContext, WorkflowEngine};
+    use crate::runtime::{WorkflowContext, WorkflowRuntime};
     use aws_sdk_sqs::operation::send_message::SendMessageOutput;
     use aws_smithy_mocks::mock_client;
     use model::{InvocationId, WorkflowEvent};
@@ -165,8 +162,8 @@ mod tests {
             });
 
         let sqs_client: aws_sdk_sqs::Client = mock_client!(aws_sdk_sqs, [&send_message_rule]);
-        let engine: WorkflowEngine<TestRequest> =
-            WorkflowEngine::new(Arc::new(InMemoryStateStore::default()), sqs_client);
+        let engine: WorkflowRuntime<TestRequest> =
+            WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), sqs_client);
 
         let request_string: String = "test 1".to_string();
         let request: WorkflowEvent<TestRequest> =

@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use service::ServiceRequest;
 use state_in_memory::InMemoryStateStore;
 use std::sync::Arc;
-use workflow::engine::{WorkflowContext, WorkflowEngine};
+use workflow::runtime::{WorkflowContext, WorkflowRuntime};
 use workflow::{workflow_handler, WorkflowLambdaEvent};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -55,8 +55,8 @@ async fn main() -> Result<(), Error> {
     let sqs_client: aws_sdk_sqs::Client =
         aws_sdk_sqs::Client::new(&aws_config::load_defaults(BehaviorVersion::latest()).await);
 
-    let engine: WorkflowEngine<SqsWorkflowRequest> =
-        WorkflowEngine::new(Arc::new(InMemoryStateStore::default()), sqs_client);
+    let engine: WorkflowRuntime<SqsWorkflowRequest> =
+        WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), sqs_client);
 
     lambda_runtime::run(service_fn(
         async |event: WorkflowLambdaEvent<SqsWorkflowRequest>| {

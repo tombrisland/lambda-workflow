@@ -33,6 +33,6 @@ pub struct WorkflowTask {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum WorkflowTaskState {
-    Running,
+    Started,
     Completed(serde_json::Value),
 }

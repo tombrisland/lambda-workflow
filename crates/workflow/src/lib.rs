@@ -1,5 +1,5 @@
 use crate::batch_handler::batch_handler;
-use crate::engine::{WorkflowContext, WorkflowEngine};
+use crate::runtime::{WorkflowContext, WorkflowRuntime};
 use aws_lambda_events::sqs::SqsBatchResponse;
 use lambda_runtime::tracing::{Instrument, Span};
 use lambda_runtime::{tracing, LambdaEvent};
@@ -9,7 +9,7 @@ use serde::Serialize;
 use std::fmt::Debug;
 
 mod batch_handler;
-pub mod engine;
+pub mod runtime;
 
 /// Creates a handler function for a workflow designed for use with `lambda_runtime::run()`
 ///
@@ -53,7 +53,7 @@ pub mod engine;
 /// }
 /// ```
 pub async fn workflow_handler<Fut, Request, Response>(
-    engine: &WorkflowEngine<Request>,
+    engine: &WorkflowRuntime<Request>,
     event: WorkflowLambdaEvent<Request>,
     workflow: fn(WorkflowContext<Request>) -> Fut,
 ) -> Result<SqsBatchResponse, Error>
