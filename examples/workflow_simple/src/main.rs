@@ -9,7 +9,7 @@ use service::ServiceRequest;
 use state_in_memory::InMemoryStateStore;
 use std::sync::Arc;
 use workflow::runtime::{WorkflowContext, WorkflowRuntime};
-use workflow::{workflow_handler, WorkflowLambdaEvent};
+use workflow::{workflow_fn, WorkflowLambdaEvent};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct RequestExample {
@@ -63,7 +63,7 @@ async fn main() -> Result<(), Error> {
 
     lambda_runtime::run(service_fn(
         async |event: WorkflowLambdaEvent<RequestExample>| {
-            return workflow_handler(&engine, event, workflow_example).await;
+            return workflow_fn(&engine, event, service_fn(workflow_example)).await;
         },
     ))
     .await
@@ -80,7 +80,7 @@ mod tests {
     use model::task::CompletedTask;
     use test_utils::sqs_message_with_body;
     use workflow::runtime::WorkflowRuntime;
-    use workflow::{workflow_handler, WorkflowLambdaEvent};
+    use workflow::{workflow_fn, WorkflowLambdaEvent};
 
     #[tokio::test]
     async fn test_simple_workflow_runs() {
@@ -115,7 +115,7 @@ mod tests {
             LambdaEvent::new(sqs_event, Context::default());
 
         let response: Result<SqsBatchResponse, Error> =
-            workflow_handler(&engine, event, workflow_example).await;
+            workflow_fn(&engine, event, service_fn(workflow_example)).await;
 
         tracing::info!("Batch handler results {:?}", response)
     }

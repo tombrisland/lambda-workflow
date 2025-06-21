@@ -36,19 +36,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c43fb571-a2e5-44dc-9fde-bf0022301c76" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/crates/service/src/dummy_service.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/crates/service/src/sqs_service.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/lambda-workflow.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/lambda-workflow.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/model/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/model/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/service/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/service/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/service/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/service/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/workflow/src/engine.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/engine.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_simple/src/service_example.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_simple/src/service_example.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/workflow/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/workflow_simple/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_simple/src/main.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/examples/workflow_sqs/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_sqs/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_sqs/src/service_name.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_sqs/src/service_name.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -98,51 +89,51 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "Cargo.Build state_dynamodb.executor": "Run",
-    "Cargo.Doctest of workflow_handler (line 19).executor": "Run",
-    "Cargo.Run workflow_simple.executor": "Run",
-    "Cargo.Run workflow_sqs.executor": "Run",
-    "Cargo.Test batch_handler::tests.executor": "Run",
-    "Cargo.Test batch_handler::tests::test_single_item_fail.executor": "Run",
-    "Cargo.Test batch_handler::tests::test_single_item_panic (1).executor": "Run",
-    "Cargo.Test batch_handler::tests::test_single_item_panic.executor": "Run",
-    "Cargo.Test batch_handler::tests::test_successful_batch.executor": "Run",
-    "Cargo.Test batch_handler::tests::test_suspension_treated_as_success.executor": "Run",
-    "Cargo.Test engine::tests.executor": "Run",
-    "Cargo.Test engine::tests::test_engine_initialises_request.executor": "Run",
-    "Cargo.Test engine::tests::test_event_handler.executor": "Run",
-    "Cargo.Test main::tests.executor": "Run",
-    "Cargo.Test tests::test_engine_initialises_request.executor": "Run",
-    "Cargo.Test tests::test_event_handler (1).executor": "Run",
-    "Cargo.Test tests::test_event_handler (2).executor": "Run",
-    "Cargo.Test tests::test_event_handler.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.rust.reset.selective.auto.import": "true",
-    "SHELLCHECK.PATH": "I do mind",
-    "git-widget-placeholder": "main",
-    "ignore.virus.scanning.warn.message": "true",
-    "javascript.nodejs.core.library.configured.version": "16.15.1",
-    "javascript.nodejs.core.library.typings.version": "16.18.126",
-    "last_opened_file_path": "/Users/tomb/code/lambda-workflow/examples/workflow_sqs/terraform",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "org.rust.cargo.project.model.PROJECT_DISCOVERY": "true",
-    "org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon": "",
-    "org.rust.first.attach.projects": "true",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "ts.external.directory.path": "/Users/tomb/Applications/RustRover.app/Contents/plugins/javascript-plugin/jsLanguageServicesImpl/external",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;Cargo.Build state_dynamodb.executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Doctest of workflow_handler (line 19).executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Run workflow_simple.executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Run workflow_sqs.executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test batch_handler::tests.executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test batch_handler::tests::test_single_item_fail.executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test batch_handler::tests::test_single_item_panic (1).executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test batch_handler::tests::test_single_item_panic.executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test batch_handler::tests::test_successful_batch.executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test batch_handler::tests::test_suspension_treated_as_success.executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test engine::tests.executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test engine::tests::test_engine_initialises_request.executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test engine::tests::test_event_handler.executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test main::tests.executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test tests::test_engine_initialises_request.executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test tests::test_event_handler (1).executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test tests::test_event_handler (2).executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test tests::test_event_handler.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.rust.reset.selective.auto.import&quot;: &quot;true&quot;,
+    &quot;SHELLCHECK.PATH&quot;: &quot;I do mind&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;javascript.nodejs.core.library.configured.version&quot;: &quot;16.15.1&quot;,
+    &quot;javascript.nodejs.core.library.typings.version&quot;: &quot;16.18.126&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/tomb/code/lambda-workflow/examples/workflow_sqs/terraform&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;org.rust.cargo.project.model.PROJECT_DISCOVERY&quot;: &quot;true&quot;,
+    &quot;org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon&quot;: &quot;&quot;,
+    &quot;org.rust.first.attach.projects&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/Users/tomb/Applications/RustRover.app/Contents/plugins/javascript-plugin/jsLanguageServicesImpl/external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/examples/workflow_sqs/terraform" />

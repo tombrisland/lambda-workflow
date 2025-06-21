@@ -2,7 +2,7 @@ use crate::batch_handler::batch_handler;
 use crate::runtime::{WorkflowContext, WorkflowRuntime};
 use aws_lambda_events::sqs::SqsBatchResponse;
 use lambda_runtime::tracing::{Instrument, Span};
-use lambda_runtime::{tracing, LambdaEvent};
+use lambda_runtime::{tracing, LambdaEvent, Service};
 use model::{Error, InvocationId, WorkflowError, WorkflowEvent, WorkflowSqsEvent};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -52,28 +52,34 @@ pub mod runtime;
 ///     Ok(())
 /// }
 /// ```
-pub async fn workflow_handler<Fut, Request, Response>(
+pub async fn workflow_fn<Request, Response, S>(
     engine: &WorkflowRuntime<Request>,
     event: WorkflowLambdaEvent<Request>,
-    workflow: fn(WorkflowContext<Request>) -> Fut,
+    workflow: S,
 ) -> Result<SqsBatchResponse, Error>
 where
     Request: DeserializeOwned + Serialize + Clone + InvocationId + Send + Debug,
-    Response: Serialize + Debug,
-    Fut: Future<Output = Result<Response, WorkflowError>>,
+    Response: Serialize + Debug + Send,
+    S: Service<WorkflowContext<Request>, Response = Response, Error = WorkflowError> + Clone,
 {
     batch_handler(
-        async |request: WorkflowEvent<Request>| {
-            let invocation_id: String = request.invocation_id().to_string().clone();
-            let ctx: WorkflowContext<Request> = engine.accept(request).await?;
+        move |request: WorkflowEvent<Request>| {
+            let engine: WorkflowRuntime<Request> = engine.clone();
+            let mut workflow: S = workflow.clone();
 
-            let workflow_span: Span = tracing::span!(tracing::Level::INFO, "Workflow", invocation_id);
+            async move {
+                let invocation_id: String = request.invocation_id().to_string();
+                let ctx: WorkflowContext<Request> = engine.accept(request).await?;
 
-            let response: Response = workflow(ctx).instrument(workflow_span).await?;
+                let workflow_span: Span =
+                    tracing::span!(tracing::Level::INFO, "Workflow", %invocation_id);
 
-            tracing::info!("Completed workflow {:?}", response);
+                let response: Response = workflow.call(ctx).instrument(workflow_span).await?;
 
-            Ok(())
+                tracing::info!("Completed workflow {:?}", response);
+
+                Ok(())
+            }
         },
         event,
     )

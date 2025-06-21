@@ -8,7 +8,7 @@ use service::ServiceRequest;
 use state_in_memory::InMemoryStateStore;
 use std::sync::Arc;
 use workflow::runtime::{WorkflowContext, WorkflowRuntime};
-use workflow::{workflow_handler, WorkflowLambdaEvent};
+use workflow::{workflow_fn, WorkflowLambdaEvent};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct SqsWorkflowRequest {
@@ -57,10 +57,10 @@ async fn main() -> Result<(), Error> {
 
     let engine: WorkflowRuntime<SqsWorkflowRequest> =
         WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), sqs_client);
-
+    
     lambda_runtime::run(service_fn(
         async |event: WorkflowLambdaEvent<SqsWorkflowRequest>| {
-            return workflow_handler(&engine, event, workflow_greeter).await;
+            return workflow_fn(&engine, event, service_fn(workflow_greeter)).await;
         },
     ))
         .await
