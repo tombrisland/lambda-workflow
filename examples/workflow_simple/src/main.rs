@@ -1,5 +1,6 @@
 mod service_example;
 
+use std::rc::Rc;
 use crate::service_example::ExampleService;
 use aws_config::BehaviorVersion;
 use lambda_runtime::{service_fn, tracing};
@@ -42,7 +43,7 @@ async fn workflow_example(
         payload: request.item_id.clone(),
     };
 
-    let result: String = ctx.call(ExampleService {}, service_request).await?;
+    let result: String = ctx.call(&ExampleService {}, service_request).await?;
 
     Ok(ResponseExample {
         id: request.id.clone(),
@@ -59,7 +60,7 @@ async fn main() -> Result<(), Error> {
         aws_sdk_sqs::Client::new(&aws_config::load_defaults(BehaviorVersion::latest()).await);
 
     let engine: WorkflowRuntime<RequestExample> =
-        WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), sqs_client);
+        WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), Rc::new(sqs_client));
 
     lambda_runtime::run(service_fn(
         async |event: WorkflowLambdaEvent<RequestExample>| {
@@ -71,6 +72,7 @@ async fn main() -> Result<(), Error> {
 
 #[cfg(test)]
 mod tests {
+    use std::rc::Rc;
     use super::*;
     use aws_lambda_events::sqs::{SqsBatchResponse, SqsEventObj};
     use lambda_runtime::{Context, LambdaEvent};
@@ -90,7 +92,7 @@ mod tests {
             aws_sdk_sqs::Client::new(&aws_config::load_defaults(BehaviorVersion::latest()).await);
 
         let engine: WorkflowRuntime<RequestExample> =
-            WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), sqs_client);
+            WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), Rc::new(sqs_client));
 
         let request = WorkflowEvent::Request(RequestExample {
             id: "id_1".to_string(),

@@ -1,5 +1,5 @@
-pub mod dummy_service;
-pub mod sqs_service;
+pub mod service_dummy;
+pub mod service_sqs;
 
 use aws_sdk_sqs::error::BoxError;
 use model::Error;
@@ -14,27 +14,27 @@ pub struct ServiceRequest<Request: serde::Serialize> {
     pub payload: Request,
 }
 
-/// A service which doesn't expect a response immediately.
+/// Name details, Request and Response types for an asynchronous service.
 /// The response is returned using a callback mechanism over SQS.
 /// The trait `CallableService` is implemented for any implementation of this.
-pub trait Service<Request, Response>
+pub trait ServiceDefinition<Request, Response> : Clone
 where
     Request: Serialize,
     Response: DeserializeOwned,
 {
     fn name(&self) -> &'static str;
 
-    fn call_type(&self) -> impl CallType<Request>;
+    fn call_engine(&self) -> impl CallEngine<Request>;
 }
 
-pub trait CallType<Request>
+pub trait CallEngine<Request>
 where
     Request: Serialize,
 {
     fn call(&self, payload: ServiceRequest<Request>) -> impl Future<Output = Result<(), Error>>;
 }
 
-pub trait CallableService<Request, Response>: Service<Request, Response>
+pub trait CallableService<Request, Response>: ServiceDefinition<Request, Response>
 where
     Request: Serialize,
     Response: DeserializeOwned,
@@ -47,10 +47,10 @@ impl<Request, Response, S> CallableService<Request, Response> for S
 where
     Request: Serialize,
     Response: DeserializeOwned,
-    S: Service<Request, Response>,
+    S: ServiceDefinition<Request, Response>,
 {
     async fn call(&self, payload: ServiceRequest<Request>) -> Result<(), BoxError> {
-        self.call_type().call(payload).await
+        self.call_engine().call(payload).await
     }
 }
 

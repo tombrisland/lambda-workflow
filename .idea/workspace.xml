@@ -36,11 +36,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c43fb571-a2e5-44dc-9fde-bf0022301c76" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/service/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/service/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/workflow/src/runtime.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/runtime.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_simple/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_simple/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_sqs/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_sqs/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TODO.md" beforeDir="false" afterPath="$PROJECT_DIR$/TODO.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

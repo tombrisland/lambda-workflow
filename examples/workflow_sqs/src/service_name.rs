@@ -1,23 +1,15 @@
 use serde::{Deserialize, Serialize};
-use service::sqs_service::SqsCall;
-use service::{CallType, Service};
+use service::service_sqs::SqsEngine;
+use service::{CallEngine, ServiceDefinition};
+use std::rc::Rc;
 
-pub struct NameService<'a> {
-    sqs_client: &'a aws_sdk_sqs::Client,
+#[derive(Clone)]
+pub struct NameService {
+    sqs_client: Rc<aws_sdk_sqs::Client>,
     queue_url: String,
 }
 
-impl<'a> NameService<'a> {
-    pub fn instance(sqs_client: &'a aws_sdk_sqs::Client) -> Self {
-        let queue_url: String = std::env::var("SQS_GREETER_SERVICE_QUEUE_URL")
-            .expect("Missing SQS_GREETER_SERVICE_QUEUE_URL environment variable");
-
-        NameService {
-            sqs_client,
-            queue_url,
-        }
-    }
-}
+const QUEUE_URL: &'static str = "SQS_GREETER_SERVICE_QUEUE_URL";
 
 #[derive(Serialize, Debug)]
 pub(crate) struct NameRequest {
@@ -29,12 +21,24 @@ pub(crate) struct NameResponse {
     pub(crate) name: String,
 }
 
-impl<'a> Service<NameRequest, NameResponse> for NameService<'a> {
+impl NameService {
+    pub fn new(sqs_client: Rc<aws_sdk_sqs::Client>) -> Self {
+        let queue_url: String = std::env::var(QUEUE_URL)
+            .expect(format!("Missing {} environment variable", QUEUE_URL).as_str());
+
+        NameService {
+            sqs_client,
+            queue_url,
+        }
+    }
+}
+
+impl ServiceDefinition<NameRequest, NameResponse> for NameService {
     fn name(&self) -> &'static str {
         "NameService"
     }
 
-    fn call_type(&self) -> impl CallType<NameRequest> {
-        SqsCall::new(self.sqs_client, &*self.queue_url)
+    fn call_engine(&self) -> impl CallEngine<NameRequest> {
+        SqsEngine::new(self.sqs_client.clone(), self.queue_url.clone())
     }
 }

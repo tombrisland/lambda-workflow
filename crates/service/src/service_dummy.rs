@@ -1,4 +1,4 @@
-use crate::{CallType, ServiceRequest};
+use crate::{CallEngine, ServiceRequest};
 use model::Error;
 use serde::Serialize;
 use std::marker::PhantomData;
@@ -16,7 +16,7 @@ impl<Request> DummyCall<Request> {
     }
 }
 
-impl<Request> CallType<Request> for DummyCall<Request>
+impl<Request> CallEngine<Request> for DummyCall<Request>
 where
     Request: Serialize,
 {

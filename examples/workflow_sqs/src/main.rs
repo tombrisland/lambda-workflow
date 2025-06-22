@@ -1,4 +1,5 @@
 mod service_name;
+
 use crate::service_name::{NameRequest, NameResponse, NameService};
 use aws_config::BehaviorVersion;
 use lambda_runtime::{service_fn, tracing};
@@ -6,6 +7,7 @@ use ::model::{Error, InvocationId, WorkflowError};
 use serde::{Deserialize, Serialize};
 use service::ServiceRequest;
 use state_in_memory::InMemoryStateStore;
+use std::rc::Rc;
 use std::sync::Arc;
 use workflow::runtime::{WorkflowContext, WorkflowRuntime};
 use workflow::{workflow_fn, WorkflowLambdaEvent};
@@ -29,6 +31,7 @@ struct SqsWorkflowResponse {
 
 async fn workflow_greeter(
     ctx: WorkflowContext<SqsWorkflowRequest>,
+    name_service: &NameService,
 ) -> Result<SqsWorkflowResponse, WorkflowError> {
     let request: &SqsWorkflowRequest = ctx.request();
 
@@ -39,9 +42,7 @@ async fn workflow_greeter(
         },
     };
 
-    let response: NameResponse = ctx
-        .call(NameService::instance(&ctx.sqs_client()), service_request)
-        .await?;
+    let response: NameResponse = ctx.call(name_service, service_request).await?;
 
     let sentence: String = format!("Hello {}!", response.name);
 
@@ -52,16 +53,25 @@ async fn workflow_greeter(
 async fn main() -> Result<(), Error> {
     tracing::init_default_subscriber();
 
-    let sqs_client: aws_sdk_sqs::Client =
-        aws_sdk_sqs::Client::new(&aws_config::load_defaults(BehaviorVersion::latest()).await);
+    let sqs_client: Rc<aws_sdk_sqs::Client> = Rc::new(aws_sdk_sqs::Client::new(
+        &aws_config::load_defaults(BehaviorVersion::latest()).await,
+    ));
+    let name_service: NameService = NameService::new(sqs_client.clone());
 
     let engine: WorkflowRuntime<SqsWorkflowRequest> =
         WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), sqs_client);
-    
+
     lambda_runtime::run(service_fn(
         async |event: WorkflowLambdaEvent<SqsWorkflowRequest>| {
-            return workflow_fn(&engine, event, service_fn(workflow_greeter)).await;
+            return workflow_fn(
+                &engine,
+                event,
+                service_fn(async |ctx: WorkflowContext<SqsWorkflowRequest>| {
+                    workflow_greeter(ctx, &name_service).await
+                }),
+            )
+            .await;
         },
     ))
-        .await
+    .await
 }

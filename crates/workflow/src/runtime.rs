@@ -12,17 +12,17 @@ use std::sync::Arc;
 #[derive(Clone)]
 pub struct WorkflowRuntime<T: DeserializeOwned + Clone + InvocationId> {
     state_store: Arc<dyn StateStore<T>>,
-    sqs_client: Rc<aws_sdk_sqs::Client>,
+    _sqs_client: Rc<aws_sdk_sqs::Client>,
 }
 
 impl<Request: Serialize + DeserializeOwned + Clone + InvocationId + Send> WorkflowRuntime<Request> {
     pub fn new(
         state_store: Arc<dyn StateStore<Request>>,
-        sqs_client: aws_sdk_sqs::Client,
+        sqs_client: Rc<aws_sdk_sqs::Client>,
     ) -> WorkflowRuntime<Request> {
         WorkflowRuntime {
             state_store,
-            sqs_client: Rc::new(sqs_client),
+            _sqs_client: sqs_client,
         }
     }
 
@@ -54,7 +54,6 @@ impl<Request: Serialize + DeserializeOwned + Clone + InvocationId + Send> Workfl
         Ok(WorkflowContext::new(
             request,
             self.state_store.clone(),
-            self.sqs_client.clone(),
         ))
     }
 }
@@ -62,35 +61,29 @@ impl<Request: Serialize + DeserializeOwned + Clone + InvocationId + Send> Workfl
 pub struct WorkflowContext<T: DeserializeOwned + Clone + InvocationId> {
     request: T,
     state_store: Arc<dyn StateStore<T>>,
-    sqs_client: Rc<aws_sdk_sqs::Client>,
 }
 
 impl<T: DeserializeOwned + Clone + InvocationId + Send + serde::Serialize> WorkflowContext<T> {
     pub fn new(
         request: T,
         state_store: Arc<dyn StateStore<T>>,
-        sqs_client: Rc<aws_sdk_sqs::Client>,
     ) -> Self {
         WorkflowContext {
             request,
             state_store,
-            sqs_client,
         }
     }
 
+    /// 
     pub fn request(&self) -> &T {
         &self.request
-    }
-
-    pub fn sqs_client(&self) -> &Rc<aws_sdk_sqs::Client> {
-        &self.sqs_client
     }
 
     /// Call an async service which won't return immediately.
     /// This will suspend execution until a response is received.
     pub async fn call<Request: serde::Serialize, Response: DeserializeOwned>(
         &self,
-        service: impl CallableService<Request, Response>,
+        service: &impl CallableService<Request, Response>,
         request: ServiceRequest<Request>,
     ) -> Result<Response, WorkflowError> {
         let invocation_id: &str = self.request.invocation_id();
@@ -144,6 +137,7 @@ impl<T: DeserializeOwned + Clone + InvocationId + Send + serde::Serialize> Workf
 
 #[cfg(test)]
 mod tests {
+    use std::rc::Rc;
     use crate::runtime::{WorkflowContext, WorkflowRuntime};
     use aws_sdk_sqs::operation::send_message::SendMessageOutput;
     use aws_smithy_mocks::mock_client;
@@ -163,7 +157,7 @@ mod tests {
 
         let sqs_client: aws_sdk_sqs::Client = mock_client!(aws_sdk_sqs, [&send_message_rule]);
         let engine: WorkflowRuntime<TestRequest> =
-            WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), sqs_client);
+            WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), Rc::new(sqs_client));
 
         let request_string: String = "test 1".to_string();
         let request: WorkflowEvent<TestRequest> =

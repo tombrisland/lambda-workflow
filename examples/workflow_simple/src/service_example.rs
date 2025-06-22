@@ -1,15 +1,16 @@
-use service::{CallType, Service};
-use service::dummy_service::DummyCall;
+use service::{CallEngine, ServiceDefinition};
+use service::service_dummy::DummyCall;
 
 /// An example service for testing which always returns OK.
+#[derive(Clone)]
 pub struct ExampleService {}
 
-impl Service<String, String> for ExampleService {
+impl ServiceDefinition<String, String> for ExampleService {
     fn name(&self) -> &'static str {
         "ExampleService"
     }
 
-    fn call_type(&self) -> impl CallType<String> {
+    fn call_engine(&self) -> impl CallEngine<String> {
         DummyCall::new()
     }
 }
