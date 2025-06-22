@@ -5,7 +5,6 @@ use aws_config::BehaviorVersion;
 use lambda_runtime::{service_fn, tracing};
 use ::model::{Error, InvocationId, WorkflowError};
 use serde::{Deserialize, Serialize};
-use service::ServiceRequest;
 use state_in_memory::InMemoryStateStore;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -34,12 +33,9 @@ async fn workflow_greeter(
     name_service: &NameService,
 ) -> Result<SqsWorkflowResponse, WorkflowError> {
     let request: &SqsWorkflowRequest = ctx.request();
-
-    let service_request: ServiceRequest<NameRequest> = ServiceRequest {
-        task_id: request.first_letter.clone(),
-        payload: NameRequest {
-            first_letter: request.first_letter.clone(),
-        },
+    
+    let service_request: NameRequest = NameRequest {
+        first_letter: request.first_letter.clone(),
     };
 
     let response: NameResponse = ctx.call(name_service, service_request).await?;

@@ -3,3 +3,8 @@ rustc-ice*
 .terraform
 terraform.tfstate
 terraform.tfstate.backup
+
+# Don't commit any accidental node stuff
+node_modules
+package-lock.json
+package.json

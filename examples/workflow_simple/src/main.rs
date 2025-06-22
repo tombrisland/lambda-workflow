@@ -1,11 +1,10 @@
 mod service_example;
 
-use crate::service_example::ExampleService;
+use crate::service_example::{ExampleService, ExampleServiceRequest, ExampleServiceResponse};
 use aws_config::BehaviorVersion;
 use lambda_runtime::{service_fn, tracing};
 use model::{Error, InvocationId, WorkflowError};
 use serde::{Deserialize, Serialize};
-use service::ServiceRequest;
 use state_in_memory::InMemoryStateStore;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -38,17 +37,14 @@ async fn workflow_example(
 
     tracing::info!("Making request in workflow example: {:?}", request);
 
-    let service_request = ServiceRequest {
-        task_id: request.item_id.clone(),
-        payload: request.item_id.clone(),
-    };
+    let service_request: ExampleServiceRequest = ExampleServiceRequest(request.item_id.clone());
 
-    let result: String = ctx.call(&ExampleService {}, service_request).await?;
+    let result: ExampleServiceResponse = ctx.call(&ExampleService {}, service_request).await?;
 
     Ok(ResponseExample {
         id: request.id.clone(),
         item_id: request.item_id.clone(),
-        payload: result,
+        payload: result.0,
     })
 }
 

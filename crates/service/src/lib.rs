@@ -9,7 +9,25 @@ use std::fmt::{Display, Formatter};
 pub struct ServiceRequest<Request: serde::Serialize> {
     // The task id is used as an idempotency key
     pub task_id: String,
+    // TODO can we make this more generic
+    pub callback_url: String,
     pub payload: Request,
+}
+
+impl<Request: serde::Serialize + TaskId> ServiceRequest<Request> {
+    pub fn new(payload: Request, callback_url: String) -> Self {
+        let task_id: String= payload.task_id().to_string();
+        
+        Self {
+            task_id,
+            callback_url,
+            payload
+        }
+    }
+}
+
+pub trait TaskId {
+    fn task_id(&self) -> &str;
 }
 
 /// Name details, Request and Response types for an asynchronous service.
@@ -17,8 +35,8 @@ pub struct ServiceRequest<Request: serde::Serialize> {
 /// The trait `CallableService` is implemented for any implementation of this.
 pub trait ServiceDefinition<Request, Response> : Clone
 where
-    Request: Serialize,
-    Response: DeserializeOwned,
+    Request: Serialize + TaskId,
+    Response: DeserializeOwned + TaskId,
 {
     fn name(&self) -> &'static str;
 
@@ -34,8 +52,8 @@ where
 
 pub trait CallableService<Request, Response>: ServiceDefinition<Request, Response>
 where
-    Request: Serialize,
-    Response: DeserializeOwned,
+    Request: Serialize + TaskId,
+    Response: DeserializeOwned + TaskId,
 {
     fn call(&self, payload: ServiceRequest<Request>) -> impl Future<Output = Result<(), Error>>;
 }
@@ -43,8 +61,8 @@ where
 // Auto implement this for ease of calling service
 impl<Request, Response, S> CallableService<Request, Response> for S
 where
-    Request: Serialize,
-    Response: DeserializeOwned,
+    Request: Serialize + TaskId,
+    Response: DeserializeOwned + TaskId,
     S: ServiceDefinition<Request, Response>,
 {
     async fn call(&self, payload: ServiceRequest<Request>) -> Result<(), Error> {

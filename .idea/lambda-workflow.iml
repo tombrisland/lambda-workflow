@@ -25,7 +25,7 @@
       <excludeFolder url="file://$MODULE_DIR$/.terraform" />
       <excludeFolder url="file://$MODULE_DIR$/crates/service_sqs/target" />
       <excludeFolder url="file://$MODULE_DIR$/examples/workflow_greeter/target" />
-      <excludeFolder url="file://$MODULE_DIR$/examples/workflow_greeter/terraform/.terraform" />
+      <excludeFolder url="file://$MODULE_DIR$/examples/workflow_greeter/tests/terraform/.terraform" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

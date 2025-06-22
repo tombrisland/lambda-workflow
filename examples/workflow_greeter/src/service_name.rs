@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
-use service::{CallEngine, ServiceDefinition};
-use std::rc::Rc;
+use service::{CallEngine, ServiceDefinition, TaskId};
 use service_sqs::SqsEngine;
+use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct NameService {
@@ -16,9 +16,22 @@ pub(crate) struct NameRequest {
     pub(crate) first_letter: String,
 }
 
+impl TaskId for NameRequest {
+    fn task_id(&self) -> &str {
+        self.first_letter.as_str()
+    }
+}
+
 #[derive(Deserialize, Debug)]
 pub(crate) struct NameResponse {
+    pub(crate) first_letter: String,
     pub(crate) name: String,
+}
+
+impl TaskId for NameResponse {
+    fn task_id(&self) -> &str {
+        self.first_letter.as_str()
+    }
 }
 
 impl NameService {

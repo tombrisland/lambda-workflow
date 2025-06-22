@@ -39,29 +39,32 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c43fb571-a2e5-44dc-9fde-bf0022301c76" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/examples/workflow_greeter/tests/run.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/workflow_greeter/tests/service_name/index.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/workflow_greeter/tests/terraform/variables.tf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/terraform/modules/lambda_async/outputs.tf" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/lambda-workflow.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/lambda-workflow.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/service/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/service/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/model/src/task.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/model/src/task.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crates/service/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/service/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/service/src/service_sqs.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/workflow/src/runtime.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/runtime.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/workflow_greeter/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/workflow_greeter/src/service_name.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/src/service_name.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/examples/workflow_simple/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_simple/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_sqs/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_sqs/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_sqs/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_sqs/src/service_name.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/src/service_name.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/workflow_simple/src/service_example.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_simple/src/service_example.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="RsBuildProfile:dev" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="RsBuildProfile:test" />
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Rust File" />
+        <option value="package.json" />
       </list>
     </option>
   </component>
@@ -140,9 +143,16 @@
     "org.rust.cargo.project.model.PROJECT_DISCOVERY": "true",
     "org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon": "",
     "org.rust.first.attach.projects": "true",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "settings.editor.selected.configurable": "vcs.Git",
     "ts.external.directory.path": "/Users/tomb/Applications/RustRover.app/Contents/plugins/javascript-plugin/jsLanguageServicesImpl/external",
     "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "GitStage.ChangesTree.GroupingKeys": [
+      "directory",
+      "module",
+      "repository"
+    ]
   }
 }]]></component>
   <component name="RecentsManager">
@@ -153,8 +163,12 @@
       <recent name="$PROJECT_DIR$/examples" />
       <recent name="$PROJECT_DIR$/crates/service/src" />
     </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/examples/workflow_greeter/tests" />
+      <recent name="$PROJECT_DIR$/examples/workflow_greeter/tests/requests" />
+    </key>
   </component>
-  <component name="RunManager" selected="Cargo.Run workflow_sqs">
+  <component name="RunManager" selected="Cargo.Test engine::tests">
     <configuration name="Build state_dynamodb" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="buildProfileId" value="dev" />
       <option name="command" value="build --package state_dynamodb --lib" />
@@ -209,6 +223,7 @@
       </method>
     </configuration>
     <configuration name="Test engine::tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="buildProfileId" value="test" />
       <option name="command" value="test --package workflow --lib engine::tests" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
@@ -266,6 +281,7 @@
       <workItem from="1749334441939" duration="6713000" />
       <workItem from="1749373223917" duration="50510000" />
       <workItem from="1749838016632" duration="32651000" />
+      <workItem from="1750587773129" duration="5626000" />
     </task>
     <servers />
   </component>
