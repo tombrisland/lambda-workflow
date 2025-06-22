@@ -7,6 +7,7 @@ use std::fmt::{Display, Formatter};
 
 #[derive(Serialize)]
 pub struct ServiceRequest<Request: serde::Serialize> {
+    pub invocation_id: String,
     // The task id is used as an idempotency key
     pub task_id: String,
     // TODO can we make this more generic
@@ -15,11 +16,12 @@ pub struct ServiceRequest<Request: serde::Serialize> {
 }
 
 impl<Request: serde::Serialize + TaskId> ServiceRequest<Request> {
-    pub fn new(payload: Request, callback_url: String) -> Self {
+    pub fn new(payload: Request, invocation_id: String, callback_url: String) -> Self {
         let task_id: String= payload.task_id().to_string();
         
         Self {
             task_id,
+            invocation_id,
             callback_url,
             payload
         }

@@ -115,7 +115,8 @@ impl<T: DeserializeOwned + Clone + InvocationId + Send + serde::Serialize> Workf
         // Can we make it non SQS specific
         let queue_url: String = std::env::var(QUEUE_URL).unwrap_or_default();
 
-        let request: ServiceRequest<Payload> = ServiceRequest::new(payload, queue_url);
+        let request: ServiceRequest<Payload> =
+            ServiceRequest::new(payload, invocation_id.to_string(), queue_url);
         let running_task: WorkflowTask = WorkflowTask {
             invocation_id: invocation_id.to_string(),
             task_id: task_id.to_string(),
