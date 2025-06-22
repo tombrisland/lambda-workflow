@@ -1,7 +1,5 @@
 pub mod service_dummy;
-pub mod service_sqs;
 
-use aws_sdk_sqs::error::BoxError;
 use model::Error;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -39,7 +37,7 @@ where
     Request: Serialize,
     Response: DeserializeOwned,
 {
-    fn call(&self, payload: ServiceRequest<Request>) -> impl Future<Output = Result<(), BoxError>>;
+    fn call(&self, payload: ServiceRequest<Request>) -> impl Future<Output = Result<(), Error>>;
 }
 
 // Auto implement this for ease of calling service
@@ -49,7 +47,7 @@ where
     Response: DeserializeOwned,
     S: ServiceDefinition<Request, Response>,
 {
-    async fn call(&self, payload: ServiceRequest<Request>) -> Result<(), BoxError> {
+    async fn call(&self, payload: ServiceRequest<Request>) -> Result<(), Error> {
         self.call_engine().call(payload).await
     }
 }

@@ -5,7 +5,5 @@ edition = "2024"
 
 [dependencies]
 serde = { workspace = true }
-serde_json = {workspace = true}
-aws-sdk-sqs = { workspace = true }
 
 model = { path = "../model" }

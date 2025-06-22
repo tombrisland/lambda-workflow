@@ -1,8 +1,8 @@
-use crate::{CallEngine, ServiceRequest};
 use model::Error;
 use serde::Serialize;
 use std::marker::PhantomData;
 use std::rc::Rc;
+use service::{CallEngine, ServiceRequest};
 
 pub struct SqsEngine<Request> {
     pub sqs_client: Rc<aws_sdk_sqs::Client>,

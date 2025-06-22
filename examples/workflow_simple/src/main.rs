@@ -1,6 +1,5 @@
 mod service_example;
 
-use std::rc::Rc;
 use crate::service_example::ExampleService;
 use aws_config::BehaviorVersion;
 use lambda_runtime::{service_fn, tracing};
@@ -8,9 +7,10 @@ use model::{Error, InvocationId, WorkflowError};
 use serde::{Deserialize, Serialize};
 use service::ServiceRequest;
 use state_in_memory::InMemoryStateStore;
+use std::rc::Rc;
 use std::sync::Arc;
 use workflow::runtime::{WorkflowContext, WorkflowRuntime};
-use workflow::{workflow_fn, WorkflowLambdaEvent};
+use workflow::{WorkflowLambdaEvent, workflow_fn};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct RequestExample {
@@ -72,22 +72,20 @@ async fn main() -> Result<(), Error> {
 
 #[cfg(test)]
 mod tests {
-    use std::rc::Rc;
     use super::*;
     use aws_lambda_events::sqs::{SqsBatchResponse, SqsEventObj};
     use lambda_runtime::{Context, LambdaEvent};
+    use model::task::CompletedTask;
     use model::{Error, WorkflowEvent, WorkflowSqsEvent};
     use state_in_memory::InMemoryStateStore;
+    use std::rc::Rc;
     use std::sync::Arc;
-    use model::task::CompletedTask;
     use test_utils::sqs_message_with_body;
     use workflow::runtime::WorkflowRuntime;
-    use workflow::{workflow_fn, WorkflowLambdaEvent};
+    use workflow::{WorkflowLambdaEvent, workflow_fn};
 
     #[tokio::test]
     async fn test_simple_workflow_runs() {
-        tracing::init_default_subscriber();
-
         let sqs_client: aws_sdk_sqs::Client =
             aws_sdk_sqs::Client::new(&aws_config::load_defaults(BehaviorVersion::latest()).await);
 

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
-use service::service_sqs::SqsEngine;
 use service::{CallEngine, ServiceDefinition};
 use std::rc::Rc;
+use service_sqs::SqsEngine;
 
 #[derive(Clone)]
 pub struct NameService {
