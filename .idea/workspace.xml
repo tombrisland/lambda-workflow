@@ -63,8 +63,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Rust File" />
         <option value="package.json" />
+        <option value="Rust File" />
       </list>
     </option>
   </component>
@@ -281,7 +281,7 @@
       <workItem from="1749334441939" duration="6713000" />
       <workItem from="1749373223917" duration="50510000" />
       <workItem from="1749838016632" duration="32651000" />
-      <workItem from="1750587773129" duration="9362000" />
+      <workItem from="1750587773129" duration="11962000" />
     </task>
     <servers />
   </component>

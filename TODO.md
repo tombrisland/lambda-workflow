@@ -1,12 +1,14 @@
 # In flight
+1. Decide on using concrete req response types and wrappers vs enabling via trait
+2. Convert the batch_handler and workflow_fn to be tower::Services and remove some of the main logic
+
+# What's next?
+
 1. Update DynamoDB module
    2. Add an in-memory cache which is initialised on first call with a query on the partition key
       3. This is then used on successive reads
 3. Look at changing the StateError struct to an enum
    4. Maybe a wrapper around it which contains the invocation_id + call_id? Could be useful elsewhere too
-
-# What's next?
-
 1. Consider re-architecting the Service to avoid so much cloning (in particular on SqsEngine - supporting different implementations)
    2. Is the CallableService actually useful or a mistake
 6. A persistent state store which writes to disk
@@ -18,3 +20,4 @@
    1. This includes any old call data? Add an option for that... it might be advantageous in some situations to keep it but for in-memory and on-disk initially probably don't want to.
 10. Put in some trait aliases to reduce the huge trait bounds
 11. Put in an integration test using localstack
+12. Add an implementation for redis

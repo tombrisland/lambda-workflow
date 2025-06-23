@@ -8,8 +8,9 @@ use serde::{Deserialize, Serialize};
 use state_in_memory::InMemoryStateStore;
 use std::rc::Rc;
 use std::sync::Arc;
-use workflow::runtime::{WorkflowContext, WorkflowRuntime};
 use workflow::{workflow_fn, WorkflowLambdaEvent};
+use workflow::context::WorkflowContext;
+use workflow::runtime::WorkflowRuntime;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct SqsWorkflowRequest {
@@ -23,7 +24,7 @@ impl InvocationId for SqsWorkflowRequest {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 struct SqsWorkflowResponse {
     sentence: String,
 }
@@ -33,7 +34,7 @@ async fn workflow_greeter(
     name_service: &NameService,
 ) -> Result<SqsWorkflowResponse, WorkflowError> {
     let request: &SqsWorkflowRequest = ctx.request();
-    
+
     let service_request: NameRequest = NameRequest {
         first_letter: request.first_letter.clone(),
     };

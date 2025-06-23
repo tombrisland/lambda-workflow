@@ -8,8 +8,9 @@ use serde::{Deserialize, Serialize};
 use state_in_memory::InMemoryStateStore;
 use std::rc::Rc;
 use std::sync::Arc;
-use workflow::runtime::{WorkflowContext, WorkflowRuntime};
-use workflow::{WorkflowLambdaEvent, workflow_fn};
+use workflow::runtime::WorkflowRuntime;
+use workflow::{workflow_fn, WorkflowLambdaEvent};
+use workflow::context::WorkflowContext;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct RequestExample {
@@ -78,7 +79,7 @@ mod tests {
     use std::sync::Arc;
     use test_utils::sqs_message_with_body;
     use workflow::runtime::WorkflowRuntime;
-    use workflow::{WorkflowLambdaEvent, workflow_fn};
+    use workflow::{workflow_fn, WorkflowLambdaEvent};
 
     #[tokio::test]
     async fn test_simple_workflow_runs() {

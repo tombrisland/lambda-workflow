@@ -1,5 +1,5 @@
 use crate::batch_handler::batch_handler;
-use crate::runtime::{WorkflowContext, WorkflowRuntime};
+use crate::runtime::{WorkflowRuntime};
 use aws_lambda_events::sqs::SqsBatchResponse;
 use lambda_runtime::tracing::{Instrument, Span};
 use lambda_runtime::{tracing, LambdaEvent, Service};
@@ -7,23 +7,25 @@ use model::{Error, InvocationId, WorkflowError, WorkflowEvent, WorkflowSqsEvent}
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use std::fmt::Debug;
+use crate::context::WorkflowContext;
 
 mod batch_handler;
 pub mod runtime;
+pub mod context;
 
 /// Creates a handler function for a workflow designed for use with `lambda_runtime::run()`
 ///
 /// Expects the function to receive an `SqsEvent` and returns an `SqsBatchResponse`.
 /// Therefore, the function *must* have `ReportBatchItemFailures` set to true.
 ///
-/// ```compile_fail
+/// ```no_compile
 /// use lambda_runtime::{service_fn, LambdaEvent};
-/// use workflow::engine::{WorkflowEngine, WorkflowContext};
-/// use workflow::{WorkflowLambdaEvent, workflow_handler};
+/// use workflow::runtime::{WorkflowRuntime, WorkflowContext};
+/// use workflow::{WorkflowLambdaEvent, workflow_fn};
 /// use model::{InvocationId, Error};
-/// use serde::Serialize;
+/// use serde::{Serialize, Deserialize};
 ///
-/// #[derive(Clone, Serialize, Debug)]
+/// #[derive(Clone, Serialize, Deserialize, Debug)]
 /// struct ExampleRequest {
 ///     id: String,
 /// }
@@ -36,11 +38,11 @@ pub mod runtime;
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Error> {
-/// let engine: WorkflowEngine<ExampleRequest> = WorkflowEngine::new(Arc::new(()), ());
+///     let engine: WorkflowRuntime<ExampleRequest> = WorkflowRuntime::new(Arc::new(()), ());
 ///
 ///     let service_func = service_fn(
 ///        async |event: WorkflowLambdaEvent<ExampleRequest>| {
-///            return workflow_handler(&engine, event, workflow_example).await;
+///            return workflow_fn(&engine, event, workflow_example).await;
 ///        }
 ///     ));
 ///     lambda_runtime::run(service_func).await?;
