@@ -29,3 +29,9 @@ variable "environment" {
   type = map(string)
   default = {}
 }
+
+variable "aws_iam_policy_documents" {
+  description = "List of JSON policy documents to attach"
+  type = list(string)
+  default = []
+}

@@ -14,6 +14,7 @@ resource "aws_iam_role" "this" {
   })
 }
 
+// Give permissions to input and output queues
 data "aws_iam_policy_document" "this" {
   statement {
     actions = [
@@ -33,6 +34,16 @@ data "aws_iam_policy_document" "this" {
       "*"
     ]
   }
+}
+
+resource "aws_iam_policy" "policies" {
+  for_each = toset(concat([
+    data.aws_iam_policy_document.this.json
+    ],
+    var.aws_iam_policy_documents
+  ))
+
+  policy = each.value
 }
 
 resource "aws_iam_role_policy_attachment" "this" {
