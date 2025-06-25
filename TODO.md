@@ -16,6 +16,7 @@
 8. Add multiple helper methods to the context
    1. callMultiple or callAll() - for when you want to wait for multiple tasks but fire them off together
    2. Some save that can be performed on long running operations to avoid replaying them (.run() with a save feature like checkpointing code)
+   3. Do you actually just want some kind of state 
 9. Clear out the old invocations once they get to the end of the workflow
    1. This includes any old call data? Add an option for that... it might be advantageous in some situations to keep it but for in-memory and on-disk initially probably don't want to.
 10. Put in some trait aliases to reduce the huge trait bounds

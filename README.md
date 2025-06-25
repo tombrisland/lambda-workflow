@@ -1,12 +1,10 @@
-# Introduction
+# Lambda Workflow
 
 `lambda-workflow` is a serverless workflow engine.
 
-The project relies on using an external state store in conjunction with SQS messages to invoke asynchronous services, suspend operation, then resume upon receiving a response.
+The project relies on using an external state store in conjunction with SQS messages to invoke asynchronous services, suspend operation, then resume upon receiving a callback.
 
-* Choose between multiple backends
-  * InMemory *(Single instance or testing)*
-  * DynamoDB
+* DynamoDB backend for state storage
 * Write workflows as Rust code
 * Call asynchronous services via SQS callbacks
 
