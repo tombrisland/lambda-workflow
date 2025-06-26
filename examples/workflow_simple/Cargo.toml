@@ -12,6 +12,7 @@ aws-sdk-sqs = { workspace = true }
 lambda_runtime = { workspace = true }
 
 tokio = { workspace = true }
+futures = {workspace = true}
 
 model = { path = "../../crates/model" }
 service = { path = "../../crates/service" }

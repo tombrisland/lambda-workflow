@@ -57,7 +57,7 @@ async fn main() -> Result<(), Error> {
 
     let engine: WorkflowRuntime<SqsWorkflowRequest> =
         WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), sqs_client);
-
+    
     lambda_runtime::run(service_fn(
         async |event: WorkflowLambdaEvent<SqsWorkflowRequest>| {
             return workflow_fn(

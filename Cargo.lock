@@ -3038,6 +3038,7 @@ dependencies = [
  "aws-config",
  "aws-sdk-sqs",
  "aws_lambda_events",
+ "futures",
  "lambda_runtime",
  "model",
  "serde",

@@ -9,19 +9,23 @@ use std::future::Future;
 use std::iter::Zip;
 use std::vec::IntoIter;
 
+
+
+
+
 /// Use the specified `Handler` to process a batch of SQS messages.
-pub(crate) async fn batch_handler<Handler, Body, Fut>(
+pub async fn handle_sqs_batch<Handler, Body, HandlerFuture>(
     handler: Handler,
     event: LambdaEvent<SqsEventObj<Body>>,
 ) -> Result<SqsBatchResponse, Error>
 where
-    Handler: Fn(Body) -> Fut,
-    Fut: Future<Output = Result<(), WorkflowError>>,
+    Handler: Fn(Body) -> HandlerFuture,
+    HandlerFuture: Future<Output = Result<(), WorkflowError>>,
     Body: DeserializeOwned + Serialize + Clone,
 {
     let records: Vec<SqsMessageObj<Body>> = event.payload.records;
 
-    tracing::debug!(records = records.len(), "Handling batch of SQS messages");
+    tracing::debug!(records = records.len(), "Received batch of SQS messages");
 
     // Start a task for each SQS message
     let (ids, tasks): (Vec<String>, Vec<_>) = records
@@ -51,7 +55,7 @@ where
     })
 }
 
-fn collect_batch_failures(
+pub fn collect_batch_failures(
     results: Zip<IntoIter<String>, IntoIter<Result<(), WorkflowError>>>,
 ) -> Vec<BatchItemFailure> {
     results
@@ -77,7 +81,7 @@ fn collect_batch_failures(
 
 #[cfg(test)]
 mod tests {
-    use crate::batch_handler::batch_handler;
+    use crate::batch_handler::handle_sqs_batch;
     use aws_lambda_events::sqs::SqsEventObj;
     use lambda_runtime::{Context, LambdaEvent};
     use model::WorkflowError;
@@ -102,7 +106,7 @@ mod tests {
             ],
         };
 
-        let response = batch_handler(handler, LambdaEvent::new(sqs_event, Context::default()))
+        let response = handle_sqs_batch(handler, LambdaEvent::new(sqs_event, Context::default()))
             .await
             .unwrap();
         assert!(matches!(response.batch_item_failures.len(), 0));
@@ -119,7 +123,7 @@ mod tests {
             records: vec![sqs_message_with_body("value 1".to_string())],
         };
 
-        let response = batch_handler(handler, LambdaEvent::new(sqs_event, Context::default()))
+        let response = handle_sqs_batch(handler, LambdaEvent::new(sqs_event, Context::default()))
             .await
             .unwrap();
         assert!(matches!(response.batch_item_failures.len(), 0));
@@ -150,7 +154,7 @@ mod tests {
             ],
         };
 
-        let response = batch_handler(handler, LambdaEvent::new(sqs_event, Context::default()))
+        let response = handle_sqs_batch(handler, LambdaEvent::new(sqs_event, Context::default()))
             .await
             .unwrap();
         assert!(matches!(response.batch_item_failures.len(), 1));
@@ -174,7 +178,7 @@ mod tests {
             records: vec![sqs_message_with_body("value 1".to_string())],
         };
 
-        let response = batch_handler(handler, LambdaEvent::new(sqs_event, Context::default()))
+        let response = handle_sqs_batch(handler, LambdaEvent::new(sqs_event, Context::default()))
             .await
             .unwrap();
         assert!(matches!(response.batch_item_failures.len(), 1));

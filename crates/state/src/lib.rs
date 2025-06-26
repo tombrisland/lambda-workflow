@@ -12,7 +12,7 @@ use std::fmt::{Debug, Display, Formatter};
 /// An invocation is the original request to the workflow.
 /// A call is an asynchronous request made from within the workflow.
 #[async_trait]
-pub trait StateStore<WorkflowRequest: Serialize + DeserializeOwned + Clone + Send> {
+pub trait StateStore<WorkflowRequest: Serialize + DeserializeOwned + Clone + Send>: Send + Sync {
     async fn put_invocation(
         &self,
         invocation: WorkflowInvocation<WorkflowRequest>,

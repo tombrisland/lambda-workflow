@@ -10,13 +10,13 @@ use crate::context::WorkflowContext;
 #[derive(Clone)]
 pub struct WorkflowRuntime<T: DeserializeOwned + Clone + InvocationId> {
     state_store: Arc<dyn StateStore<T>>,
-    _sqs_client: Rc<aws_sdk_sqs::Client>,
+    _sqs_client: Arc<aws_sdk_sqs::Client>,
 }
 
 impl<Request: Serialize + DeserializeOwned + Clone + InvocationId + Send> WorkflowRuntime<Request> {
     pub fn new(
         state_store: Arc<dyn StateStore<Request>>,
-        sqs_client: Rc<aws_sdk_sqs::Client>,
+        sqs_client: Arc<aws_sdk_sqs::Client>,
     ) -> WorkflowRuntime<Request> {
         WorkflowRuntime {
             state_store,
@@ -76,7 +76,7 @@ mod tests {
 
         let sqs_client: aws_sdk_sqs::Client = mock_client!(aws_sdk_sqs, [&send_message_rule]);
         let engine: WorkflowRuntime<TestRequest> =
-            WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), Rc::new(sqs_client));
+            WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), Arc::new(sqs_client));
 
         let request_string: String = "test 1".to_string();
         let request: WorkflowEvent<TestRequest> =

@@ -38,73 +38,20 @@
     </cargoProject>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c43fb571-a2e5-44dc-9fde-bf0022301c76" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_25_06_2025_20_28_[Changes]/shelved.patch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_25_06_2025_20_28_[Changes]1/shelved.patch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_25_06_2025_20_28__Changes_.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/lambda-workflow.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/lambda-workflow.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/terraform.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/terraform.xml" afterDir="false" />
+    <list default="true" id="c43fb571-a2e5-44dc-9fde-bf0022301c76" name="Changes" comment="minor README updates">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TODO.md" beforeDir="false" afterPath="$PROJECT_DIR$/TODO.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/model/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/crates/model/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/model/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/model/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/model/src/invocation.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/model/src/invocation.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/model/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/model/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/model/src/task.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/model/src/task.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/service/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/crates/service/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/service/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/service/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/service/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/service/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/service/src/service_dummy.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/service/src/service_dummy.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/service_sqs/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/crates/service_sqs/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/service_sqs/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/service_sqs/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/service_sqs/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/service_sqs/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/state/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/crates/state/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/state/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/state/Cargo.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crates/state/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/state/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/state_dynamodb/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/state_dynamodb/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/state_dynamodb/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/state_dynamodb/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/state_in_memory/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/crates/state_in_memory/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/state_in_memory/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/state_in_memory/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/state_in_memory/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/state_in_memory/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/test_utils/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/test_utils/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/test_utils/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/test_utils/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/workflow/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/workflow/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/Cargo.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crates/workflow/src/batch_handler.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/batch_handler.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/workflow/src/context.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/context.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crates/workflow/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/lib.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crates/workflow/src/runtime.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/runtime.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_greeter/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_greeter/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/Cargo.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/examples/workflow_greeter/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_greeter/src/service_name.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/src/service_name.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_greeter/tests/integration_test.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/tests/integration_test.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_greeter/tests/requests/request.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/tests/requests/request.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_greeter/tests/service_name/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/tests/service_name/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_greeter/tests/terraform/.terraform.lock.hcl" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/tests/terraform/.terraform.lock.hcl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_greeter/tests/terraform/main.tf" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/tests/terraform/main.tf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_greeter/tests/terraform/variables.tf" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/tests/terraform/variables.tf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_simple/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_simple/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_simple/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_simple/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_simple/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_simple/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_simple/src/service_example.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_simple/src/service_example.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/terraform/modules/lambda_async/iam.tf" beforeDir="false" afterPath="$PROJECT_DIR$/terraform/modules/lambda_async/iam.tf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/terraform/modules/lambda_async/main.tf" beforeDir="false" afterPath="$PROJECT_DIR$/terraform/modules/lambda_async/main.tf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/terraform/modules/lambda_async/outputs.tf" beforeDir="false" afterPath="$PROJECT_DIR$/terraform/modules/lambda_async/outputs.tf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/terraform/modules/lambda_async/variables.tf" beforeDir="false" afterPath="$PROJECT_DIR$/terraform/modules/lambda_async/variables.tf" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="RsBuildProfile:test" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="RsBuildProfile:dev" />
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
@@ -213,7 +160,7 @@
       <recent name="$PROJECT_DIR$/examples/workflow_greeter/tests/requests" />
     </key>
   </component>
-  <component name="RunManager" selected="Cargo.Test engine::tests">
+  <component name="RunManager" selected="Cargo.Run workflow_simple">
     <configuration name="Build state_dynamodb" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="buildProfileId" value="dev" />
       <option name="command" value="build --package state_dynamodb --lib" />
@@ -232,9 +179,9 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Run workflow_sqs" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+    <configuration name="Run workflow_simple" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="buildProfileId" value="dev" />
-      <option name="command" value="run --package workflow_sqs --bin workflow_sqs" />
+      <option name="command" value="run --package workflow_simple --bin workflow_simple" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />
@@ -250,8 +197,9 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test batch_handler::tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package workflow --lib batch_handler::tests" />
+    <configuration name="Run workflow_sqs" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="buildProfileId" value="dev" />
+      <option name="command" value="run --package workflow_sqs --bin workflow_sqs" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />
@@ -305,11 +253,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Cargo.Run workflow_simple" />
         <item itemvalue="Cargo.Run workflow_sqs" />
         <item itemvalue="Cargo.Test main::tests" />
         <item itemvalue="Cargo.Build state_dynamodb" />
         <item itemvalue="Cargo.Test engine::tests" />
-        <item itemvalue="Cargo.Test batch_handler::tests" />
       </list>
     </recent_temporary>
   </component>
@@ -327,10 +275,24 @@
       <workItem from="1749373223917" duration="50510000" />
       <workItem from="1749838016632" duration="32651000" />
       <workItem from="1750587773129" duration="12796000" />
+      <workItem from="1750950893304" duration="2350000" />
     </task>
+    <task id="LOCAL-00001" summary="minor README updates">
+      <option name="closed" value="true" />
+      <created>1750885098789</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1750885098789</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="minor README updates" />
+    <option name="LAST_COMMIT_MESSAGE" value="minor README updates" />
   </component>
 </project>
