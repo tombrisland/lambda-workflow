@@ -1,27 +1,23 @@
 use aws_lambda_events::sqs::{BatchItemFailure, SqsBatchResponse, SqsEventObj, SqsMessageObj};
 use lambda_runtime::tracing::instrument::Instrumented;
 use lambda_runtime::tracing::{Instrument, Span};
-use lambda_runtime::{tracing, Error, LambdaEvent};
+use lambda_runtime::{Error, LambdaEvent, tracing};
 use model::WorkflowError;
-use serde::de::DeserializeOwned;
 use serde::Serialize;
+use serde::de::DeserializeOwned;
 use std::future::Future;
 use std::iter::Zip;
 use std::vec::IntoIter;
 
-
-
-
-
 /// Use the specified `Handler` to process a batch of SQS messages.
-pub async fn handle_sqs_batch<Handler, HandlerFuture, Payload, Response>(
+pub(crate) async fn handle_sqs_batch<Handler, HandlerFuture, Payload, Response>(
     handler: Handler,
     event: LambdaEvent<SqsEventObj<Payload>>,
 ) -> Result<SqsBatchResponse, Error>
 where
     Handler: Fn(Payload) -> HandlerFuture,
     HandlerFuture: Future<Output = Result<Response, WorkflowError>>,
-    Payload: DeserializeOwned + Serialize + Clone
+    Payload: DeserializeOwned + Serialize + Clone,
 {
     let records: Vec<SqsMessageObj<Payload>> = event.payload.records;
 

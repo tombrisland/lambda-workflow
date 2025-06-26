@@ -3,17 +3,15 @@ use crate::context::WorkflowContext;
 use crate::runtime::WorkflowRuntime;
 use aws_lambda_events::sqs::SqsBatchResponse;
 use lambda_runtime::tracing::{Instrument, Span};
-use lambda_runtime::{tracing, LambdaEvent, Service};
+use lambda_runtime::{LambdaEvent, tracing};
 use model::{Error, InvocationId, WorkflowError, WorkflowEvent, WorkflowSqsEvent};
-use serde::de::DeserializeOwned;
 use serde::Serialize;
+use serde::de::DeserializeOwned;
 use std::fmt::Debug;
 use std::future::Future;
 use std::pin::Pin;
-use std::sync::Arc;
-use std::task::{Context, Poll};
 
-pub mod batch_handler;
+mod batch_handler;
 pub mod context;
 pub mod runtime;
 
@@ -58,133 +56,33 @@ pub mod runtime;
 ///     Ok(())
 /// }
 /// ```
-pub async fn workflow_fn<Request, Response, S>(
-    runtime: WorkflowRuntime<Request>,
-    event: WorkflowLambdaEvent<Request>,
-    workflow: S,
-) -> Result<SqsBatchResponse, Error>
+pub fn workflow_fn<'a, WorkflowRequest, WorkflowResponse, WorkflowFuture, LambdaFuture>(
+    runtime: &'a WorkflowRuntime<WorkflowRequest>,
+    workflow: &'a fn(WorkflowContext<WorkflowRequest>) -> WorkflowFuture,
+) -> impl Fn(
+    WorkflowLambdaEvent<WorkflowRequest>,
+) -> Pin<Box<dyn Future<Output = Result<SqsBatchResponse, Error>> + 'a>>
 where
-    Request: DeserializeOwned + Serialize + Clone + InvocationId + Send + Debug,
-    Response: Serialize + Debug + Send,
-    S: Service<WorkflowContext<Request>, Response = Response, Error = WorkflowError> + Clone,
-{
-    handle_sqs_batch(
-        move |request: WorkflowEvent<Request>| {
-            let engine: WorkflowRuntime<Request> = runtime.clone();
-            let mut workflow: S = workflow.clone();
-
-            async move {
-                let invocation_id: String = request.invocation_id().to_string();
-                let ctx: WorkflowContext<Request> = engine.accept(request).await?;
-
-                let workflow_span: Span =
-                    tracing::span!(tracing::Level::INFO, "Workflow", %invocation_id);
-
-                let response: Response = workflow.call(ctx).instrument(workflow_span).await?;
-
-                tracing::info!("Completed workflow {:?}", response);
-
-                Ok(())
-            }
-        },
-        event,
-    )
-    .await
-}
-
-/// Custom future for workflow execution
-pub struct WorkflowFuture<Request, BatchFuture>
-where
-    Request: DeserializeOwned + Serialize + Clone + InvocationId + Debug + Send + 'static,
-    BatchFuture: Future<Output = Result<SqsBatchResponse, Error>>,
-{
-    batch_future: BatchFuture,
-    _phantom: std::marker::PhantomData<Request>,
-}
-
-impl<Request, BatchFuture> Future for WorkflowFuture<Request, BatchFuture>
-where
-    Request: DeserializeOwned + Serialize + Clone + InvocationId + Debug + Send + 'static,
-    BatchFuture: Future<Output = Result<SqsBatchResponse, Error>>,
-{
-    type Output = Result<SqsBatchResponse, Error>;
-
-    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        // Safety: We're only projecting to batch_future which is not self-referential
-        let batch_future = unsafe { self.map_unchecked_mut(|s| &mut s.batch_future) };
-        batch_future.poll(cx)
-    }
-}
-
-type BatchFuture = Pin<Box<dyn Future<Output = Result<SqsBatchResponse, Error>> + Send>>;
-
-/// Creates a workflow handler function that can be called directly by `lambda_runtime::run()`
-// pub fn workflow_fn2<Request, Response, WorkflowFunction, WF>(
-//     runtime: WorkflowRuntime<Request>,
-//     workflow: WorkflowFunction,
-// ) -> impl Fn(WorkflowLambdaEvent<Request>) -> WorkflowFuture<Request, BatchFuture>
-// where
-//     Request: DeserializeOwned + Serialize + Clone + InvocationId + Debug + Send + 'static,
-//     Response: Serialize + Debug,
-//     WorkflowFunction: Fn(WorkflowContext<Request>) -> WF + Send + Sync + 'static,
-//     WF: Future<Output = Result<Response, WorkflowError>> + Send + 'static,
-// {
-//     // Create a shared handler that captures both runtime and workflow once
-//     let shared_handler = Arc::new(WorkflowHandler {
-//         runtime: Arc::new(runtime),
-//         workflow: Arc::new(workflow),
-//     });
-//
-//     move |event: WorkflowLambdaEvent<Request>| {
-//         let handler = shared_handler.clone();
-//
-//         let batch_future: BatchFuture = Box::pin(async move {
-//             batch_handler(
-//                 move |request: WorkflowEvent<Request>| {
-//                     let handler = handler.clone();
-//
-//                     async move { handler.execute(request).await }
-//                 },
-//                 event,
-//             )
-//             .await
-//         });
-//
-//         WorkflowFuture {
-//             batch_future,
-//             _phantom: std::marker::PhantomData,
-//         }
-//     }
-// }
-
-// Encapsulate both runtime and workflow in a single struct
-pub struct WorkflowHandler<WorkflowRequest: Clone + DeserializeOwned + InvocationId, WorkflowFunction> {
-    pub runtime: WorkflowRuntime<WorkflowRequest>,
-    pub workflow: WorkflowFunction,
-}
-
-impl<WorkflowRequest, WorkflowResponse, WorkflowFunction, WorkflowFuture>
-    WorkflowHandler<WorkflowRequest, WorkflowFunction>
-where
-    WorkflowRequest: DeserializeOwned + Serialize + Clone + InvocationId + Debug + Send,
-    WorkflowResponse: Serialize + Debug,
-    WorkflowFunction: Fn(WorkflowContext<WorkflowRequest>) -> WorkflowFuture,
+    WorkflowRequest: DeserializeOwned + Clone + InvocationId + Serialize + Debug + Send,
+    WorkflowResponse: DeserializeOwned + Clone + InvocationId + Serialize + Debug + 'a,
     WorkflowFuture: Future<Output = Result<WorkflowResponse, WorkflowError>>,
+    LambdaFuture: Future<Output = Result<SqsBatchResponse, Error>>,
 {
-    pub async fn invoke(
-        &self,
-        request: WorkflowEvent<WorkflowRequest>,
-    ) -> Result<WorkflowResponse, WorkflowError> {
+    // Handler for each message
+    let handler = move |request: WorkflowEvent<WorkflowRequest>| async move {
         let invocation_id: String = request.invocation_id().to_string();
-        let ctx: WorkflowContext<WorkflowRequest> = self.runtime.accept(request).await?;
+        let ctx: WorkflowContext<WorkflowRequest> = runtime.accept(request).await?;
 
         let workflow_span: Span = tracing::span!(tracing::Level::INFO, "Workflow", invocation_id);
+        let response: WorkflowResponse = workflow(ctx).instrument(workflow_span).await?;
 
-        let response: WorkflowResponse = (self.workflow)(ctx).instrument(workflow_span).await?;
-
+        // For now just log the response
         tracing::info!("Completed workflow {:?}", response);
         Ok(response)
-    }
+    };
+
+    // Handler for the outer Lambda event
+    move |event: WorkflowLambdaEvent<WorkflowRequest>| Box::pin(handle_sqs_batch(handler, event))
 }
 
 pub type WorkflowLambdaEvent<T> = LambdaEvent<WorkflowSqsEvent<T>>;

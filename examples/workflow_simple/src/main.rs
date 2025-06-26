@@ -2,19 +2,14 @@ mod service_example;
 
 use crate::service_example::{ExampleService, ExampleServiceRequest, ExampleServiceResponse};
 use aws_config::BehaviorVersion;
-use aws_lambda_events::sqs::{BatchItemFailure, SqsBatchResponse, SqsEventObj, SqsMessageObj};
-use lambda_runtime::tracing::instrument::Instrumented;
-use lambda_runtime::tracing::{Instrument, Span};
-use lambda_runtime::{tracing, LambdaEvent};
-use model::{Error, InvocationId, WorkflowError, WorkflowEvent};
+use lambda_runtime::{service_fn, tracing};
+use model::{Error, InvocationId, WorkflowError};
 use serde::{Deserialize, Serialize};
 use state_in_memory::InMemoryStateStore;
-use std::pin::Pin;
 use std::sync::Arc;
-use workflow::batch_handler::{handle_sqs_batch, collect_batch_failures};
 use workflow::context::WorkflowContext;
 use workflow::runtime::WorkflowRuntime;
-use workflow::{WorkflowHandler, WorkflowLambdaEvent};
+use workflow::workflow_fn;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct RequestExample {
@@ -41,7 +36,7 @@ async fn workflow_example(
 ) -> Result<ResponseExample, WorkflowError> {
     let request: &RequestExample = ctx.request();
 
-    tracing::info!("Making request in workflow example: {:?}", request);
+    tracing::info!("Making a request in an example workflow: {:?}", request);
 
     let service_request: ExampleServiceRequest = ExampleServiceRequest(request.item_id.clone());
 
@@ -52,59 +47,6 @@ async fn workflow_example(
         item_id: request.item_id.clone(),
         payload: result.0,
     })
-}
-
-fn workflow_fn<WorkflowFuture, LambdaFuture>(
-    runtime: WorkflowRuntime<RequestExample>,
-    func: fn(WorkflowContext<RequestExample>) -> WorkflowFuture,
-) -> impl Fn(
-    LambdaEvent<SqsEventObj<WorkflowEvent<RequestExample>>>,
-) -> Pin<Box<dyn Future<Output = Result<SqsBatchResponse, Error>>>>
-where
-    WorkflowFuture: Future<Output = Result<ResponseExample, WorkflowError>>,
-    LambdaFuture: Future<Output = Result<SqsBatchResponse, Error>>,
-{
-    let handler = WorkflowHandler {
-        runtime,
-        workflow: func,
-    };
-
-    move |event: LambdaEvent<SqsEventObj<WorkflowEvent<RequestExample>>>| {
-        let records: Vec<SqsMessageObj<WorkflowEvent<RequestExample>>> = event.payload.records;
-
-        tracing::debug!(records = records.len(), "Received batch of SQS messages");
-
-        // Start a task for each SQS message
-        let (ids, tasks): (Vec<String>, Vec<WorkflowFuture>) = records
-            .into_iter()
-            .map(|message: SqsMessageObj<WorkflowEvent<RequestExample>>| {
-                // We need to keep the message_id to report failures to SQS
-                let message_id: String = message.message_id.unwrap_or_default();
-                let body: WorkflowEvent<RequestExample> = message.body;
-
-                let message_span: Span =
-                    tracing::span!(tracing::Level::INFO, "SQS Handler", message_id);
-
-                let task: Instrumented<WorkflowFuture> =
-                    handler.invoke(body).instrument(message_span);
-
-                (message_id, task)
-            })
-            .unzip();
-
-        Box::pin(async move {
-            // Process all messages concurrently
-            let results: Vec<Result<ResponseExample, WorkflowError>> =
-                futures::future::join_all(tasks).await;
-
-            let batch_item_failures: Vec<BatchItemFailure> =
-                collect_batch_failures(ids.into_iter().zip(results).into_iter());
-
-            Ok(SqsBatchResponse {
-                batch_item_failures,
-            })
-        })
-    }
 }
 
 #[tokio::main]
@@ -121,10 +63,13 @@ async fn main() -> Result<(), Error> {
 
     let example: String = "".to_string();
 
-    lambda_runtime::run(workflow_fn(runtime, move |event| {
+    // TODO consider implementing service for response from workflow_fn
+    // Could pass in owned values, create your grouped value and return it within the future to satisfy ownership
+    let x = move |event| {
         workflow_example(event, example)
-    }))
-    .await
+    };
+
+    lambda_runtime::run(service_fn(workflow_fn(&runtime, &x))).await
 }
 
 #[cfg(test)]
@@ -137,8 +82,8 @@ mod tests {
     use state_in_memory::InMemoryStateStore;
     use std::sync::Arc;
     use test_utils::sqs_message_with_body;
-    use workflow::runtime::WorkflowRuntime;
     use workflow::WorkflowLambdaEvent;
+    use workflow::runtime::WorkflowRuntime;
 
     #[tokio::test]
     async fn test_simple_workflow_runs() {

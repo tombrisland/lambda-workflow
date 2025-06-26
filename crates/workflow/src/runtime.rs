@@ -1,15 +1,13 @@
+use crate::context::WorkflowContext;
 use model::invocation::WorkflowInvocation;
 use model::{Error, InvocationId, WorkflowEvent};
-use serde::de::DeserializeOwned;
 use serde::Serialize;
+use serde::de::DeserializeOwned;
 use state::StateStore;
-use std::rc::Rc;
 use std::sync::Arc;
-use crate::context::WorkflowContext;
 
-#[derive(Clone)]
-pub struct WorkflowRuntime<T: DeserializeOwned + Clone + InvocationId> {
-    state_store: Arc<dyn StateStore<T>>,
+pub struct WorkflowRuntime<WorkflowRequest: DeserializeOwned + Clone + InvocationId> {
+    state_store: Arc<dyn StateStore<WorkflowRequest>>,
     _sqs_client: Arc<aws_sdk_sqs::Client>,
 }
 
@@ -55,15 +53,14 @@ impl<Request: Serialize + DeserializeOwned + Clone + InvocationId + Send> Workfl
 
 #[cfg(test)]
 mod tests {
-    use crate::runtime::{WorkflowRuntime};
+    use crate::context::WorkflowContext;
+    use crate::runtime::WorkflowRuntime;
     use aws_sdk_sqs::operation::send_message::SendMessageOutput;
     use aws_smithy_mocks::mock_client;
     use model::{InvocationId, WorkflowEvent};
     use state_in_memory::InMemoryStateStore;
-    use std::rc::Rc;
     use std::sync::Arc;
     use test_utils::TestRequest;
-    use crate::context::WorkflowContext;
 
     #[tokio::test]
     async fn test_engine_initialises_request() {
@@ -75,8 +72,10 @@ mod tests {
             });
 
         let sqs_client: aws_sdk_sqs::Client = mock_client!(aws_sdk_sqs, [&send_message_rule]);
-        let engine: WorkflowRuntime<TestRequest> =
-            WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), Arc::new(sqs_client));
+        let engine: WorkflowRuntime<TestRequest> = WorkflowRuntime::new(
+            Arc::new(InMemoryStateStore::default()),
+            Arc::new(sqs_client),
+        );
 
         let request_string: String = "test 1".to_string();
         let request: WorkflowEvent<TestRequest> =
