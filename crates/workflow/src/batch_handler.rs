@@ -14,26 +14,26 @@ use std::vec::IntoIter;
 
 
 /// Use the specified `Handler` to process a batch of SQS messages.
-pub async fn handle_sqs_batch<Handler, Body, HandlerFuture>(
+pub async fn handle_sqs_batch<Handler, HandlerFuture, Payload, Response>(
     handler: Handler,
-    event: LambdaEvent<SqsEventObj<Body>>,
+    event: LambdaEvent<SqsEventObj<Payload>>,
 ) -> Result<SqsBatchResponse, Error>
 where
-    Handler: Fn(Body) -> HandlerFuture,
-    HandlerFuture: Future<Output = Result<(), WorkflowError>>,
-    Body: DeserializeOwned + Serialize + Clone,
+    Handler: Fn(Payload) -> HandlerFuture,
+    HandlerFuture: Future<Output = Result<Response, WorkflowError>>,
+    Payload: DeserializeOwned + Serialize + Clone
 {
-    let records: Vec<SqsMessageObj<Body>> = event.payload.records;
+    let records: Vec<SqsMessageObj<Payload>> = event.payload.records;
 
     tracing::debug!(records = records.len(), "Received batch of SQS messages");
 
     // Start a task for each SQS message
     let (ids, tasks): (Vec<String>, Vec<_>) = records
         .into_iter()
-        .map(|message: SqsMessageObj<Body>| {
+        .map(|message: SqsMessageObj<Payload>| {
             // We need to keep the message_id to report failures to SQS
             let message_id: String = message.message_id.unwrap_or_default();
-            let body: Body = message.body;
+            let body: Payload = message.body;
 
             let message_span: Span =
                 tracing::span!(tracing::Level::INFO, "SQS Handler", message_id);
@@ -45,7 +45,7 @@ where
         .unzip();
 
     // Process all messages concurrently
-    let results: Vec<Result<(), WorkflowError>> = futures::future::join_all(tasks).await;
+    let results: Vec<Result<Response, WorkflowError>> = futures::future::join_all(tasks).await;
 
     let batch_item_failures: Vec<BatchItemFailure> =
         collect_batch_failures(ids.into_iter().zip(results).into_iter());
@@ -55,14 +55,14 @@ where
     })
 }
 
-pub fn collect_batch_failures(
-    results: Zip<IntoIter<String>, IntoIter<Result<(), WorkflowError>>>,
+pub fn collect_batch_failures<Response>(
+    results: Zip<IntoIter<String>, IntoIter<Result<Response, WorkflowError>>>,
 ) -> Vec<BatchItemFailure> {
     results
         .filter_map(
             // Keep message ids only where failure was not Suspended
-            |(message_id, result): (String, Result<(), WorkflowError>)| match result {
-                Ok(()) => None,
+            |(message_id, result): (String, Result<Response, WorkflowError>)| match result {
+                Ok(_) => None,
                 Err(workflow_err) => match workflow_err {
                     WorkflowError::Suspended => None,
                     WorkflowError::Error(err) => {
