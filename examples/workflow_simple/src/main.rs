@@ -2,14 +2,16 @@ mod service_example;
 
 use crate::service_example::{ExampleService, ExampleServiceRequest, ExampleServiceResponse};
 use aws_config::BehaviorVersion;
-use lambda_runtime::{service_fn, tracing};
+use aws_lambda_events::sqs::SqsBatchResponse;
+use lambda_runtime::{service_fn, tracing, Service};
 use model::{Error, InvocationId, WorkflowError};
 use serde::{Deserialize, Serialize};
 use state_in_memory::InMemoryStateStore;
+use std::pin::Pin;
 use std::sync::Arc;
 use workflow::context::WorkflowContext;
 use workflow::runtime::WorkflowRuntime;
-use workflow::workflow_fn;
+use workflow::{workflow_fn, WorkflowLambdaEvent};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct RequestExample {
@@ -30,9 +32,15 @@ struct ResponseExample {
     payload: String,
 }
 
+impl InvocationId for ResponseExample {
+    fn invocation_id(&self) -> &str {
+        todo!()
+    }
+}
+
 async fn workflow_example(
     ctx: WorkflowContext<RequestExample>,
-    example: String,
+    example: &String,
 ) -> Result<ResponseExample, WorkflowError> {
     let request: &RequestExample = ctx.request();
 
@@ -63,13 +71,10 @@ async fn main() -> Result<(), Error> {
 
     let example: String = "".to_string();
 
-    // TODO consider implementing service for response from workflow_fn
-    // Could pass in owned values, create your grouped value and return it within the future to satisfy ownership
-    let x = move |event| {
-        workflow_example(event, example)
-    };
-
-    lambda_runtime::run(service_fn(workflow_fn(&runtime, &x))).await
+    lambda_runtime::run(service_fn(workflow_fn(&runtime, |ctx| {
+        workflow_example(ctx, &example)
+    })))
+    .await
 }
 
 #[cfg(test)]
@@ -82,8 +87,8 @@ mod tests {
     use state_in_memory::InMemoryStateStore;
     use std::sync::Arc;
     use test_utils::sqs_message_with_body;
-    use workflow::WorkflowLambdaEvent;
     use workflow::runtime::WorkflowRuntime;
+    use workflow::WorkflowLambdaEvent;
 
     #[tokio::test]
     async fn test_simple_workflow_runs() {
