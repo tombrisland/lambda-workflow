@@ -1,11 +1,12 @@
+use aws_sdk_sqs::Client;
 use serde::{Deserialize, Serialize};
 use service::{CallEngine, ServiceDefinition, TaskId};
 use service_sqs::SqsEngine;
-use std::rc::Rc;
+use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct NameService {
-    sqs_client: Rc<aws_sdk_sqs::Client>,
+    sqs_client: Arc<aws_sdk_sqs::Client>,
     queue_url: String,
 }
 
@@ -35,7 +36,7 @@ impl TaskId for NameResponse {
 }
 
 impl NameService {
-    pub fn new(sqs_client: Rc<aws_sdk_sqs::Client>) -> Self {
+    pub fn new(sqs_client: Arc<Client>) -> Self {
         let queue_url: String = std::env::var(QUEUE_URL)
             .expect(format!("Missing {} environment variable", QUEUE_URL).as_str());
 

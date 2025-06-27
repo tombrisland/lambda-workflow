@@ -1,18 +1,18 @@
 use model::Error;
 use serde::Serialize;
-use std::marker::PhantomData;
-use std::rc::Rc;
 use service::{CallEngine, ServiceRequest};
+use std::marker::PhantomData;
+use std::sync::Arc;
 
 pub struct SqsEngine<Request> {
-    pub sqs_client: Rc<aws_sdk_sqs::Client>,
+    pub sqs_client: Arc<aws_sdk_sqs::Client>,
     pub queue_url: String,
 
     _request: PhantomData<Request>,
 }
 
 impl<'a, Request> SqsEngine<Request> {
-    pub fn new(sqs_client: Rc<aws_sdk_sqs::Client>, queue_url: String) -> Self {
+    pub fn new(sqs_client: Arc<aws_sdk_sqs::Client>, queue_url: String) -> Self {
         Self {
             sqs_client,
             queue_url,

@@ -2,15 +2,14 @@ mod service_name;
 
 use crate::service_name::{NameRequest, NameResponse, NameService};
 use aws_config::BehaviorVersion;
-use lambda_runtime::{service_fn, tracing};
+use lambda_runtime::tracing;
 use ::model::{Error, InvocationId, WorkflowError};
 use serde::{Deserialize, Serialize};
 use state_in_memory::InMemoryStateStore;
-use std::rc::Rc;
 use std::sync::Arc;
-use workflow::{workflow_fn, WorkflowLambdaEvent};
 use workflow::context::WorkflowContext;
 use workflow::runtime::WorkflowRuntime;
+use workflow::workflow_fn;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct SqsWorkflowRequest {
@@ -50,25 +49,17 @@ async fn workflow_greeter(
 async fn main() -> Result<(), Error> {
     tracing::init_default_subscriber();
 
-    let sqs_client: Rc<aws_sdk_sqs::Client> = Rc::new(aws_sdk_sqs::Client::new(
+    let sqs_client: Arc<aws_sdk_sqs::Client> = Arc::new(aws_sdk_sqs::Client::new(
         &aws_config::load_defaults(BehaviorVersion::latest()).await,
     ));
     let name_service: NameService = NameService::new(sqs_client.clone());
 
-    let engine: WorkflowRuntime<SqsWorkflowRequest> =
-        WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), sqs_client);
-    
-    lambda_runtime::run(service_fn(
-        async |event: WorkflowLambdaEvent<SqsWorkflowRequest>| {
-            return workflow_fn(
-                &engine,
-                event,
-                service_fn(async |ctx: WorkflowContext<SqsWorkflowRequest>| {
-                    workflow_greeter(ctx, &name_service).await
-                }),
-            )
-            .await;
-        },
+    let runtime: WorkflowRuntime<SqsWorkflowRequest> =
+        WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()));
+
+    lambda_runtime::run(workflow_fn(
+        &runtime,
+        |ctx: WorkflowContext<SqsWorkflowRequest>| workflow_greeter(ctx, &name_service),
     ))
     .await
 }

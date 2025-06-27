@@ -1,25 +1,18 @@
-use crate::context::WorkflowContext;
+pub use crate::context::WorkflowContext;
 use model::invocation::WorkflowInvocation;
 use model::{Error, InvocationId, WorkflowEvent};
-use serde::Serialize;
 use serde::de::DeserializeOwned;
+use serde::Serialize;
 use state::StateStore;
 use std::sync::Arc;
 
 pub struct WorkflowRuntime<WorkflowRequest: DeserializeOwned + Clone + InvocationId> {
     state_store: Arc<dyn StateStore<WorkflowRequest>>,
-    _sqs_client: Arc<aws_sdk_sqs::Client>,
 }
 
 impl<Request: Serialize + DeserializeOwned + Clone + InvocationId + Send> WorkflowRuntime<Request> {
-    pub fn new(
-        state_store: Arc<dyn StateStore<Request>>,
-        sqs_client: Arc<aws_sdk_sqs::Client>,
-    ) -> WorkflowRuntime<Request> {
-        WorkflowRuntime {
-            state_store,
-            _sqs_client: sqs_client,
-        }
+    pub fn new(state_store: Arc<dyn StateStore<Request>>) -> WorkflowRuntime<Request> {
+        WorkflowRuntime { state_store }
     }
 
     pub async fn accept(
@@ -55,33 +48,21 @@ impl<Request: Serialize + DeserializeOwned + Clone + InvocationId + Send> Workfl
 mod tests {
     use crate::context::WorkflowContext;
     use crate::runtime::WorkflowRuntime;
-    use aws_sdk_sqs::operation::send_message::SendMessageOutput;
-    use aws_smithy_mocks::mock_client;
     use model::{InvocationId, WorkflowEvent};
     use state_in_memory::InMemoryStateStore;
     use std::sync::Arc;
     use test_utils::TestRequest;
 
     #[tokio::test]
-    async fn test_engine_initialises_request() {
-        let send_message_rule = aws_smithy_mocks::mock!(aws_sdk_sqs::Client::send_message)
-            .then_output(|| {
-                let output = SendMessageOutput::builder();
-
-                output.build()
-            });
-
-        let sqs_client: aws_sdk_sqs::Client = mock_client!(aws_sdk_sqs, [&send_message_rule]);
-        let engine: WorkflowRuntime<TestRequest> = WorkflowRuntime::new(
-            Arc::new(InMemoryStateStore::default()),
-            Arc::new(sqs_client),
-        );
+    async fn test_runtime_initialises_request() {
+        let runtime: WorkflowRuntime<TestRequest> =
+            WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()));
 
         let request_string: String = "test 1".to_string();
         let request: WorkflowEvent<TestRequest> =
             WorkflowEvent::Request(request_string.clone().into());
 
-        let context: WorkflowContext<TestRequest> = engine
+        let context: WorkflowContext<TestRequest> = runtime
             .accept(request)
             .await
             .expect("Initial request should succeed");

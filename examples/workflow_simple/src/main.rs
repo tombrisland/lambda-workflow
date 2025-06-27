@@ -1,17 +1,14 @@
 mod service_example;
 
 use crate::service_example::{ExampleService, ExampleServiceRequest, ExampleServiceResponse};
-use aws_config::BehaviorVersion;
-use aws_lambda_events::sqs::SqsBatchResponse;
-use lambda_runtime::{service_fn, tracing, Service};
+use lambda_runtime::{tracing};
 use model::{Error, InvocationId, WorkflowError};
 use serde::{Deserialize, Serialize};
 use state_in_memory::InMemoryStateStore;
-use std::pin::Pin;
 use std::sync::Arc;
 use workflow::context::WorkflowContext;
 use workflow::runtime::WorkflowRuntime;
-use workflow::{workflow_fn, WorkflowLambdaEvent};
+use workflow::{workflow_fn};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct RequestExample {
@@ -34,13 +31,12 @@ struct ResponseExample {
 
 impl InvocationId for ResponseExample {
     fn invocation_id(&self) -> &str {
-        todo!()
+        self.id.as_str()
     }
 }
 
 async fn workflow_example(
     ctx: WorkflowContext<RequestExample>,
-    example: &String,
 ) -> Result<ResponseExample, WorkflowError> {
     let request: &RequestExample = ctx.request();
 
@@ -61,44 +57,29 @@ async fn workflow_example(
 async fn main() -> Result<(), Error> {
     tracing::init_default_subscriber();
 
-    let sqs_client: aws_sdk_sqs::Client =
-        aws_sdk_sqs::Client::new(&aws_config::load_defaults(BehaviorVersion::latest()).await);
+    let runtime: WorkflowRuntime<RequestExample> =
+        WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()));
 
-    let runtime: WorkflowRuntime<RequestExample> = WorkflowRuntime::new(
-        Arc::new(InMemoryStateStore::default()),
-        Arc::new(sqs_client),
-    );
-
-    let example: String = "".to_string();
-
-    lambda_runtime::run(service_fn(workflow_fn(&runtime, |ctx| {
-        workflow_example(ctx, &example)
-    })))
-    .await
+    lambda_runtime::run(workflow_fn(&runtime, workflow_example)).await
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use aws_lambda_events::sqs::SqsEventObj;
-    use lambda_runtime::{Context, LambdaEvent};
+    use aws_lambda_events::sqs::{SqsBatchResponse, SqsEventObj};
+    use lambda_runtime::{Context, LambdaEvent, Service};
     use model::task::CompletedTask;
     use model::{WorkflowEvent, WorkflowSqsEvent};
     use state_in_memory::InMemoryStateStore;
     use std::sync::Arc;
     use test_utils::sqs_message_with_body;
     use workflow::runtime::WorkflowRuntime;
-    use workflow::WorkflowLambdaEvent;
+    use workflow::{WorkflowLambdaEvent};
 
     #[tokio::test]
     async fn test_simple_workflow_runs() {
-        let sqs_client: aws_sdk_sqs::Client =
-            aws_sdk_sqs::Client::new(&aws_config::load_defaults(BehaviorVersion::latest()).await);
-
-        let engine: WorkflowRuntime<RequestExample> = WorkflowRuntime::new(
-            Arc::new(InMemoryStateStore::default()),
-            Arc::new(sqs_client),
-        );
+        let runtime: WorkflowRuntime<RequestExample> =
+            WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()));
 
         let request = WorkflowEvent::Request(RequestExample {
             id: "id_1".to_string(),
@@ -122,9 +103,9 @@ mod tests {
         let event: WorkflowLambdaEvent<RequestExample> =
             LambdaEvent::new(sqs_event, Context::default());
 
-        // let response: Result<SqsBatchResponse, Error> =
-        //     workflow_fn(&engine, event, service_fn(workflow_example)).await;
+        let response: Result<SqsBatchResponse, Error> =
+            workflow_fn(&runtime, workflow_example).call(event).await;
 
-        // tracing::info!("Batch handler results {:?}", response)
+        tracing::info!("Batch handler results {:?}", response)
     }
 }
