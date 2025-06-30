@@ -1,4 +1,5 @@
 mod service_example;
+mod dummy_dispatcher;
 
 use crate::service_example::{ExampleService, ExampleServiceRequest, ExampleServiceResponse};
 use lambda_runtime::{tracing};

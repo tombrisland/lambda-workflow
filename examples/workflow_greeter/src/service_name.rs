@@ -1,7 +1,7 @@
 use aws_sdk_sqs::Client;
 use serde::{Deserialize, Serialize};
-use service::{CallEngine, ServiceDefinition, TaskId};
-use service_sqs::SqsEngine;
+use service::{ServiceDispatcher, Service, TaskId};
+use service_sqs::SqsDispatcher;
 use std::sync::Arc;
 
 #[derive(Clone)]
@@ -47,12 +47,12 @@ impl NameService {
     }
 }
 
-impl ServiceDefinition<NameRequest, NameResponse> for NameService {
+impl Service<NameRequest, NameResponse> for NameService {
     fn name(&self) -> &'static str {
         "NameService"
     }
 
-    fn call_engine(&self) -> impl CallEngine<NameRequest> {
-        SqsEngine::new(self.sqs_client.clone(), self.queue_url.clone())
+    fn dispatcher(&self) -> impl ServiceDispatcher<NameRequest> {
+        SqsDispatcher::new(self.sqs_client.clone(), self.queue_url.clone())
     }
 }

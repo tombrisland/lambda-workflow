@@ -1,5 +1,5 @@
-use service::{CallEngine, ServiceDefinition, TaskId};
-use service::service_dummy::DummyCall;
+use service::{ServiceDispatcher, Service, TaskId};
+use crate::dummy_dispatcher::NoopDispatcher;
 
 /// An example service for testing which always returns OK.
 #[derive(Clone)]
@@ -23,12 +23,12 @@ impl TaskId for ExampleServiceResponse {
     }
 }
 
-impl ServiceDefinition<ExampleServiceRequest, ExampleServiceResponse> for ExampleService {
+impl Service<ExampleServiceRequest, ExampleServiceResponse> for ExampleService {
     fn name(&self) -> &'static str {
         "ExampleService"
     }
 
-    fn call_engine(&self) -> impl CallEngine<ExampleServiceRequest> {
-        DummyCall::new()
+    fn dispatcher(&self) -> impl ServiceDispatcher<ExampleServiceRequest> {
+        NoopDispatcher::new()
     }
 }

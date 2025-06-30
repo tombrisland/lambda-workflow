@@ -1,9 +1,10 @@
+use service::ServiceDispatcher;
 use std::sync::Arc;
 use lambda_runtime::tracing;
 use serde::de::DeserializeOwned;
 use model::{InvocationId, WorkflowError};
 use model::task::{WorkflowTask, WorkflowTaskState};
-use service::{CallableService, ServiceError, ServiceRequest, TaskId};
+use service::{Service, ServiceError, ServiceRequest, TaskId};
 use state::StateStore;
 
 const QUEUE_URL: &'static str = "SQS_INPUT_QUEUE_URL";
@@ -29,7 +30,7 @@ impl<T: DeserializeOwned + Clone + InvocationId + Send + serde::Serialize> Workf
     /// This will suspend execution until a response is received.
     pub async fn call<Payload: serde::Serialize + TaskId, Response: DeserializeOwned + TaskId>(
         &self,
-        service: &impl CallableService<Payload, Response>,
+        service: &impl Service<Payload, Response>,
         payload: Payload,
     ) -> Result<Response, WorkflowError> {
         let invocation_id: &str = self.request.invocation_id();
@@ -79,7 +80,7 @@ impl<T: DeserializeOwned + Clone + InvocationId + Send + serde::Serialize> Workf
             .put_task(running_task)
             .await
             .map_err(|err| WorkflowError::Error(err.into()))?;
-        service.call(request).await?;
+        service.dispatcher().make_request(request).await?;
 
         tracing::debug!("Suspending after invoking task");
 

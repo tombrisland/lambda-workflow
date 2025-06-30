@@ -1,5 +1,3 @@
-pub mod service_dummy;
-
 use model::Error;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -17,13 +15,13 @@ pub struct ServiceRequest<Request: serde::Serialize> {
 
 impl<Request: serde::Serialize + TaskId> ServiceRequest<Request> {
     pub fn new(payload: Request, invocation_id: String, callback_url: String) -> Self {
-        let task_id: String= payload.task_id().to_string();
-        
+        let task_id: String = payload.task_id().to_string();
+
         Self {
             task_id,
             invocation_id,
             callback_url,
-            payload
+            payload,
         }
     }
 }
@@ -35,41 +33,26 @@ pub trait TaskId {
 /// Name details, Request and Response types for an asynchronous service.
 /// The response is returned using a callback mechanism over SQS.
 /// The trait `CallableService` is implemented for any implementation of this.
-pub trait ServiceDefinition<Request, Response> : Clone
+pub trait Service<Request, Response>: Clone
 where
     Request: Serialize + TaskId,
     Response: DeserializeOwned + TaskId,
 {
     fn name(&self) -> &'static str;
 
-    fn call_engine(&self) -> impl CallEngine<Request>;
+    /// The dispatcher implementation with which to make the request
+    /// Most common is an SqsDispatcher implementation
+    fn dispatcher(&self) -> impl ServiceDispatcher<Request>;
 }
 
-pub trait CallEngine<Request>
+pub trait ServiceDispatcher<Request>
 where
     Request: Serialize,
 {
-    fn call(&self, payload: ServiceRequest<Request>) -> impl Future<Output = Result<(), Error>>;
-}
-
-pub trait CallableService<Request, Response>: ServiceDefinition<Request, Response>
-where
-    Request: Serialize + TaskId,
-    Response: DeserializeOwned + TaskId,
-{
-    fn call(&self, payload: ServiceRequest<Request>) -> impl Future<Output = Result<(), Error>>;
-}
-
-// Auto implement this for ease of calling service
-impl<Request, Response, S> CallableService<Request, Response> for S
-where
-    Request: Serialize + TaskId,
-    Response: DeserializeOwned + TaskId,
-    S: ServiceDefinition<Request, Response>,
-{
-    async fn call(&self, payload: ServiceRequest<Request>) -> Result<(), Error> {
-        self.call_engine().call(payload).await
-    }
+    fn make_request(
+        &self,
+        payload: ServiceRequest<Request>,
+    ) -> impl Future<Output = Result<(), Error>>;
 }
 
 /// Errors arising from parsing state.
