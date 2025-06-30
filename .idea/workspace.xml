@@ -51,7 +51,7 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="RsBuildProfile:dev" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="RsBuildProfile:test" />
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
@@ -113,6 +113,9 @@
     "Cargo.Test engine::tests::test_engine_initialises_request.executor": "Run",
     "Cargo.Test engine::tests::test_event_handler.executor": "Run",
     "Cargo.Test main::tests.executor": "Run",
+    "Cargo.Test runtime::tests::runtime_fails_updating_missing_invocation.executor": "Run",
+    "Cargo.Test runtime::tests::runtime_updates_existing_invocation.executor": "Run",
+    "Cargo.Test runtime::tests::runtime_updates_request.executor": "Run",
     "Cargo.Test tests::test_engine_initialises_request.executor": "Run",
     "Cargo.Test tests::test_event_handler (1).executor": "Run",
     "Cargo.Test tests::test_event_handler (2).executor": "Run",
@@ -162,25 +165,7 @@
       <recent name="$PROJECT_DIR$/examples/workflow_greeter/tests/requests" />
     </key>
   </component>
-  <component name="RunManager" selected="Cargo.Run workflow_greeter">
-    <configuration name="Build state_dynamodb" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="buildProfileId" value="dev" />
-      <option name="command" value="build --package state_dynamodb --lib" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
-      <envs />
-      <option name="emulateTerminal" value="true" />
-      <option name="channel" value="DEFAULT" />
-      <option name="requiredFeatures" value="true" />
-      <option name="allFeatures" value="false" />
-      <option name="withSudo" value="false" />
-      <option name="buildTarget" value="REMOTE" />
-      <option name="backtrace" value="SHORT" />
-      <option name="isRedirectInput" value="false" />
-      <option name="redirectInputPath" value="" />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      </method>
-    </configuration>
+  <component name="RunManager" selected="Cargo.Test runtime::tests::runtime_updates_existing_invocation">
     <configuration name="Run workflow_greeter" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="command" value="run --package workflow_greeter --bin workflow_greeter" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
@@ -216,9 +201,8 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Run workflow_sqs" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="buildProfileId" value="dev" />
-      <option name="command" value="run --package workflow_sqs --bin workflow_sqs" />
+    <configuration name="Test runtime::tests::runtime_fails_updating_missing_invocation" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package workflow --lib runtime::tests::runtime_fails_updating_missing_invocation -- --exact" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />
@@ -234,9 +218,26 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test main::tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+    <configuration name="Test runtime::tests::runtime_updates_existing_invocation" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package workflow --lib runtime::tests::runtime_updates_existing_invocation -- --exact" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <option name="emulateTerminal" value="true" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test runtime::tests::runtime_updates_request" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="buildProfileId" value="test" />
-      <option name="command" value="test --package workflow_simple --bin workflow_simple tests" />
+      <option name="command" value="test --package workflow --lib runtime::tests::runtime_updates_request -- --exact" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />
@@ -254,11 +255,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Cargo.Test runtime::tests::runtime_updates_existing_invocation" />
+        <item itemvalue="Cargo.Test runtime::tests::runtime_fails_updating_missing_invocation" />
+        <item itemvalue="Cargo.Test runtime::tests::runtime_updates_request" />
         <item itemvalue="Cargo.Run workflow_greeter" />
         <item itemvalue="Cargo.Run workflow_simple" />
-        <item itemvalue="Cargo.Run workflow_sqs" />
-        <item itemvalue="Cargo.Test main::tests" />
-        <item itemvalue="Cargo.Build state_dynamodb" />
       </list>
     </recent_temporary>
   </component>
@@ -276,7 +277,7 @@
       <workItem from="1749373223917" duration="50510000" />
       <workItem from="1749838016632" duration="32651000" />
       <workItem from="1750587773129" duration="12796000" />
-      <workItem from="1750950893304" duration="15865000" />
+      <workItem from="1750950893304" duration="17200000" />
     </task>
     <task id="LOCAL-00001" summary="minor README updates">
       <option name="closed" value="true" />

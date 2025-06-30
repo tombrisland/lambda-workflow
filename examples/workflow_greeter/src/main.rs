@@ -54,7 +54,7 @@ async fn main() -> Result<(), Error> {
     ));
     let name_service: NameService = NameService::new(sqs_client.clone());
 
-    let runtime: WorkflowRuntime<SqsWorkflowRequest> =
+    let runtime: WorkflowRuntime<SqsWorkflowRequest, SqsWorkflowResponse> =
         WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()));
 
     lambda_runtime::run(workflow_fn(

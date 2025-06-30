@@ -88,7 +88,7 @@ mod tests {
     use test_utils::sqs_message_with_body;
 
     #[tokio::test]
-    async fn test_successful_batch() {
+    async fn successful_batch() {
         // NOOP handler
         let handler = async |_req: String| {
             return Result::<(), WorkflowError>::Ok(());
@@ -109,7 +109,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_suspension_err_ignored() {
+    async fn suspend_treated_as_success() {
         // Handler which will throw suspension error
         let handler = async |_req: String| {
             return Result::<(), WorkflowError>::Err(Suspended);
@@ -126,7 +126,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_single_item_fail() {
+    async fn single_item_fail() {
         // Throw only on item 2
         let handler = async |req: String| {
             return if req == "value 1" {
@@ -148,30 +148,6 @@ mod tests {
                 sqs_message_with_body("value 1".to_string()),
                 sqs_message_with_body("value 2".to_string()),
             ],
-        };
-
-        let response = handle_sqs_batch(handler, LambdaEvent::new(sqs_event, Context::default()))
-            .await
-            .unwrap();
-        assert!(matches!(response.batch_item_failures.len(), 1));
-    }
-
-    #[tokio::test]
-    #[ignore]
-    /// TODO catch panics as well as errors
-    /// See panic within the lambda_runtime crate
-    async fn test_single_item_panic() {
-        // Throw only on item 2
-        let handler = async |req: String| {
-            return if req == "value 1" {
-                Result::<(), WorkflowError>::Ok(())
-            } else {
-                panic!("Batch handler should catch this")
-            };
-        };
-
-        let sqs_event = SqsEventObj {
-            records: vec![sqs_message_with_body("value 1".to_string())],
         };
 
         let response = handle_sqs_batch(handler, LambdaEvent::new(sqs_event, Context::default()))

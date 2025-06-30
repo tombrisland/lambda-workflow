@@ -23,7 +23,7 @@ where
 
 /// Request implementing InvocationId for test purposes
 #[derive(Serialize, Deserialize, Clone)]
-pub struct TestRequest(String);
+pub struct TestRequest(pub String);
 
 impl InvocationId for TestRequest {
     fn invocation_id(&self) -> &str {

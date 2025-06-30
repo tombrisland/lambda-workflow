@@ -1,15 +1,15 @@
-mod service_example;
 mod dummy_dispatcher;
+mod service_example;
 
 use crate::service_example::{ExampleService, ExampleServiceRequest, ExampleServiceResponse};
-use lambda_runtime::{tracing};
+use lambda_runtime::tracing;
 use model::{Error, InvocationId, WorkflowError};
 use serde::{Deserialize, Serialize};
 use state_in_memory::InMemoryStateStore;
 use std::sync::Arc;
 use workflow::context::WorkflowContext;
 use workflow::runtime::WorkflowRuntime;
-use workflow::{workflow_fn};
+use workflow::workflow_fn;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct RequestExample {
@@ -58,7 +58,7 @@ async fn workflow_example(
 async fn main() -> Result<(), Error> {
     tracing::init_default_subscriber();
 
-    let runtime: WorkflowRuntime<RequestExample> =
+    let runtime: WorkflowRuntime<RequestExample, ResponseExample> =
         WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()));
 
     lambda_runtime::run(workflow_fn(&runtime, workflow_example)).await
@@ -74,12 +74,12 @@ mod tests {
     use state_in_memory::InMemoryStateStore;
     use std::sync::Arc;
     use test_utils::sqs_message_with_body;
+    use workflow::WorkflowLambdaEvent;
     use workflow::runtime::WorkflowRuntime;
-    use workflow::{WorkflowLambdaEvent};
 
     #[tokio::test]
-    async fn test_simple_workflow_runs() {
-        let runtime: WorkflowRuntime<RequestExample> =
+    async fn simple_workflow_runs() {
+        let runtime: WorkflowRuntime<RequestExample, ResponseExample> =
             WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()));
 
         let request = WorkflowEvent::Request(RequestExample {

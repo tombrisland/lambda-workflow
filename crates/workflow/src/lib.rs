@@ -18,8 +18,8 @@ pub mod runtime;
 
 /// Creates a Service for a workflow designed for use with `lambda_runtime::run()`
 ///
-/// Returns a `WorkflowService` that implements the `tower::Service` trait and can be 
-/// passed directly to `lambda_runtime::run()`. The service expects to receive a 
+/// Returns a `WorkflowService` that implements the `tower::Service` trait and can be
+/// passed directly to `lambda_runtime::run()`. The service expects to receive a
 /// `WorkflowLambdaEvent<WorkflowRequest>` and returns an `SqsBatchResponse`.
 /// Therefore, the function *must* have `ReportBatchItemFailures` set to true.
 ///
@@ -57,7 +57,7 @@ pub mod runtime;
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Error> {
-///     let runtime: WorkflowRuntime<ExampleRequest> = 
+///     let runtime: WorkflowRuntime<ExampleRequest, ExampleResponse> =
 ///         WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()));
 ///
 ///     let service = workflow_fn(&runtime, workflow_example);
@@ -67,7 +67,7 @@ pub mod runtime;
 /// }
 /// ```
 pub fn workflow_fn<'a, WorkflowRequest, WorkflowResponse, WorkflowFuture, WorkflowFunction>(
-    runtime: &'a WorkflowRuntime<WorkflowRequest>,
+    runtime: &'a WorkflowRuntime<WorkflowRequest, WorkflowResponse>,
     workflow: WorkflowFunction,
 ) -> WorkflowService<'a, WorkflowRequest, WorkflowResponse, WorkflowFuture, WorkflowFunction>
 where
@@ -92,7 +92,7 @@ where
     WorkflowFunction:
         Fn(WorkflowContext<WorkflowRequest>) -> WorkflowFuture + Send + Sync + Clone + 'a,
 {
-    runtime: &'a WorkflowRuntime<WorkflowRequest>,
+    runtime: &'a WorkflowRuntime<WorkflowRequest, WorkflowResponse>,
     workflow: WorkflowFunction,
     _phantom: std::marker::PhantomData<(WorkflowResponse, WorkflowFuture)>,
 }
@@ -117,7 +117,7 @@ where
 
     fn call(&mut self, req: WorkflowLambdaEvent<WorkflowRequest>) -> Self::Future {
         let workflow: WorkflowFunction = self.workflow.clone();
-        let runtime: &WorkflowRuntime<WorkflowRequest> = self.runtime;
+        let runtime: &WorkflowRuntime<WorkflowRequest, WorkflowResponse> = self.runtime;
 
         // Handler for each message
         let handler = move |request: WorkflowEvent<WorkflowRequest>| {
