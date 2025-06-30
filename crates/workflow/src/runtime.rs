@@ -58,6 +58,13 @@ impl<
     }
 }
 
+pub struct OutputX {
+    sqs_client: aws_sdk_sqs::Client,
+    queue_url: String,
+}
+
+impl 
+
 #[cfg(test)]
 mod tests {
     use crate::context::WorkflowContext;
@@ -109,7 +116,7 @@ mod tests {
 
         // Should fail because the request doesn't exist
         let result: Result<WorkflowContext<TestRequest>, Error> = runtime.accept(request).await;
-        
+
         assert!(result.is_err());
     }
 

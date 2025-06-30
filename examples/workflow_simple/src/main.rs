@@ -1,4 +1,4 @@
-mod dummy_dispatcher;
+mod noop_dispatcher;
 mod service_example;
 
 use crate::service_example::{ExampleService, ExampleServiceRequest, ExampleServiceResponse};

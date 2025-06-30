@@ -42,6 +42,9 @@ where
 
     // Process all messages concurrently
     let results: Vec<Result<Response, WorkflowError>> = futures::future::join_all(tasks).await;
+    
+    // TODO do SQS message batching here
+    // Emit items on the specified output queue
 
     let batch_item_failures: Vec<BatchItemFailure> =
         collect_batch_failures(ids.into_iter().zip(results).into_iter());
@@ -110,7 +113,7 @@ mod tests {
 
     #[tokio::test]
     async fn suspend_treated_as_success() {
-        // Handler which will throw suspension error
+        // Handler which will throw a suspension error
         let handler = async |_req: String| {
             return Result::<(), WorkflowError>::Err(Suspended);
         };

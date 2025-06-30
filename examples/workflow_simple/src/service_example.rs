@@ -1,5 +1,5 @@
 use service::{MessageDispatcher, Service, ServiceRequest, TaskId};
-use crate::dummy_dispatcher::NoopDispatcher;
+use crate::noop_dispatcher::NoopDispatcher;
 
 /// An example service for testing which always returns OK.
 #[derive(Clone)]
