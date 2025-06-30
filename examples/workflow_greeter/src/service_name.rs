@@ -1,6 +1,6 @@
 use aws_sdk_sqs::Client;
 use serde::{Deserialize, Serialize};
-use service::{ServiceDispatcher, Service, TaskId};
+use service::{MessageDispatcher, Service, ServiceRequest, TaskId};
 use service_sqs::SqsDispatcher;
 use std::sync::Arc;
 
@@ -52,7 +52,7 @@ impl Service<NameRequest, NameResponse> for NameService {
         "NameService"
     }
 
-    fn dispatcher(&self) -> impl ServiceDispatcher<NameRequest> {
+    fn dispatcher(&self) -> impl MessageDispatcher<ServiceRequest<NameRequest>> {
         SqsDispatcher::new(self.sqs_client.clone(), self.queue_url.clone())
     }
 }

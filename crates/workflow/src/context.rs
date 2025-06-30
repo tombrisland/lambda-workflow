@@ -1,4 +1,4 @@
-use service::ServiceDispatcher;
+use service::MessageDispatcher;
 use std::sync::Arc;
 use lambda_runtime::tracing;
 use serde::de::DeserializeOwned;
@@ -80,7 +80,7 @@ impl<T: DeserializeOwned + Clone + InvocationId + Send + serde::Serialize> Workf
             .put_task(running_task)
             .await
             .map_err(|err| WorkflowError::Error(err.into()))?;
-        service.dispatcher().make_request(request).await?;
+        service.dispatcher().send_message(request).await?;
 
         tracing::debug!("Suspending after invoking task");
 

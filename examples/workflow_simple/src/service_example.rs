@@ -1,4 +1,4 @@
-use service::{ServiceDispatcher, Service, TaskId};
+use service::{MessageDispatcher, Service, ServiceRequest, TaskId};
 use crate::dummy_dispatcher::NoopDispatcher;
 
 /// An example service for testing which always returns OK.
@@ -28,7 +28,7 @@ impl Service<ExampleServiceRequest, ExampleServiceResponse> for ExampleService {
         "ExampleService"
     }
 
-    fn dispatcher(&self) -> impl ServiceDispatcher<ExampleServiceRequest> {
+    fn dispatcher(&self) -> impl MessageDispatcher<ServiceRequest<ExampleServiceRequest>> {
         NoopDispatcher::new()
     }
 }

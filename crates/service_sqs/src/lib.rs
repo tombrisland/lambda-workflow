@@ -1,6 +1,6 @@
 use model::Error;
 use serde::Serialize;
-use service::{ServiceDispatcher, ServiceRequest};
+use service::MessageDispatcher;
 use std::marker::PhantomData;
 use std::sync::Arc;
 
@@ -21,11 +21,11 @@ impl<'a, Request> SqsDispatcher<Request> {
     }
 }
 
-impl<Request> ServiceDispatcher<Request> for SqsDispatcher<Request>
+impl<Request> MessageDispatcher<Request> for SqsDispatcher<Request>
 where
     Request: Serialize,
 {
-    async fn make_request(&self, body: ServiceRequest<Request>) -> Result<(), Error> {
+    async fn send_message(&self, body: Request) -> Result<(), Error> {
         self.sqs_client
             .send_message()
             .queue_url(self.queue_url.as_str())

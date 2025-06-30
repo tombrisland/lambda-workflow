@@ -42,17 +42,14 @@ where
 
     /// The dispatcher implementation with which to make the request
     /// Most common is an SqsDispatcher implementation
-    fn dispatcher(&self) -> impl ServiceDispatcher<Request>;
+    fn dispatcher(&self) -> impl MessageDispatcher<ServiceRequest<Request>>;
 }
 
-pub trait ServiceDispatcher<Request>
+pub trait MessageDispatcher<Request>
 where
     Request: Serialize,
 {
-    fn make_request(
-        &self,
-        payload: ServiceRequest<Request>,
-    ) -> impl Future<Output = Result<(), Error>>;
+    fn send_message(&self, payload: Request) -> impl Future<Output = Result<(), Error>>;
 }
 
 /// Errors arising from parsing state.
