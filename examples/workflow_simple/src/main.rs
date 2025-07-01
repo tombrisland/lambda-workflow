@@ -5,6 +5,7 @@ use crate::service_example::{ExampleService, ExampleServiceRequest, ExampleServi
 use lambda_runtime::tracing;
 use model::{Error, InvocationId, WorkflowError};
 use serde::{Deserialize, Serialize};
+use service::WorkflowCallback;
 use state_in_memory::InMemoryStateStore;
 use std::sync::Arc;
 use workflow::context::WorkflowContext;
@@ -54,14 +55,14 @@ async fn workflow_example(
     })
 }
 
-
-
 #[tokio::main]
 async fn main() -> Result<(), Error> {
     tracing::init_default_subscriber();
 
-    let runtime: WorkflowRuntime<RequestExample, ResponseExample> =
-        WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()));
+    let runtime: WorkflowRuntime<RequestExample, ResponseExample> = WorkflowRuntime::new(
+        Arc::new(InMemoryStateStore::default()),
+        WorkflowCallback::Noop,
+    );
 
     lambda_runtime::run(workflow_fn(&runtime, workflow_example)).await
 }
@@ -73,16 +74,19 @@ mod tests {
     use lambda_runtime::{Context, LambdaEvent, Service};
     use model::task::CompletedTask;
     use model::{WorkflowEvent, WorkflowSqsEvent};
+    use service::WorkflowCallback;
     use state_in_memory::InMemoryStateStore;
     use std::sync::Arc;
     use test_utils::sqs_message_with_body;
-    use workflow::WorkflowLambdaEvent;
     use workflow::runtime::WorkflowRuntime;
+    use workflow::WorkflowLambdaEvent;
 
     #[tokio::test]
     async fn simple_workflow_runs() {
-        let runtime: WorkflowRuntime<RequestExample, ResponseExample> =
-            WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()));
+        let runtime: WorkflowRuntime<RequestExample, ResponseExample> = WorkflowRuntime::new(
+            Arc::new(InMemoryStateStore::default()),
+            WorkflowCallback::Noop,
+        );
 
         let request = WorkflowEvent::Request(RequestExample {
             id: "id_1".to_string(),

@@ -29,6 +29,7 @@ pub mod runtime;
 /// use lambda_runtime::{LambdaEvent};
 /// use workflow::runtime::{WorkflowRuntime, WorkflowContext};
 /// use state_in_memory::InMemoryStateStore;
+/// use service::WorkflowCallback;
 /// use workflow::{WorkflowLambdaEvent, workflow_fn};
 /// use model::{InvocationId, Error, WorkflowError};
 /// use serde::{Serialize, Deserialize};
@@ -59,7 +60,7 @@ pub mod runtime;
 /// #[tokio::main]
 /// async fn main() -> Result<(), Error> {
 ///     let runtime: WorkflowRuntime<ExampleRequest, ExampleResponse> =
-///         WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()));
+///         WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), WorkflowCallback::default());
 ///
 ///     let service = workflow_fn(&runtime, workflow_example);
 ///     lambda_runtime::run(service).await?;

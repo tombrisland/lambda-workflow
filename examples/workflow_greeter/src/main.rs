@@ -7,6 +7,7 @@ use ::model::{Error, InvocationId, WorkflowError};
 use serde::{Deserialize, Serialize};
 use state_in_memory::InMemoryStateStore;
 use std::sync::Arc;
+use service::WorkflowCallback;
 use workflow::context::WorkflowContext;
 use workflow::runtime::WorkflowRuntime;
 use workflow::workflow_fn;
@@ -55,7 +56,7 @@ async fn main() -> Result<(), Error> {
     let name_service: NameService = NameService::new(sqs_client.clone());
 
     let runtime: WorkflowRuntime<SqsWorkflowRequest, SqsWorkflowResponse> =
-        WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()));
+        WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), WorkflowCallback::default());
 
     lambda_runtime::run(workflow_fn(
         &runtime,

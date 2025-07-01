@@ -1,24 +1,28 @@
-use service::MessageDispatcher;
-use std::sync::Arc;
 use lambda_runtime::tracing;
-use serde::de::DeserializeOwned;
-use model::{InvocationId, WorkflowError};
 use model::task::{WorkflowTask, WorkflowTaskState};
+use model::{InvocationId, WorkflowError};
+use serde::de::DeserializeOwned;
+use service::{MessageDispatcher, WorkflowCallback};
 use service::{Service, ServiceError, ServiceRequest, TaskId};
 use state::StateStore;
-
-const QUEUE_URL: &'static str = "SQS_INPUT_QUEUE_URL";
+use std::sync::Arc;
 
 pub struct WorkflowContext<T: DeserializeOwned + Clone + InvocationId> {
     request: T,
     pub(crate) state_store: Arc<dyn StateStore<T>>,
+    callback: WorkflowCallback,
 }
 
 impl<T: DeserializeOwned + Clone + InvocationId + Send + serde::Serialize> WorkflowContext<T> {
-    pub fn new(request: T, state_store: Arc<dyn StateStore<T>>) -> Self {
+    pub fn new(
+        request: T,
+        state_store: Arc<dyn StateStore<T>>,
+        callback: WorkflowCallback,
+    ) -> Self {
         WorkflowContext {
             request,
             state_store,
+            callback,
         }
     }
 
@@ -63,13 +67,8 @@ impl<T: DeserializeOwned + Clone + InvocationId + Send + serde::Serialize> Workf
             };
         }
 
-        // TODO this needs to move elsewhere
-        Callback::ne
-        // Can we make it non SQS specific
-        let queue_url: String = std::env::var(QUEUE_URL).unwrap_or_default();
-
         let request: ServiceRequest<Payload> =
-            ServiceRequest::new(payload, invocation_id.to_string(), queue_url);
+            ServiceRequest::new(payload, invocation_id.to_string(), self.callback.clone());
         let running_task: WorkflowTask = WorkflowTask {
             invocation_id: invocation_id.to_string(),
             task_id: task_id.to_string(),

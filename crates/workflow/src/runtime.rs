@@ -3,6 +3,7 @@ use model::invocation::WorkflowInvocation;
 use model::{Error, InvocationId, WorkflowEvent};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
+use service::WorkflowCallback;
 use state::StateStore;
 use std::marker::PhantomData;
 use std::sync::Arc;
@@ -12,6 +13,8 @@ pub struct WorkflowRuntime<
     WorkflowResponse: Serialize,
 > {
     state_store: Arc<dyn StateStore<WorkflowRequest>>,
+    // How does a service re-invoke this workflow?
+    callback: WorkflowCallback,
     _response: PhantomData<WorkflowResponse>,
 }
 
@@ -21,10 +24,11 @@ impl<
 > WorkflowRuntime<WorkflowRequest, WorkflowResponse>
 {
     pub fn new(
-        state_store: Arc<dyn StateStore<WorkflowRequest>>,
+        state_store: Arc<dyn StateStore<WorkflowRequest>>, callback: WorkflowCallback
     ) -> WorkflowRuntime<WorkflowRequest, WorkflowResponse> {
         WorkflowRuntime {
             state_store,
+            callback,
             _response: Default::default(),
         }
     }
@@ -53,26 +57,11 @@ impl<
             }
         }?;
 
-        Ok(WorkflowContext::new(request, self.state_store.clone()))
-    }
-}
-
-pub struct OutputX {
-    sqs_client: aws_sdk_sqs::Client,
-    queue_url: String,
-}
-
-const QUEUE_URL: &'static str = "SQS_INPUT_QUEUE_URL";
-
-impl OutputX {
-    pub fn new(sqs_client: aws_sdk_sqs::Client) -> Self {
-        let queue_url: String = std::env::var(QUEUE_URL)
-            .expect(format!("Missing {} environment variable", QUEUE_URL).as_str());
-        
-        Self {
-            sqs_client,
-            queue_url,
-        }
+        Ok(WorkflowContext::new(
+            request,
+            self.state_store.clone(),
+            self.callback.clone(),
+        ))
     }
 }
 
@@ -86,12 +75,13 @@ mod tests {
     use state::StateStore;
     use state_in_memory::InMemoryStateStore;
     use std::sync::Arc;
+    use service::WorkflowCallback;
     use test_utils::TestRequest;
 
     #[tokio::test]
     async fn runtime_initialises_invocation() {
         let runtime: WorkflowRuntime<TestRequest, String> =
-            WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()));
+            WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), WorkflowCallback::Noop);
 
         let request_string: String = "test 1".to_string();
         let request: WorkflowEvent<TestRequest> =
@@ -116,7 +106,7 @@ mod tests {
     #[tokio::test]
     async fn runtime_fails_updating_missing_invocation() {
         let runtime: WorkflowRuntime<TestRequest, String> =
-            WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()));
+            WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), WorkflowCallback::Noop);
 
         let request_string: String = "test 1".to_string();
         let request: WorkflowEvent<TestRequest> = WorkflowEvent::Update(CompletedTask {
@@ -137,7 +127,7 @@ mod tests {
             Arc::new(InMemoryStateStore::default());
 
         let runtime: WorkflowRuntime<TestRequest, String> =
-            WorkflowRuntime::new(state_store.clone());
+            WorkflowRuntime::new(state_store.clone(), WorkflowCallback::Noop);
 
         let invocation_id: String = "invocation 1".to_string();
         let task_id: String = "task 1".to_string();
