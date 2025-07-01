@@ -1,10 +1,10 @@
 use aws_lambda_events::sqs::{BatchItemFailure, SqsBatchResponse, SqsEventObj, SqsMessageObj};
 use lambda_runtime::tracing::instrument::Instrumented;
 use lambda_runtime::tracing::{Instrument, Span};
-use lambda_runtime::{Error, LambdaEvent, tracing};
+use lambda_runtime::{tracing, Error, LambdaEvent};
 use model::WorkflowError;
-use serde::Serialize;
 use serde::de::DeserializeOwned;
+use serde::Serialize;
 use std::future::Future;
 use std::iter::Zip;
 use std::vec::IntoIter;
@@ -13,6 +13,8 @@ use std::vec::IntoIter;
 pub(crate) async fn handle_sqs_batch<Handler, HandlerFuture, Payload, Response>(
     handler: Handler,
     event: LambdaEvent<SqsEventObj<Payload>>,
+    // The responses from the handler are output to SQS
+    sqs_client: aws_sdk_sqs::Client,
 ) -> Result<SqsBatchResponse, Error>
 where
     Handler: Fn(Payload) -> HandlerFuture,
@@ -42,19 +44,19 @@ where
 
     // Process all messages concurrently
     let results: Vec<Result<Response, WorkflowError>> = futures::future::join_all(tasks).await;
-    
+
     // TODO do SQS message batching here
     // Emit items on the specified output queue
 
     let batch_item_failures: Vec<BatchItemFailure> =
-        collect_batch_failures(ids.into_iter().zip(results).into_iter());
+        batch_failures(ids.into_iter().zip(results).into_iter());
 
     Ok(SqsBatchResponse {
         batch_item_failures,
     })
 }
 
-pub fn collect_batch_failures<Response>(
+pub fn batch_failures<Response>(
     results: Zip<IntoIter<String>, IntoIter<Result<Response, WorkflowError>>>,
 ) -> Vec<BatchItemFailure> {
     results

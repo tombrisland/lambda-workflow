@@ -1,7 +1,8 @@
-# In flight
+## TODO
 1. Enable output via SQS but add indirection
+2. Investigate race conditions with many concurrent async results
 
-# What's next?
+### Next
 
 1. Update DynamoDB module
    2. Add an in-memory cache which is initialised on first call with a query on the partition key
