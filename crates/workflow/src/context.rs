@@ -64,6 +64,7 @@ impl<T: DeserializeOwned + Clone + InvocationId + Send + serde::Serialize> Workf
         }
 
         // TODO this needs to move elsewhere
+        Callback::ne
         // Can we make it non SQS specific
         let queue_url: String = std::env::var(QUEUE_URL).unwrap_or_default();
 

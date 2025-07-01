@@ -16,12 +16,13 @@ mod batch_handler;
 pub mod context;
 pub mod runtime;
 
-/// Creates a Service for a workflow designed for use with `lambda_runtime::run()`
-///
-/// Returns a `WorkflowService` that implements the `tower::Service` trait and can be
-/// passed directly to `lambda_runtime::run()`. The service expects to receive a
+
+/// The service expects to receive a
 /// `WorkflowLambdaEvent<WorkflowRequest>` and returns an `SqsBatchResponse`.
 /// Therefore, the function *must* have `ReportBatchItemFailures` set to true.
+///
+/// Returns a `WorkflowService` that implements the `tower::Service` trait and can be
+/// passed directly to `lambda_runtime::run()`.
 ///
 /// # Example
 /// ```no_run

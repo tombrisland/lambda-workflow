@@ -12,7 +12,6 @@ pub struct WorkflowRuntime<
     WorkflowResponse: Serialize,
 > {
     state_store: Arc<dyn StateStore<WorkflowRequest>>,
-
     _response: PhantomData<WorkflowResponse>,
 }
 
@@ -63,7 +62,19 @@ pub struct OutputX {
     queue_url: String,
 }
 
-impl 
+const QUEUE_URL: &'static str = "SQS_INPUT_QUEUE_URL";
+
+impl OutputX {
+    pub fn new(sqs_client: aws_sdk_sqs::Client) -> Self {
+        let queue_url: String = std::env::var(QUEUE_URL)
+            .expect(format!("Missing {} environment variable", QUEUE_URL).as_str());
+        
+        Self {
+            sqs_client,
+            queue_url,
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {

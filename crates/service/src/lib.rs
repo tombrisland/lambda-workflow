@@ -4,12 +4,24 @@ use serde::Serialize;
 use std::fmt::{Display, Formatter};
 
 #[derive(Serialize)]
+#[serde(tag = "type")]
+pub enum Callback {
+    // Expect a Queue URL parameter
+    Queue(String),
+    // Expect a HTTPS endpoint
+    Https(String),
+    // No callback for testing
+    Noop
+}
+
+#[derive(Serialize)]
 pub struct ServiceRequest<Request: serde::Serialize> {
     pub invocation_id: String,
     // The task id is used as an idempotency key
     pub task_id: String,
-    // TODO can we make this more generic
-    pub callback_url: String,
+    // Some kind of callback
+    // To allow the service to respond
+    pub callback: Callback,
     pub payload: Request,
 }
 

@@ -1,4 +1,3 @@
-use aws_sdk_sqs::Client;
 use serde::{Deserialize, Serialize};
 use service::{MessageDispatcher, Service, ServiceRequest, TaskId};
 use service_sqs::SqsDispatcher;
@@ -36,7 +35,7 @@ impl TaskId for NameResponse {
 }
 
 impl NameService {
-    pub fn new(sqs_client: Arc<Client>) -> Self {
+    pub fn new(sqs_client: Arc<aws_sdk_sqs::Client>) -> Self {
         let queue_url: String = std::env::var(QUEUE_URL)
             .expect(format!("Missing {} environment variable", QUEUE_URL).as_str());
 
