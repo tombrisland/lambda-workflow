@@ -2,6 +2,7 @@ mod noop_dispatcher;
 mod service_example;
 
 use crate::service_example::{ExampleService, ExampleServiceRequest, ExampleServiceResponse};
+use aws_config::BehaviorVersion;
 use lambda_runtime::tracing;
 use model::{Error, InvocationId, WorkflowError};
 use serde::{Deserialize, Serialize};
@@ -59,8 +60,12 @@ async fn workflow_example(
 async fn main() -> Result<(), Error> {
     tracing::init_default_subscriber();
 
+    let sqs: aws_sdk_sqs::Client =
+        aws_sdk_sqs::Client::new(&aws_config::load_defaults(BehaviorVersion::latest()).await);
+
     let runtime: WorkflowRuntime<RequestExample, ResponseExample> = WorkflowRuntime::new(
         Arc::new(InMemoryStateStore::default()),
+        sqs,
         WorkflowCallback::Noop,
     );
 
@@ -71,6 +76,7 @@ async fn main() -> Result<(), Error> {
 mod tests {
     use super::*;
     use aws_lambda_events::sqs::{SqsBatchResponse, SqsEventObj};
+    use aws_smithy_mocks::mock_client;
     use lambda_runtime::{Context, LambdaEvent, Service};
     use model::task::CompletedTask;
     use model::{WorkflowEvent, WorkflowSqsEvent};
@@ -85,6 +91,7 @@ mod tests {
     async fn simple_workflow_runs() {
         let runtime: WorkflowRuntime<RequestExample, ResponseExample> = WorkflowRuntime::new(
             Arc::new(InMemoryStateStore::default()),
+            mock_client!(aws_sdk_sqs, []),
             WorkflowCallback::Noop,
         );
 

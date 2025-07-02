@@ -3001,6 +3001,7 @@ dependencies = [
 name = "workflow"
 version = "0.1.0"
 dependencies = [
+ "aws-config",
  "aws-sdk-sqs",
  "aws-smithy-mocks",
  "aws_lambda_events",
@@ -3038,8 +3039,8 @@ version = "0.1.0"
 dependencies = [
  "aws-config",
  "aws-sdk-sqs",
+ "aws-smithy-mocks",
  "aws_lambda_events",
- "futures",
  "lambda_runtime",
  "model",
  "serde",

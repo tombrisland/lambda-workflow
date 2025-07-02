@@ -165,9 +165,9 @@
       <recent name="$PROJECT_DIR$/examples/workflow_greeter/tests/requests" />
     </key>
   </component>
-  <component name="RunManager" selected="Cargo.Test tests::simple_workflow_runs">
-    <configuration name="Run workflow_greeter" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="run --package workflow_greeter --bin workflow_greeter" />
+  <component name="RunManager" selected="Cargo.Test main::tests">
+    <configuration name="Test main::tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package workflow_simple --bin workflow_simple tests" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />
@@ -254,11 +254,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Cargo.Test main::tests" />
         <item itemvalue="Cargo.Test tests::simple_workflow_runs" />
         <item itemvalue="Cargo.Test runtime::tests::runtime_updates_existing_invocation" />
         <item itemvalue="Cargo.Test runtime::tests::runtime_fails_updating_missing_invocation" />
         <item itemvalue="Cargo.Test runtime::tests::runtime_updates_request" />
-        <item itemvalue="Cargo.Run workflow_greeter" />
       </list>
     </recent_temporary>
   </component>

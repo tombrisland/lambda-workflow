@@ -5,9 +5,9 @@ use aws_config::BehaviorVersion;
 use lambda_runtime::tracing;
 use ::model::{Error, InvocationId, WorkflowError};
 use serde::{Deserialize, Serialize};
+use service::WorkflowCallback;
 use state_in_memory::InMemoryStateStore;
 use std::sync::Arc;
-use service::WorkflowCallback;
 use workflow::context::WorkflowContext;
 use workflow::runtime::WorkflowRuntime;
 use workflow::workflow_fn;
@@ -50,13 +50,15 @@ async fn workflow_greeter(
 async fn main() -> Result<(), Error> {
     tracing::init_default_subscriber();
 
-    let sqs_client: Arc<aws_sdk_sqs::Client> = Arc::new(aws_sdk_sqs::Client::new(
-        &aws_config::load_defaults(BehaviorVersion::latest()).await,
-    ));
-    let name_service: NameService = NameService::new(sqs_client.clone());
+    let sqs: aws_sdk_sqs::Client =
+        aws_sdk_sqs::Client::new(&aws_config::load_defaults(BehaviorVersion::latest()).await);
+    let name_service: NameService = NameService::new(sqs.clone());
 
-    let runtime: WorkflowRuntime<SqsWorkflowRequest, SqsWorkflowResponse> =
-        WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), WorkflowCallback::default());
+    let runtime: WorkflowRuntime<SqsWorkflowRequest, SqsWorkflowResponse> = WorkflowRuntime::new(
+        Arc::new(InMemoryStateStore::default()),
+        sqs,
+        WorkflowCallback::default(),
+    );
 
     lambda_runtime::run(workflow_fn(
         &runtime,

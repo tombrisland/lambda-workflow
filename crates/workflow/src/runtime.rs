@@ -13,9 +13,21 @@ pub struct WorkflowRuntime<
     WorkflowResponse: Serialize,
 > {
     state_store: Arc<dyn StateStore<WorkflowRequest>>,
-    // How does a service re-invoke this workflow?
+    // Description of how a service re-invokes this workflow
     callback: WorkflowCallback,
+    // Output message client
+    pub(crate) sqs: aws_sdk_sqs::Client,
     _response: PhantomData<WorkflowResponse>,
+}
+
+struct WorkflowOutput {
+    pub(crate) sqs: aws_sdk_sqs::Client,
+    
+}
+
+struct WorkflowIO {
+    input_queue_url: String,
+    output_queue_url: String,
 }
 
 impl<
@@ -24,11 +36,14 @@ impl<
 > WorkflowRuntime<WorkflowRequest, WorkflowResponse>
 {
     pub fn new(
-        state_store: Arc<dyn StateStore<WorkflowRequest>>, callback: WorkflowCallback
+        state_store: Arc<dyn StateStore<WorkflowRequest>>,
+        sqs: aws_sdk_sqs::Client,
+        callback: WorkflowCallback,
     ) -> WorkflowRuntime<WorkflowRequest, WorkflowResponse> {
         WorkflowRuntime {
             state_store,
             callback,
+            sqs,
             _response: Default::default(),
         }
     }
@@ -69,19 +84,23 @@ impl<
 mod tests {
     use crate::context::WorkflowContext;
     use crate::runtime::WorkflowRuntime;
+    use aws_smithy_mocks::mock_client;
     use model::invocation::WorkflowInvocation;
     use model::task::{CompletedTask, WorkflowTask};
     use model::{Error, InvocationId, WorkflowEvent};
+    use service::WorkflowCallback;
     use state::StateStore;
     use state_in_memory::InMemoryStateStore;
     use std::sync::Arc;
-    use service::WorkflowCallback;
     use test_utils::TestRequest;
 
     #[tokio::test]
     async fn runtime_initialises_invocation() {
-        let runtime: WorkflowRuntime<TestRequest, String> =
-            WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), WorkflowCallback::Noop);
+        let runtime: WorkflowRuntime<TestRequest, String> = WorkflowRuntime::new(
+            Arc::new(InMemoryStateStore::default()),
+            mock_client!(aws_sdk_sqs, []),
+            WorkflowCallback::Noop,
+        );
 
         let request_string: String = "test 1".to_string();
         let request: WorkflowEvent<TestRequest> =
@@ -105,8 +124,11 @@ mod tests {
 
     #[tokio::test]
     async fn runtime_fails_updating_missing_invocation() {
-        let runtime: WorkflowRuntime<TestRequest, String> =
-            WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), WorkflowCallback::Noop);
+        let runtime: WorkflowRuntime<TestRequest, String> = WorkflowRuntime::new(
+            Arc::new(InMemoryStateStore::default()),
+            mock_client!(aws_sdk_sqs, []),
+            WorkflowCallback::Noop,
+        );
 
         let request_string: String = "test 1".to_string();
         let request: WorkflowEvent<TestRequest> = WorkflowEvent::Update(CompletedTask {
@@ -126,8 +148,11 @@ mod tests {
         let state_store: Arc<InMemoryStateStore<TestRequest>> =
             Arc::new(InMemoryStateStore::default());
 
-        let runtime: WorkflowRuntime<TestRequest, String> =
-            WorkflowRuntime::new(state_store.clone(), WorkflowCallback::Noop);
+        let runtime: WorkflowRuntime<TestRequest, String> = WorkflowRuntime::new(
+            state_store.clone(),
+            mock_client!(aws_sdk_sqs, []),
+            WorkflowCallback::Noop,
+        );
 
         let invocation_id: String = "invocation 1".to_string();
         let task_id: String = "task 1".to_string();

@@ -16,7 +16,6 @@ mod batch_handler;
 pub mod context;
 pub mod runtime;
 
-
 /// The service expects to receive a
 /// `WorkflowLambdaEvent<WorkflowRequest>` and returns an `SqsBatchResponse`.
 /// Therefore, the function *must* have `ReportBatchItemFailures` set to true.
@@ -32,6 +31,7 @@ pub mod runtime;
 /// use service::WorkflowCallback;
 /// use workflow::{WorkflowLambdaEvent, workflow_fn};
 /// use model::{InvocationId, Error, WorkflowError};
+/// use aws_sdk_sqs::config::BehaviorVersion;
 /// use serde::{Serialize, Deserialize};
 /// use std::sync::Arc;
 ///
@@ -59,13 +59,14 @@ pub mod runtime;
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Error> {
+///     let sqs: aws_sdk_sqs::Client = aws_sdk_sqs::Client::new(
+///         &aws_config::load_defaults(BehaviorVersion::latest()).await,
+///     );
+///
 ///     let runtime: WorkflowRuntime<ExampleRequest, ExampleResponse> =
-///         WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), WorkflowCallback::default());
+///         WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), sqs, WorkflowCallback::default());
 ///
-///     let service = workflow_fn(&runtime, workflow_example);
-///     lambda_runtime::run(service).await?;
-///
-///     Ok(())
+///     lambda_runtime::run(workflow_fn(&runtime, workflow_example)).await
 /// }
 /// ```
 pub fn workflow_fn<'a, WorkflowRequest, WorkflowResponse, WorkflowFuture, WorkflowFunction>(
@@ -117,31 +118,37 @@ where
         Poll::Ready(Ok(()))
     }
 
-    fn call(&mut self, req: WorkflowLambdaEvent<WorkflowRequest>) -> Self::Future {
+    fn call(&mut self, request: WorkflowLambdaEvent<WorkflowRequest>) -> Self::Future {
         let workflow: WorkflowFunction = self.workflow.clone();
         let runtime: &WorkflowRuntime<WorkflowRequest, WorkflowResponse> = self.runtime;
 
         // Handler for each message
         let handler = move |request: WorkflowEvent<WorkflowRequest>| {
             let workflow: WorkflowFunction = workflow.clone();
+            let invocation_id: String = request.invocation_id().to_string();
+
+            let workflow_span: Span =
+                tracing::span!(tracing::Level::INFO, "Workflow", invocation_id);
 
             async move {
-                let invocation_id: String = request.invocation_id().to_string();
                 let ctx: WorkflowContext<WorkflowRequest> = runtime.accept(request).await?;
 
-                let workflow_span: Span =
-                    tracing::span!(tracing::Level::INFO, "Workflow", invocation_id);
+                tracing::info!("Starting workflow execution");
+                let response: WorkflowResponse =
+                    workflow(ctx).await.inspect_err(|err: &WorkflowError| {
+                        if let WorkflowError::Suspended = err {
+                            tracing::info!("Suspending workflow execution")
+                        }
+                    })?;
+                tracing::info!("Completed workflow execution");
 
-                let response: WorkflowResponse = workflow(ctx).instrument(workflow_span).await?;
-
-                // For now just log the response
-                tracing::info!("Completed workflow {:?}", response);
                 Ok(response)
             }
+            .instrument(workflow_span)
         };
 
         // Operate handler on each message
-        Box::pin(handle_sqs_batch(handler, req))
+        Box::pin(handle_sqs_batch(handler, request, self.runtime.sqs.clone()))
     }
 }
 

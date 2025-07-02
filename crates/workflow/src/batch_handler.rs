@@ -14,7 +14,7 @@ pub(crate) async fn handle_sqs_batch<Handler, HandlerFuture, Payload, Response>(
     handler: Handler,
     event: LambdaEvent<SqsEventObj<Payload>>,
     // The responses from the handler are output to SQS
-    sqs_client: aws_sdk_sqs::Client,
+    sqs: aws_sdk_sqs::Client,
 ) -> Result<SqsBatchResponse, Error>
 where
     Handler: Fn(Payload) -> HandlerFuture,
@@ -34,7 +34,7 @@ where
             let body: Payload = message.body;
 
             let message_span: Span =
-                tracing::span!(tracing::Level::INFO, "SQS Handler", message_id);
+                tracing::span!(tracing::Level::INFO, "SQS", message_id);
 
             let task: Instrumented<_> = async { handler(body).await }.instrument(message_span);
 
@@ -84,6 +84,7 @@ pub fn batch_failures<Response>(
 mod tests {
     use crate::batch_handler::handle_sqs_batch;
     use aws_lambda_events::sqs::SqsEventObj;
+    use aws_smithy_mocks::mock_client;
     use lambda_runtime::{Context, LambdaEvent};
     use model::WorkflowError;
     use model::WorkflowError::Suspended;
@@ -107,9 +108,13 @@ mod tests {
             ],
         };
 
-        let response = handle_sqs_batch(handler, LambdaEvent::new(sqs_event, Context::default()))
-            .await
-            .unwrap();
+        let response = handle_sqs_batch(
+            handler,
+            LambdaEvent::new(sqs_event, Context::default()),
+            mock_client!(aws_sdk_sqs, []),
+        )
+        .await
+        .unwrap();
         assert!(matches!(response.batch_item_failures.len(), 0));
     }
 
@@ -124,9 +129,13 @@ mod tests {
             records: vec![sqs_message_with_body("value 1".to_string())],
         };
 
-        let response = handle_sqs_batch(handler, LambdaEvent::new(sqs_event, Context::default()))
-            .await
-            .unwrap();
+        let response = handle_sqs_batch(
+            handler,
+            LambdaEvent::new(sqs_event, Context::default()),
+            mock_client!(aws_sdk_sqs, []),
+        )
+        .await
+        .unwrap();
         assert!(matches!(response.batch_item_failures.len(), 0));
     }
 
@@ -155,9 +164,13 @@ mod tests {
             ],
         };
 
-        let response = handle_sqs_batch(handler, LambdaEvent::new(sqs_event, Context::default()))
-            .await
-            .unwrap();
+        let response = handle_sqs_batch(
+            handler,
+            LambdaEvent::new(sqs_event, Context::default()),
+            mock_client!(aws_sdk_sqs, []),
+        )
+        .await
+        .unwrap();
         assert!(matches!(response.batch_item_failures.len(), 1));
     }
 }

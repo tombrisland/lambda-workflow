@@ -1,11 +1,10 @@
 use serde::{Deserialize, Serialize};
 use service::{MessageDispatcher, Service, ServiceRequest, TaskId};
 use service_sqs::SqsDispatcher;
-use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct NameService {
-    sqs_client: Arc<aws_sdk_sqs::Client>,
+    sqs: aws_sdk_sqs::Client,
     queue_url: String,
 }
 
@@ -35,12 +34,12 @@ impl TaskId for NameResponse {
 }
 
 impl NameService {
-    pub fn new(sqs_client: Arc<aws_sdk_sqs::Client>) -> Self {
+    pub fn new(sqs: aws_sdk_sqs::Client) -> Self {
         let queue_url: String = std::env::var(QUEUE_URL)
             .expect(format!("Missing {} environment variable", QUEUE_URL).as_str());
 
         NameService {
-            sqs_client,
+            sqs,
             queue_url,
         }
     }
@@ -52,6 +51,6 @@ impl Service<NameRequest, NameResponse> for NameService {
     }
 
     fn dispatcher(&self) -> impl MessageDispatcher<ServiceRequest<NameRequest>> {
-        SqsDispatcher::new(self.sqs_client.clone(), self.queue_url.clone())
+        SqsDispatcher::new(self.sqs.clone(), self.queue_url.clone())
     }
 }

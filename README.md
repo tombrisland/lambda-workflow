@@ -12,7 +12,7 @@
 1. Make an asynchronous call using `WorkflowContext::call()`
 2. The lambda *suspends* by returning `WorkflowError::Suspended`
 3. A service re-invokes the lambda by callback, storing the result in a state store.
-   1. This means all results can be replayed when the user code is invoked
+   1. All results are then replayed when the user code is invoked
 
 ### Why?
 
