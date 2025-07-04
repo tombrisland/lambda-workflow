@@ -7,14 +7,29 @@ use serde::de::DeserializeOwned;
 use serde::Serialize;
 use std::future::Future;
 use std::iter::Zip;
+use std::marker::PhantomData;
+use std::slice::Iter;
 use std::vec::IntoIter;
 
+#[derive(Clone)]
+pub struct SqsBatchPublisher<Message: Serialize> {
+    queue_url: String,
+    sqs: aws_sdk_sqs::Client,
+    _response: PhantomData<Message>
+}
+
+impl<T: Serialize> SqsBatchPublisher<T> {
+    pub fn new(sqs: aws_sdk_sqs::Client, queue_url: String) -> Self {
+        Self { sqs, queue_url, _response: Default::default() }
+    }
+}
+
 /// Use the specified `Handler` to process a batch of SQS messages.
-pub(crate) async fn handle_sqs_batch<Handler, HandlerFuture, Payload, Response>(
+pub(crate) async fn handle_sqs_batch<Handler, HandlerFuture, Payload, Response: Serialize>(
     handler: Handler,
     event: LambdaEvent<SqsEventObj<Payload>>,
     // The responses from the handler are output to SQS
-    sqs: aws_sdk_sqs::Client,
+    publish: SqsBatchPublisher<Response>,
 ) -> Result<SqsBatchResponse, Error>
 where
     Handler: Fn(Payload) -> HandlerFuture,
@@ -26,15 +41,14 @@ where
     tracing::debug!(records = records.len(), "Received batch of SQS messages");
 
     // Start a task for each SQS message
-    let (ids, tasks): (Vec<String>, Vec<_>) = records
+    let (message_ids, workflow_tasks): (Vec<String>, Vec<_>) = records
         .into_iter()
         .map(|message: SqsMessageObj<Payload>| {
             // We need to keep the message_id to report failures to SQS
             let message_id: String = message.message_id.unwrap_or_default();
             let body: Payload = message.body;
 
-            let message_span: Span =
-                tracing::span!(tracing::Level::INFO, "SQS", message_id);
+            let message_span: Span = tracing::span!(tracing::Level::INFO, "SQS", message_id);
 
             let task: Instrumented<_> = async { handler(body).await }.instrument(message_span);
 
@@ -43,26 +57,51 @@ where
         .unzip();
 
     // Process all messages concurrently
-    let results: Vec<Result<Response, WorkflowError>> = futures::future::join_all(tasks).await;
+    let results: Vec<Result<Response, WorkflowError>> =
+        futures::future::join_all(workflow_tasks).await;
 
+    // Partition into two lists - keeping references to message_id
+
+    // Use the same handler function for both success and failures
+    // Avoids multiple zips
+    // Send SQS batch messages in one go and then use batchItemFailures for any message ids which fail
+
+    // Output all the successful messages
     // TODO do SQS message batching here
     // Emit items on the specified output queue
+    let sqs_tasks: Vec<_> = results
+        .iter()
+        .filter_map(|result: &Result<Response, WorkflowError>| match result {
+            Ok(response) => Some(
+                publish
+                    .sqs
+                    .send_message()
+                    .queue_url(&publish.queue_url)
+                    .message_body(serde_json::to_string(response).unwrap())
+                    .send(),
+            ),
+            Err(_) => None,
+        })
+        .collect();
+    futures::future::join_all(sqs_tasks).await;
 
     let batch_item_failures: Vec<BatchItemFailure> =
-        batch_failures(ids.into_iter().zip(results).into_iter());
+        handle_batch_failures(message_ids.iter().zip(results));
 
     Ok(SqsBatchResponse {
         batch_item_failures,
     })
 }
 
-pub fn batch_failures<Response>(
-    results: Zip<IntoIter<String>, IntoIter<Result<Response, WorkflowError>>>,
+// Send any successful messages to SQS
+// Return ay
+pub fn handle_batch_failures<Response>(
+    results: Zip<Iter<String>, IntoIter<Result<Response, WorkflowError>>>,
 ) -> Vec<BatchItemFailure> {
     results
         .filter_map(
             // Keep message ids only where failure was not Suspended
-            |(message_id, result): (String, Result<Response, WorkflowError>)| match result {
+            |(message_id, result): (&String, Result<Response, WorkflowError>)| match result {
                 Ok(_) => None,
                 Err(workflow_err) => match workflow_err {
                     WorkflowError::Suspended => None,
@@ -75,23 +114,22 @@ pub fn batch_failures<Response>(
             },
         )
         .map(|id| BatchItemFailure {
-            item_identifier: id,
+            item_identifier: id.clone(),
         })
         .collect()
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::batch_handler::handle_sqs_batch;
+    use crate::batch_handler::{handle_sqs_batch, SqsBatchPublisher};
     use aws_lambda_events::sqs::SqsEventObj;
-    use aws_smithy_mocks::mock_client;
     use lambda_runtime::{Context, LambdaEvent};
     use model::WorkflowError;
     use model::WorkflowError::Suspended;
     use state::StateError;
     use state::StateErrorReason::MissingEntry;
     use state::StateOperation::GetTask;
-    use test_utils::sqs_message_with_body;
+    use test_utils::{create_mock_sqs_client, sqs_message_with_body};
 
     #[tokio::test]
     async fn successful_batch() {
@@ -111,7 +149,7 @@ mod tests {
         let response = handle_sqs_batch(
             handler,
             LambdaEvent::new(sqs_event, Context::default()),
-            mock_client!(aws_sdk_sqs, []),
+            SqsBatchPublisher::new(create_mock_sqs_client(), "".to_string()),
         )
         .await
         .unwrap();
@@ -132,7 +170,7 @@ mod tests {
         let response = handle_sqs_batch(
             handler,
             LambdaEvent::new(sqs_event, Context::default()),
-            mock_client!(aws_sdk_sqs, []),
+            SqsBatchPublisher::new(create_mock_sqs_client(), "".to_string()),
         )
         .await
         .unwrap();
@@ -167,7 +205,7 @@ mod tests {
         let response = handle_sqs_batch(
             handler,
             LambdaEvent::new(sqs_event, Context::default()),
-            mock_client!(aws_sdk_sqs, []),
+            SqsBatchPublisher::new(create_mock_sqs_client(), "".to_string()),
         )
         .await
         .unwrap();

@@ -10,7 +10,7 @@ use service::WorkflowCallback;
 use state_in_memory::InMemoryStateStore;
 use std::sync::Arc;
 use workflow::context::WorkflowContext;
-use workflow::runtime::WorkflowRuntime;
+use workflow::runtime::{SqsBatchPublisher, WorkflowRuntime};
 use workflow::workflow_fn;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -65,8 +65,8 @@ async fn main() -> Result<(), Error> {
 
     let runtime: WorkflowRuntime<RequestExample, ResponseExample> = WorkflowRuntime::new(
         Arc::new(InMemoryStateStore::default()),
-        sqs,
         WorkflowCallback::Noop,
+        SqsBatchPublisher::new(sqs, "".to_string()),
     );
 
     lambda_runtime::run(workflow_fn(&runtime, workflow_example)).await
@@ -76,23 +76,22 @@ async fn main() -> Result<(), Error> {
 mod tests {
     use super::*;
     use aws_lambda_events::sqs::{SqsBatchResponse, SqsEventObj};
-    use aws_smithy_mocks::mock_client;
     use lambda_runtime::{Context, LambdaEvent, Service};
     use model::task::CompletedTask;
     use model::{WorkflowEvent, WorkflowSqsEvent};
     use service::WorkflowCallback;
     use state_in_memory::InMemoryStateStore;
     use std::sync::Arc;
-    use test_utils::sqs_message_with_body;
-    use workflow::runtime::WorkflowRuntime;
+    use test_utils::{create_mock_sqs_client, sqs_message_with_body};
+    use workflow::runtime::{SqsBatchPublisher, WorkflowRuntime};
     use workflow::WorkflowLambdaEvent;
 
     #[tokio::test]
     async fn simple_workflow_runs() {
         let runtime: WorkflowRuntime<RequestExample, ResponseExample> = WorkflowRuntime::new(
             Arc::new(InMemoryStateStore::default()),
-            mock_client!(aws_sdk_sqs, []),
             WorkflowCallback::Noop,
+            SqsBatchPublisher::new(create_mock_sqs_client(), "".to_string()),
         );
 
         let request = WorkflowEvent::Request(RequestExample {

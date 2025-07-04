@@ -18,7 +18,7 @@
 
 Lambda and other serverless function runtimes are excellent for offloading scaling concerns to CSPs at the cost of a premium. With AWS Lambda, you are limited to a maximum 15-minute runtime. This makes it unsuitable for orchestrating longer running tasks or decoupled services.
 
-Of course, serverless orchestrators exist, Step Functions for example. However, to make use of asynchronous patterns like `WaitForTaskToken`, we are forced to use [standard workflows](https://docs.aws.amazon.com/step-functions/latest/dg/choosing-workflow-type.html) which have significant [cost](https://aws.amazon.com/step-functions/pricing/) attached.
+Of course, serverless orchestrators exist (Step Functions). But to make use of asynchronous patterns like `WaitForTaskToken`, we have to use [standard workflows](https://docs.aws.amazon.com/step-functions/latest/dg/choosing-workflow-type.html) which comes with significant [cost](https://aws.amazon.com/step-functions/pricing/) attached.
 
 ## Example
 

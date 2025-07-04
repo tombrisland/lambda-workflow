@@ -26,7 +26,7 @@ pub mod runtime;
 /// # Example
 /// ```no_run
 /// use lambda_runtime::{LambdaEvent};
-/// use workflow::runtime::{WorkflowRuntime, WorkflowContext};
+/// use workflow::runtime::{WorkflowRuntime, WorkflowContext, SqsBatchPublisher};
 /// use state_in_memory::InMemoryStateStore;
 /// use service::WorkflowCallback;
 /// use workflow::{WorkflowLambdaEvent, workflow_fn};
@@ -56,15 +56,20 @@ pub mod runtime;
 /// ) -> Result<ExampleResponse, WorkflowError> {
 ///     Ok(ExampleResponse { result: "done".to_string() })
 /// }
+/// 
+/// const QUEUE_OUTPUT_URL: &str = "https://sqs.eu-west-1.com/queue";
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Error> {
 ///     let sqs: aws_sdk_sqs::Client = aws_sdk_sqs::Client::new(
 ///         &aws_config::load_defaults(BehaviorVersion::latest()).await,
 ///     );
-///
-///     let runtime: WorkflowRuntime<ExampleRequest, ExampleResponse> =
-///         WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), sqs, WorkflowCallback::default());
+///     
+///     let runtime: WorkflowRuntime<ExampleRequest, ExampleResponse> =  WorkflowRuntime::new(
+///         Arc::new(InMemoryStateStore::default()),
+///         WorkflowCallback::default(),
+///         SqsBatchPublisher::new(sqs, QUEUE_OUTPUT_URL.into())
+///     );
 ///
 ///     lambda_runtime::run(workflow_fn(&runtime, workflow_example)).await
 /// }
@@ -148,7 +153,7 @@ where
         };
 
         // Operate handler on each message
-        Box::pin(handle_sqs_batch(handler, request, self.runtime.sqs.clone()))
+        Box::pin(handle_sqs_batch(handler, request, self.runtime.publish.clone()))
     }
 }
 

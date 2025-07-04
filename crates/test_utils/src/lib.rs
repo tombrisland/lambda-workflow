@@ -1,4 +1,6 @@
 use aws_lambda_events::sqs::SqsMessageObj;
+use aws_sdk_sqs::operation::send_message::SendMessageOutput;
+use aws_smithy_mocks::{Rule, mock, mock_client};
 use model::InvocationId;
 use serde::{Deserialize, Serialize};
 
@@ -35,4 +37,16 @@ impl From<String> for TestRequest {
     fn from(s: String) -> Self {
         TestRequest(s)
     }
+}
+
+/// A default mock SQS client which returns an empty response
+pub fn create_mock_sqs_client() -> aws_sdk_sqs::Client {
+    let send_message_rule: Rule = mock!(aws_sdk_sqs::Client::send_message)
+        .match_requests(|_| true)
+        .sequence()
+        .output(|| SendMessageOutput::builder().build())
+        .repeatedly()
+        .build();
+
+    mock_client!(aws_sdk_sqs, [&send_message_rule])
 }

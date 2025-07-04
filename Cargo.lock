@@ -2392,6 +2392,8 @@ dependencies = [
 name = "test_utils"
 version = "0.1.0"
 dependencies = [
+ "aws-sdk-sqs",
+ "aws-smithy-mocks",
  "aws_lambda_events",
  "model",
  "serde",

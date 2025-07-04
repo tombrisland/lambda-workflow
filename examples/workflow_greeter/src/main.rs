@@ -9,7 +9,7 @@ use service::WorkflowCallback;
 use state_in_memory::InMemoryStateStore;
 use std::sync::Arc;
 use workflow::context::WorkflowContext;
-use workflow::runtime::WorkflowRuntime;
+use workflow::runtime::{SqsBatchPublisher, WorkflowRuntime};
 use workflow::workflow_fn;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -56,8 +56,8 @@ async fn main() -> Result<(), Error> {
 
     let runtime: WorkflowRuntime<SqsWorkflowRequest, SqsWorkflowResponse> = WorkflowRuntime::new(
         Arc::new(InMemoryStateStore::default()),
-        sqs,
         WorkflowCallback::default(),
+        SqsBatchPublisher::new(sqs, "".into()),
     );
 
     lambda_runtime::run(workflow_fn(
