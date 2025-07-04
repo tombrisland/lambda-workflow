@@ -1,5 +1,6 @@
 pub mod task;
 pub mod invocation;
+pub mod env;
 
 use aws_lambda_events::sqs::{SqsEventObj, SqsMessageObj};
 use serde::de::DeserializeOwned;

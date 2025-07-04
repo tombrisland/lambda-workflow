@@ -6,11 +6,10 @@ use aws_config::BehaviorVersion;
 use lambda_runtime::tracing;
 use model::{Error, InvocationId, WorkflowError};
 use serde::{Deserialize, Serialize};
-use service::WorkflowCallback;
 use state_in_memory::InMemoryStateStore;
 use std::sync::Arc;
 use workflow::context::WorkflowContext;
-use workflow::runtime::{SqsBatchPublisher, WorkflowRuntime};
+use workflow::runtime::WorkflowRuntime;
 use workflow::workflow_fn;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -63,11 +62,8 @@ async fn main() -> Result<(), Error> {
     let sqs: aws_sdk_sqs::Client =
         aws_sdk_sqs::Client::new(&aws_config::load_defaults(BehaviorVersion::latest()).await);
 
-    let runtime: WorkflowRuntime<RequestExample, ResponseExample> = WorkflowRuntime::new(
-        Arc::new(InMemoryStateStore::default()),
-        WorkflowCallback::Noop,
-        SqsBatchPublisher::new(sqs, "".to_string()),
-    );
+    let runtime: WorkflowRuntime<RequestExample, ResponseExample> =
+        WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), sqs);
 
     lambda_runtime::run(workflow_fn(&runtime, workflow_example)).await
 }
@@ -79,19 +75,19 @@ mod tests {
     use lambda_runtime::{Context, LambdaEvent, Service};
     use model::task::CompletedTask;
     use model::{WorkflowEvent, WorkflowSqsEvent};
-    use service::WorkflowCallback;
     use state_in_memory::InMemoryStateStore;
     use std::sync::Arc;
-    use test_utils::{create_mock_sqs_client, sqs_message_with_body};
-    use workflow::runtime::{SqsBatchPublisher, WorkflowRuntime};
+    use test_utils::{create_mock_sqs_client, setup_default_env, sqs_message_with_body};
+    use workflow::runtime::WorkflowRuntime;
     use workflow::WorkflowLambdaEvent;
 
     #[tokio::test]
     async fn simple_workflow_runs() {
+        setup_default_env();
+
         let runtime: WorkflowRuntime<RequestExample, ResponseExample> = WorkflowRuntime::new(
             Arc::new(InMemoryStateStore::default()),
-            WorkflowCallback::Noop,
-            SqsBatchPublisher::new(create_mock_sqs_client(), "".to_string()),
+            create_mock_sqs_client(),
         );
 
         let request = WorkflowEvent::Request(RequestExample {

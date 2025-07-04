@@ -2,7 +2,7 @@ use lambda_runtime::tracing;
 use model::task::{WorkflowTask, WorkflowTaskState};
 use model::{InvocationId, WorkflowError};
 use serde::de::DeserializeOwned;
-use service::{MessageDispatcher, WorkflowCallback};
+use service::{MessageDispatcher};
 use service::{Service, ServiceError, ServiceRequest, TaskId};
 use state::StateStore;
 use std::sync::Arc;
@@ -10,19 +10,19 @@ use std::sync::Arc;
 pub struct WorkflowContext<T: DeserializeOwned + Clone + InvocationId> {
     request: T,
     pub(crate) state_store: Arc<dyn StateStore<T>>,
-    callback: WorkflowCallback,
+    callback_queue_url: String,
 }
 
 impl<T: DeserializeOwned + Clone + InvocationId + Send + serde::Serialize> WorkflowContext<T> {
     pub fn new(
         request: T,
         state_store: Arc<dyn StateStore<T>>,
-        callback: WorkflowCallback,
+        callback_queue_url: String,
     ) -> Self {
         WorkflowContext {
             request,
             state_store,
-            callback,
+            callback_queue_url,
         }
     }
 
@@ -68,7 +68,7 @@ impl<T: DeserializeOwned + Clone + InvocationId + Send + serde::Serialize> Workf
         }
 
         let request: ServiceRequest<Payload> =
-            ServiceRequest::new(payload, invocation_id.to_string(), self.callback.clone());
+            ServiceRequest::new(payload, invocation_id.to_string(), self.callback_queue_url.clone());
         let running_task: WorkflowTask = WorkflowTask {
             invocation_id: invocation_id.to_string(),
             task_id: task_id.to_string(),

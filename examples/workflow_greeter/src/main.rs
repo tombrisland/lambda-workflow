@@ -5,11 +5,10 @@ use aws_config::BehaviorVersion;
 use lambda_runtime::tracing;
 use ::model::{Error, InvocationId, WorkflowError};
 use serde::{Deserialize, Serialize};
-use service::WorkflowCallback;
 use state_in_memory::InMemoryStateStore;
 use std::sync::Arc;
 use workflow::context::WorkflowContext;
-use workflow::runtime::{SqsBatchPublisher, WorkflowRuntime};
+use workflow::runtime::WorkflowRuntime;
 use workflow::workflow_fn;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -56,8 +55,7 @@ async fn main() -> Result<(), Error> {
 
     let runtime: WorkflowRuntime<SqsWorkflowRequest, SqsWorkflowResponse> = WorkflowRuntime::new(
         Arc::new(InMemoryStateStore::default()),
-        WorkflowCallback::default(),
-        SqsBatchPublisher::new(sqs, "".into()),
+        sqs
     );
 
     lambda_runtime::run(workflow_fn(

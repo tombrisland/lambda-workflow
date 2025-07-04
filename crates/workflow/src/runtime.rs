@@ -1,10 +1,10 @@
 pub use crate::batch_handler::SqsBatchPublisher;
 pub use crate::context::WorkflowContext;
+use model::env::{WORKFLOW_INPUT_QUEUE_URL, WORKFLOW_OUTPUT_QUEUE_URL};
 use model::invocation::WorkflowInvocation;
 use model::{Error, InvocationId, WorkflowEvent};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-use service::WorkflowCallback;
 use state::StateStore;
 use std::sync::Arc;
 
@@ -13,8 +13,8 @@ pub struct WorkflowRuntime<
     WorkflowResponse: Serialize,
 > {
     state_store: Arc<dyn StateStore<WorkflowRequest>>,
-    // Description of how a service re-invokes this workflow
-    callback: WorkflowCallback,
+    // How a service re-invokes this workflow
+    input_queue_url: String,
     // Output message client
     pub(crate) publish: SqsBatchPublisher<WorkflowResponse>,
 }
@@ -24,15 +24,21 @@ impl<
     WorkflowResponse: Serialize,
 > WorkflowRuntime<WorkflowRequest, WorkflowResponse>
 {
+    /// Create a new `WorkflowRuntime` supplying all arguments.
     pub fn new(
         state_store: Arc<dyn StateStore<WorkflowRequest>>,
-        callback: WorkflowCallback,
-        publish: SqsBatchPublisher<WorkflowResponse>
+        sqs: aws_sdk_sqs::Client,
     ) -> WorkflowRuntime<WorkflowRequest, WorkflowResponse> {
+        // Pull queues from the environment by default
+        let input_queue_url: String = std::env::var(WORKFLOW_INPUT_QUEUE_URL)
+            .expect(format!("Missing {} environment variable", WORKFLOW_INPUT_QUEUE_URL).as_str());
+        let output_queue_url: String = std::env::var(WORKFLOW_OUTPUT_QUEUE_URL)
+            .expect(format!("Missing {} environment variable", WORKFLOW_OUTPUT_QUEUE_URL).as_str());
+
         WorkflowRuntime {
             state_store,
-            callback,
-            publish
+            input_queue_url,
+            publish: SqsBatchPublisher::new(sqs, output_queue_url),
         }
     }
 
@@ -63,7 +69,7 @@ impl<
         Ok(WorkflowContext::new(
             request,
             self.state_store.clone(),
-            self.callback.clone(),
+            self.input_queue_url.clone(),
         ))
     }
 }
@@ -72,23 +78,21 @@ impl<
 mod tests {
     use crate::context::WorkflowContext;
     use crate::runtime::WorkflowRuntime;
-    use aws_smithy_mocks::mock_client;
     use model::invocation::WorkflowInvocation;
     use model::task::{CompletedTask, WorkflowTask};
     use model::{Error, InvocationId, WorkflowEvent};
-    use service::WorkflowCallback;
     use state::StateStore;
     use state_in_memory::InMemoryStateStore;
     use std::sync::Arc;
-    use test_utils::TestRequest;
-    use crate::batch_handler::SqsBatchPublisher;
+    use test_utils::{create_mock_sqs_client, setup_default_env, TestRequest};
 
     #[tokio::test]
     async fn runtime_initialises_invocation() {
+        setup_default_env();
+
         let runtime: WorkflowRuntime<TestRequest, String> = WorkflowRuntime::new(
             Arc::new(InMemoryStateStore::default()),
-            WorkflowCallback::Noop,
-            SqsBatchPublisher::new(mock_client!(aws_sdk_sqs, []), "".to_string()),
+            create_mock_sqs_client(),
         );
 
         let request_string: String = "test 1".to_string();
@@ -113,10 +117,11 @@ mod tests {
 
     #[tokio::test]
     async fn runtime_fails_updating_missing_invocation() {
+        setup_default_env();
+
         let runtime: WorkflowRuntime<TestRequest, String> = WorkflowRuntime::new(
             Arc::new(InMemoryStateStore::default()),
-            WorkflowCallback::Noop,
-            SqsBatchPublisher::new(mock_client!(aws_sdk_sqs, []), "".to_string()),
+            create_mock_sqs_client(),
         );
 
         let request_string: String = "test 1".to_string();
@@ -134,14 +139,13 @@ mod tests {
 
     #[tokio::test]
     async fn runtime_updates_existing_invocation() {
+        setup_default_env();
+
         let state_store: Arc<InMemoryStateStore<TestRequest>> =
             Arc::new(InMemoryStateStore::default());
 
-        let runtime: WorkflowRuntime<TestRequest, String> = WorkflowRuntime::new(
-            state_store.clone(),
-            WorkflowCallback::Noop,
-            SqsBatchPublisher::new(mock_client!(aws_sdk_sqs, []), "".to_string()),
-        );
+        let runtime: WorkflowRuntime<TestRequest, String> =
+            WorkflowRuntime::new(state_store.clone(), create_mock_sqs_client());
 
         let invocation_id: String = "invocation 1".to_string();
         let task_id: String = "task 1".to_string();

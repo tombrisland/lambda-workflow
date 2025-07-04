@@ -3,47 +3,24 @@ use serde::de::DeserializeOwned;
 use serde::Serialize;
 use std::fmt::{Display, Formatter};
 
-#[derive(Clone, Serialize)]
-#[serde(tag = "type")]
-/// How to re-invoke a workflow from a service perspective.
-/// e.g., a QueueUrl or HTTP endpoint
-pub enum WorkflowCallback {
-    // Expect a Queue URL parameter
-    Queue(String),
-    // For testing purposes
-    Noop
-}
-
-const QUEUE_URL: &'static str = "SQS_WORKFLOW_CALLBACK_URL";
-
-impl Default for WorkflowCallback {
-    fn default() -> Self {
-        // Default to SQS and pull the Queue from the environment
-        let queue_url: String = std::env::var(QUEUE_URL)
-            .expect(format!("Missing {} environment variable", QUEUE_URL).as_str());
-        
-        WorkflowCallback::Queue(queue_url)
-    }
-}
-
 #[derive(Serialize)]
 pub struct ServiceRequest<Request: serde::Serialize> {
     pub invocation_id: String,
     // The task id is used as an idempotency key
     pub task_id: String,
     // Callback to allow the service to respond
-    pub callback: WorkflowCallback,
+    pub callback_queue_url: String,
     pub payload: Request,
 }
 
 impl<Request: serde::Serialize + TaskId> ServiceRequest<Request> {
-    pub fn new(payload: Request, invocation_id: String, callback: WorkflowCallback) -> Self {
+    pub fn new(payload: Request, invocation_id: String, callback_queue_url: String) -> Self {
         let task_id: String = payload.task_id().to_string();
 
         Self {
             task_id,
             invocation_id,
-            callback,
+            callback_queue_url,
             payload,
         }
     }

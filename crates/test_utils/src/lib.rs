@@ -1,8 +1,10 @@
 use aws_lambda_events::sqs::SqsMessageObj;
 use aws_sdk_sqs::operation::send_message::SendMessageOutput;
-use aws_smithy_mocks::{Rule, mock, mock_client};
+use aws_smithy_mocks::{mock, mock_client, Rule};
+use model::env::{WORKFLOW_INPUT_QUEUE_URL, WORKFLOW_OUTPUT_QUEUE_URL};
 use model::InvocationId;
 use serde::{Deserialize, Serialize};
+use std::env;
 
 /// Create a dummy SQS message with a set body
 pub fn sqs_message_with_body<T>(body: T) -> SqsMessageObj<T>
@@ -49,4 +51,16 @@ pub fn create_mock_sqs_client() -> aws_sdk_sqs::Client {
         .build();
 
     mock_client!(aws_sdk_sqs, [&send_message_rule])
+}
+
+/// Test queue values
+pub const TEST_INPUT_QUEUE: &str = "input_queue";
+pub const TEST_OUTPUT_QUEUE: &str = "output_queue";
+
+/// Setup default environment variables used in testing
+pub fn setup_default_env() {
+    unsafe {
+        env::set_var(WORKFLOW_INPUT_QUEUE_URL, TEST_INPUT_QUEUE);
+        env::set_var(WORKFLOW_OUTPUT_QUEUE_URL, TEST_OUTPUT_QUEUE);
+    }
 }

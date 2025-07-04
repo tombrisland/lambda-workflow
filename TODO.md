@@ -1,7 +1,8 @@
 ## TODO
-1. Enable output via SQS but add indirection
+1. Enable output via SQS
 2. Investigate race conditions with many concurrent async results
-
+3. Change where the suspension happens to after the future is awaited (first poll will that work?)
+   1. Tests for calling multiple services and not awaiting them
 ### Next
 
 1. Update DynamoDB module
