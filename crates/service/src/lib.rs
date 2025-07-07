@@ -2,6 +2,7 @@ use model::Error;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use std::fmt::{Display, Formatter};
+use async_trait::async_trait;
 
 #[derive(Serialize)]
 pub struct ServiceRequest<Request: serde::Serialize> {
@@ -42,14 +43,13 @@ where
 
     /// The dispatcher implementation with which to make the request
     /// Most common is an SqsDispatcher implementation
-    fn dispatcher(&self) -> impl MessageDispatcher<ServiceRequest<Request>>;
+    fn dispatcher(&self) -> impl MessageDispatcher;
 }
 
-pub trait MessageDispatcher<Request>
-where
-    Request: Serialize,
+#[async_trait]
+pub trait MessageDispatcher
 {
-    fn send_message(&self, payload: Request) -> impl Future<Output = Result<(), Error>>;
+    async fn send_message(&self, payload: String) -> Result<(), Error>;
 }
 
 /// Errors arising from parsing state.

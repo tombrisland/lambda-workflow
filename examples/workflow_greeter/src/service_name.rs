@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use service::{MessageDispatcher, Service, ServiceRequest, TaskId};
+use service::{MessageDispatcher, Service, TaskId};
 use service_sqs::SqsDispatcher;
 
 #[derive(Clone)]
@@ -38,10 +38,7 @@ impl NameService {
         let queue_url: String = std::env::var(QUEUE_URL)
             .expect(format!("Missing {} environment variable", QUEUE_URL).as_str());
 
-        NameService {
-            sqs,
-            queue_url,
-        }
+        NameService { sqs, queue_url }
     }
 }
 
@@ -50,7 +47,7 @@ impl Service<NameRequest, NameResponse> for NameService {
         "NameService"
     }
 
-    fn dispatcher(&self) -> impl MessageDispatcher<ServiceRequest<NameRequest>> {
+    fn dispatcher(&self) -> impl MessageDispatcher {
         SqsDispatcher::new(self.sqs.clone(), self.queue_url.clone())
     }
 }

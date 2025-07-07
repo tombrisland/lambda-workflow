@@ -1,26 +1,17 @@
 use model::Error;
-use serde::Serialize;
 use service::MessageDispatcher;
-use std::marker::PhantomData;
 
 /// A noop dispatcher implementation which always succeeds, for use in testing.
-pub struct NoopDispatcher<Request> {
-    phantom: PhantomData<Request>,
-}
+pub struct NoopDispatcher {}
 
-impl<Request> NoopDispatcher<Request> {
+impl NoopDispatcher {
     pub fn new() -> Self {
-        Self {
-            phantom: PhantomData::default(),
-        }
+        Self {}
     }
 }
 
-impl<Request> MessageDispatcher<Request> for NoopDispatcher<Request>
-where
-    Request: Serialize,
-{
-    async fn send_message(&self, _: Request) -> Result<(), Error> {
+impl MessageDispatcher for NoopDispatcher {
+    async fn send_message(&self, _: String) -> Result<(), Error> {
         Ok(())
     }
 }

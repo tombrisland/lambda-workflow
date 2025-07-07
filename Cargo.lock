@@ -2234,9 +2234,9 @@ dependencies = [
 name = "service"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "model",
  "serde",
- "serde_json",
 ]
 
 [[package]]
@@ -2245,8 +2245,6 @@ version = "0.1.0"
 dependencies = [
  "aws-sdk-sqs",
  "model",
- "serde",
- "serde_json",
  "service",
 ]
 
