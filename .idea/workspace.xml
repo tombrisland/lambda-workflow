@@ -40,11 +40,8 @@
   <component name="ChangeListManager">
     <list default="true" id="c43fb571-a2e5-44dc-9fde-bf0022301c76" name="Changes" comment="minor README updates">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/state/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/state/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/workflow/src/batch_handler.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/batch_handler.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/workflow/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/workflow/src/runtime.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/runtime.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_greeter/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/service/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/service/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/workflow/src/context.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/context.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,12 +66,12 @@
     &quot;assignee&quot;: &quot;tombrisland&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/tombrisland/lambda-workflow.git&quot;,
-    &quot;accountId&quot;: &quot;68ae8b88-8413-4827-a724-dabe919c524a&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "git@github.com:tombrisland/lambda-workflow.git",
+    "accountId": "68ae8b88-8413-4827-a724-dabe919c524a"
   }
-}</component>
+}]]></component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$USER_HOME$/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/aws_lambda_events-0.16.0/src/event/sqs/mod.rs" root0="SKIP_INSPECTION" />
     <setting file="file://$USER_HOME$/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/lambda_runtime-0.14.1/src/lib.rs" root0="SKIP_INSPECTION" />
@@ -129,7 +126,7 @@
     &quot;SHELLCHECK.PATH&quot;: &quot;I do mind&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;javascript.nodejs.core.library.configured.version&quot;: &quot;16.15.1&quot;,
+    &quot;javascript.nodejs.core.library.configured.version&quot;: &quot;16.13.2&quot;,
     &quot;javascript.nodejs.core.library.typings.version&quot;: &quot;16.18.126&quot;,
     &quot;last_opened_file_path&quot;: &quot;/Users/tomb/code/lambda-workflow/crates&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
@@ -279,6 +276,7 @@
       <workItem from="1749838016632" duration="32651000" />
       <workItem from="1750587773129" duration="12796000" />
       <workItem from="1750950893304" duration="17200000" />
+      <workItem from="1752098175398" duration="431000" />
     </task>
     <task id="LOCAL-00001" summary="minor README updates">
       <option name="closed" value="true" />

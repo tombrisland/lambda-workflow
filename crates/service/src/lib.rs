@@ -43,11 +43,11 @@ where
 
     /// The dispatcher implementation with which to make the request
     /// Most common is an SqsDispatcher implementation
-    fn dispatcher(&self) -> impl MessageDispatcher;
+    fn dispatcher(&self) -> impl Dispatcher;
 }
 
 #[async_trait]
-pub trait MessageDispatcher
+pub trait Dispatcher
 {
     async fn send_message(&self, payload: String) -> Result<(), Error>;
 }
@@ -55,6 +55,8 @@ pub trait MessageDispatcher
 /// Errors arising from parsing state.
 #[derive(Debug)]
 pub enum ServiceError {
+    // The service request couldn't be parsed
+    BadRequest(Error),
     // The service returned an invalid response
     BadResponse(String),
 }

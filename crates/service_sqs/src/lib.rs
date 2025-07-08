@@ -1,5 +1,6 @@
+use async_trait::async_trait;
 use model::Error;
-use service::MessageDispatcher;
+use service::Dispatcher;
 
 pub struct SqsDispatcher {
     pub sqs: aws_sdk_sqs::Client,
@@ -12,7 +13,8 @@ impl SqsDispatcher {
     }
 }
 
-impl MessageDispatcher for SqsDispatcher {
+#[async_trait]
+impl Dispatcher for SqsDispatcher {
     async fn send_message(&self, body: String) -> Result<(), Error> {
         self.sqs
             .send_message()

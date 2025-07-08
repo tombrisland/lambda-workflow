@@ -29,8 +29,8 @@ struct SqsWorkflowResponse {
 }
 
 async fn workflow_greeter(
-    ctx: WorkflowContext<SqsWorkflowRequest>,
-    name_service: &NameService,
+    mut ctx: WorkflowContext<SqsWorkflowRequest>,
+    name_service: NameService,
 ) -> Result<SqsWorkflowResponse, WorkflowError> {
     let request: &SqsWorkflowRequest = ctx.request();
 
@@ -60,7 +60,7 @@ async fn main() -> Result<(), Error> {
 
     lambda_runtime::run(workflow_fn(
         &runtime,
-        |ctx: WorkflowContext<SqsWorkflowRequest>| workflow_greeter(ctx, &name_service),
+        |ctx: WorkflowContext<SqsWorkflowRequest>| workflow_greeter(ctx, name_service.clone()),
     ))
     .await
 }

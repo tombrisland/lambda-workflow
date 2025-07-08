@@ -2243,6 +2243,7 @@ dependencies = [
 name = "service_sqs"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "aws-sdk-sqs",
  "model",
  "service",
@@ -3037,6 +3038,7 @@ dependencies = [
 name = "workflow_simple"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "aws-config",
  "aws-sdk-sqs",
  "aws-smithy-mocks",

@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use service::{MessageDispatcher, Service, TaskId};
+use service::{Dispatcher, Service, TaskId};
 use service_sqs::SqsDispatcher;
 
 #[derive(Clone)]
@@ -47,7 +47,7 @@ impl Service<NameRequest, NameResponse> for NameService {
         "NameService"
     }
 
-    fn dispatcher(&self) -> impl MessageDispatcher {
+    fn dispatcher(&self) -> impl Dispatcher {
         SqsDispatcher::new(self.sqs.clone(), self.queue_url.clone())
     }
 }

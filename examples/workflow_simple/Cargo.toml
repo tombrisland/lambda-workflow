@@ -17,6 +17,7 @@ model = { path = "../../crates/model" }
 service = { path = "../../crates/service" }
 workflow = { path = "../../crates/workflow" }
 state_in_memory = { path = "../../crates/state_in_memory" }
+async-trait = {workspace = true}
 
 [dev-dependencies]
 test_utils = {path = "../../crates/test_utils"}

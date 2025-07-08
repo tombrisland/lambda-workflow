@@ -38,19 +38,22 @@ impl InvocationId for ResponseExample {
 }
 
 async fn workflow_example(
-    ctx: WorkflowContext<RequestExample>,
+    mut ctx: WorkflowContext<RequestExample>,
 ) -> Result<ResponseExample, WorkflowError> {
     let request: &RequestExample = ctx.request();
+    
+    let id: String = request.id.clone();
+    let item_id: String = request.item_id.clone();
 
     tracing::info!("Making a request in an example workflow: {:?}", request);
 
-    let service_request: ExampleServiceRequest = ExampleServiceRequest(request.item_id.clone());
+    let service_request: ExampleServiceRequest = ExampleServiceRequest(item_id.clone());
 
-    let result: ExampleServiceResponse = ctx.call(&ExampleService {}, service_request).await?;
+    let result: ExampleServiceResponse = ctx.call(ExampleService {}, service_request).await?;
 
     Ok(ResponseExample {
-        id: request.id.clone(),
-        item_id: request.item_id.clone(),
+        id,
+        item_id,
         payload: result.0,
     })
 }
