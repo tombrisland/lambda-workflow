@@ -51,7 +51,7 @@ impl<WorkflowRequest: DeserializeOwned + Clone + InvocationId + Send + serde::Se
     >(
         &self,
         // Must be owned to enable storing within Context
-        service: impl Service<Payload, Response> + 'static,
+        service: &impl Service<Payload, Response>,
         payload: Payload,
     ) -> impl Future<Output = Result<Response, WorkflowError>> {
         let invocation_id: &str = self.request.invocation_id();
@@ -209,7 +209,7 @@ mod tests {
 
         let test_service: TestService = TestService {};
 
-        let response_fut = ctx.call(test_service, request.clone());
+        let response_fut = ctx.call(&test_service, request.clone());
 
         let task: Result<WorkflowTask, StateError> = state_store
             .get_task(request.invocation_id(), request.task_id())
@@ -240,8 +240,8 @@ mod tests {
 
         let test_service: TestService = TestService {};
 
-        let response_fut_1 = ctx.call(test_service.clone(), request_one.clone());
-        let response_fut_2 = ctx.call(test_service, request_two.clone());
+        let response_fut_1 = ctx.call(&test_service, request_one.clone());
+        let response_fut_2 = ctx.call(&test_service, request_two.clone());
 
         // Both futures joined concurrently
         futures::future::join_all(vec![response_fut_1, response_fut_2]).await;

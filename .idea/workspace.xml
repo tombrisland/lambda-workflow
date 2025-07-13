@@ -39,20 +39,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c43fb571-a2e5-44dc-9fde-bf0022301c76" name="Changes" comment="minor README updates">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/model/src/task.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/model/src/task.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/service/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/service/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/service_sqs/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/service_sqs/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/test_utils/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/test_utils/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/workflow/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/workflow/src/context.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/context.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/workflow/src/runtime.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/runtime.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/examples/workflow_greeter/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_greeter/src/service_name.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/src/service_name.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_simple/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_simple/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_simple/src/noop_dispatcher.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_simple/src/noop_dispatcher.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/workflow_simple/src/service_example.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_simple/src/service_example.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -292,7 +279,7 @@
       <workItem from="1752098175398" duration="431000" />
       <workItem from="1752434245399" duration="6000" />
       <workItem from="1752434363689" duration="1000" />
-      <workItem from="1752434411526" duration="7775000" />
+      <workItem from="1752434411526" duration="8038000" />
     </task>
     <task id="LOCAL-00001" summary="minor README updates">
       <option name="closed" value="true" />

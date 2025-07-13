@@ -34,13 +34,18 @@ async fn workflow_greeter(
 ) -> Result<SqsWorkflowResponse, WorkflowError> {
     let request: &SqsWorkflowRequest = ctx.request();
 
-    let service_request: NameRequest = NameRequest {
+    let name_request: NameRequest = NameRequest {
         first_letter: request.first_letter.clone(),
     };
 
-    let response: NameResponse = ctx.call(name_service, service_request).await?;
+    // Make two calls to name service for first and last name
+    let first_name_fut = ctx.call(&name_service, name_request.clone());
+    let last_name_fut = ctx.call(&name_service, name_request.clone());
 
-    let sentence: String = format!("Hello {}!", response.name);
+    let first_name: NameResponse = first_name_fut.await?;
+    let last_name: NameResponse = last_name_fut.await?;
+
+    let sentence: String = format!("Hello {} {}!", first_name.name, last_name.name);
 
     Ok(SqsWorkflowResponse { sentence })
 }
@@ -53,10 +58,8 @@ async fn main() -> Result<(), Error> {
         aws_sdk_sqs::Client::new(&aws_config::load_defaults(BehaviorVersion::latest()).await);
     let name_service: NameService = NameService::new(sqs.clone());
 
-    let runtime: WorkflowRuntime<SqsWorkflowRequest, SqsWorkflowResponse> = WorkflowRuntime::new(
-        Arc::new(InMemoryStateStore::default()),
-        sqs
-    );
+    let runtime: WorkflowRuntime<SqsWorkflowRequest, SqsWorkflowResponse> =
+        WorkflowRuntime::new(Arc::new(InMemoryStateStore::default()), sqs);
 
     lambda_runtime::run(workflow_fn(
         &runtime,
