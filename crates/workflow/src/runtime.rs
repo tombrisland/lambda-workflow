@@ -84,28 +84,28 @@ mod tests {
     use state::StateStore;
     use state_in_memory::InMemoryStateStore;
     use std::sync::Arc;
-    use test_utils::{create_mock_sqs_client, setup_default_env, TestRequest};
+    use test_utils::{create_mock_sqs_client, setup_default_env, TestStr};
 
     #[tokio::test]
     async fn runtime_initialises_invocation() {
         setup_default_env();
 
-        let runtime: WorkflowRuntime<TestRequest, String> = WorkflowRuntime::new(
+        let runtime: WorkflowRuntime<TestStr, String> = WorkflowRuntime::new(
             Arc::new(InMemoryStateStore::default()),
             create_mock_sqs_client(),
         );
 
         let request_string: String = "test 1".to_string();
-        let request: WorkflowEvent<TestRequest> =
+        let request: WorkflowEvent<TestStr> =
             WorkflowEvent::Request(request_string.clone().into());
 
-        let context: WorkflowContext<TestRequest> = runtime
+        let context: WorkflowContext<TestStr> = runtime
             .accept(request)
             .await
             .expect("Initial request should succeed");
 
         // Invocation should be stored in the state store
-        let invocation: TestRequest = context
+        let invocation: TestStr = context
             .state_store
             .get_invocation(&request_string)
             .await
@@ -119,20 +119,20 @@ mod tests {
     async fn runtime_fails_updating_missing_invocation() {
         setup_default_env();
 
-        let runtime: WorkflowRuntime<TestRequest, String> = WorkflowRuntime::new(
+        let runtime: WorkflowRuntime<TestStr, String> = WorkflowRuntime::new(
             Arc::new(InMemoryStateStore::default()),
             create_mock_sqs_client(),
         );
 
         let request_string: String = "test 1".to_string();
-        let request: WorkflowEvent<TestRequest> = WorkflowEvent::Update(CompletedTask {
+        let request: WorkflowEvent<TestStr> = WorkflowEvent::Update(CompletedTask {
             invocation_id: request_string.clone(),
             task_id: request_string,
             payload: Default::default(),
         });
 
         // Should fail because the request doesn't exist
-        let result: Result<WorkflowContext<TestRequest>, Error> = runtime.accept(request).await;
+        let result: Result<WorkflowContext<TestStr>, Error> = runtime.accept(request).await;
 
         assert!(result.is_err());
     }
@@ -141,16 +141,16 @@ mod tests {
     async fn runtime_updates_existing_invocation() {
         setup_default_env();
 
-        let state_store: Arc<InMemoryStateStore<TestRequest>> =
+        let state_store: Arc<InMemoryStateStore<TestStr>> =
             Arc::new(InMemoryStateStore::default());
 
-        let runtime: WorkflowRuntime<TestRequest, String> =
+        let runtime: WorkflowRuntime<TestStr, String> =
             WorkflowRuntime::new(state_store.clone(), create_mock_sqs_client());
 
         let invocation_id: String = "invocation 1".to_string();
         let task_id: String = "task 1".to_string();
 
-        let request: WorkflowEvent<TestRequest> = WorkflowEvent::Update(CompletedTask {
+        let request: WorkflowEvent<TestStr> = WorkflowEvent::Update(CompletedTask {
             invocation_id: invocation_id.clone(),
             task_id: task_id.clone(),
             payload: Default::default(),
@@ -160,7 +160,7 @@ mod tests {
         state_store
             .put_invocation(WorkflowInvocation {
                 invocation_id: invocation_id.clone(),
-                request: TestRequest(invocation_id.clone()),
+                request: TestStr(invocation_id.clone()),
             })
             .await
             .expect("Should be able to store invocation");

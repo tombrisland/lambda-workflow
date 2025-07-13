@@ -40,8 +40,19 @@
   <component name="ChangeListManager">
     <list default="true" id="c43fb571-a2e5-44dc-9fde-bf0022301c76" name="Changes" comment="minor README updates">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/model/src/task.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/model/src/task.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crates/service/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/service/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/service_sqs/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/service_sqs/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/test_utils/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/test_utils/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/workflow/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/Cargo.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crates/workflow/src/context.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/context.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/workflow/src/runtime.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/runtime.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/workflow_greeter/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/workflow_greeter/src/service_name.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/src/service_name.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/workflow_simple/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_simple/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/workflow_simple/src/noop_dispatcher.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_simple/src/noop_dispatcher.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/workflow_simple/src/service_example.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_simple/src/service_example.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,12 +77,12 @@
     &quot;assignee&quot;: &quot;tombrisland&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "git@github.com:tombrisland/lambda-workflow.git",
-    "accountId": "68ae8b88-8413-4827-a724-dabe919c524a"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;git@github.com:tombrisland/lambda-workflow.git&quot;,
+    &quot;accountId&quot;: &quot;68ae8b88-8413-4827-a724-dabe919c524a&quot;
   }
-}]]></component>
+}</component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$USER_HOME$/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/aws_lambda_events-0.16.0/src/event/sqs/mod.rs" root0="SKIP_INSPECTION" />
     <setting file="file://$USER_HOME$/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/lambda_runtime-0.14.1/src/lib.rs" root0="SKIP_INSPECTION" />
@@ -92,63 +103,65 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;Cargo.Build state_dynamodb.executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Doctest of workflow_handler (line 19).executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Run workflow_greeter.executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Run workflow_simple.executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Run workflow_sqs.executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test batch_handler::tests.executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test batch_handler::tests::test_single_item_fail.executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test batch_handler::tests::test_single_item_panic (1).executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test batch_handler::tests::test_single_item_panic.executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test batch_handler::tests::test_successful_batch.executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test batch_handler::tests::test_suspension_treated_as_success.executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test engine::tests.executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test engine::tests::test_engine_initialises_request.executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test engine::tests::test_event_handler.executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test main::tests.executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test runtime::tests::runtime_fails_updating_missing_invocation.executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test runtime::tests::runtime_updates_existing_invocation.executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test runtime::tests::runtime_updates_request.executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test tests::simple_workflow_runs.executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test tests::test_engine_initialises_request.executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test tests::test_event_handler (1).executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test tests::test_event_handler (2).executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test tests::test_event_handler.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.rust.reset.selective.auto.import&quot;: &quot;true&quot;,
-    &quot;SHELLCHECK.PATH&quot;: &quot;I do mind&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;javascript.nodejs.core.library.configured.version&quot;: &quot;16.13.2&quot;,
-    &quot;javascript.nodejs.core.library.typings.version&quot;: &quot;16.18.126&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/tomb/code/lambda-workflow/crates&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;org.rust.cargo.project.model.PROJECT_DISCOVERY&quot;: &quot;true&quot;,
-    &quot;org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon&quot;: &quot;&quot;,
-    &quot;org.rust.first.attach.projects&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;vcs.Git&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/Users/tomb/Applications/RustRover.app/Contents/plugins/javascript-plugin/jsLanguageServicesImpl/external&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Cargo.Build state_dynamodb.executor": "Run",
+    "Cargo.Doctest of workflow_handler (line 19).executor": "Run",
+    "Cargo.Run workflow_greeter.executor": "Run",
+    "Cargo.Run workflow_simple.executor": "Run",
+    "Cargo.Run workflow_sqs.executor": "Run",
+    "Cargo.Test batch_handler::tests.executor": "Run",
+    "Cargo.Test batch_handler::tests::test_single_item_fail.executor": "Run",
+    "Cargo.Test batch_handler::tests::test_single_item_panic (1).executor": "Run",
+    "Cargo.Test batch_handler::tests::test_single_item_panic.executor": "Run",
+    "Cargo.Test batch_handler::tests::test_successful_batch.executor": "Run",
+    "Cargo.Test batch_handler::tests::test_suspension_treated_as_success.executor": "Run",
+    "Cargo.Test context::tests::runtime_initialises_invocation.executor": "Run",
+    "Cargo.Test context::tests::single_call_invoked.executor": "Run",
+    "Cargo.Test engine::tests.executor": "Run",
+    "Cargo.Test engine::tests::test_engine_initialises_request.executor": "Run",
+    "Cargo.Test engine::tests::test_event_handler.executor": "Run",
+    "Cargo.Test main::tests.executor": "Run",
+    "Cargo.Test runtime::tests::runtime_fails_updating_missing_invocation.executor": "Run",
+    "Cargo.Test runtime::tests::runtime_updates_existing_invocation.executor": "Run",
+    "Cargo.Test runtime::tests::runtime_updates_request.executor": "Run",
+    "Cargo.Test tests::simple_workflow_runs.executor": "Run",
+    "Cargo.Test tests::test_engine_initialises_request.executor": "Run",
+    "Cargo.Test tests::test_event_handler (1).executor": "Run",
+    "Cargo.Test tests::test_event_handler (2).executor": "Run",
+    "Cargo.Test tests::test_event_handler.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.rust.reset.selective.auto.import": "true",
+    "SHELLCHECK.PATH": "I do mind",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "javascript.nodejs.core.library.configured.version": "16.15.1",
+    "javascript.nodejs.core.library.typings.version": "16.18.126",
+    "last_opened_file_path": "/Users/tomb/code/lambda-workflow",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "org.rust.cargo.project.model.PROJECT_DISCOVERY": "true",
+    "org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon": "",
+    "org.rust.first.attach.projects": "true",
+    "settings.editor.selected.configurable": "vcs.Git",
+    "ts.external.directory.path": "/Users/tomb/Applications/RustRover.app/Contents/plugins/javascript-plugin/jsLanguageServicesImpl/external",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;GitStage.ChangesTree.GroupingKeys&quot;: [
-      &quot;directory&quot;,
-      &quot;module&quot;,
-      &quot;repository&quot;
+  "keyToStringList": {
+    "GitStage.ChangesTree.GroupingKeys": [
+      "directory",
+      "module",
+      "repository"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/crates" />
@@ -158,14 +171,32 @@
       <recent name="$PROJECT_DIR$/crates/service/src" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/crates/test_utils/src" />
       <recent name="$PROJECT_DIR$/examples/workflow_simple/src" />
       <recent name="$PROJECT_DIR$/examples/workflow_greeter/tests" />
       <recent name="$PROJECT_DIR$/examples/workflow_greeter/tests/requests" />
     </key>
   </component>
-  <component name="RunManager" selected="Cargo.Test tests::simple_workflow_runs">
-    <configuration name="Test main::tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package workflow_simple --bin workflow_simple tests" />
+  <component name="RunManager" selected="Cargo.Test context::tests::single_call_invoked">
+    <configuration name="Test context::tests::runtime_initialises_invocation" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package workflow --lib context::tests::runtime_initialises_invocation -- --exact" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <option name="emulateTerminal" value="true" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test context::tests::single_call_invoked" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package workflow --lib context::tests::single_call_invoked -- --exact" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />
@@ -215,24 +246,6 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test runtime::tests::runtime_updates_request" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="buildProfileId" value="test" />
-      <option name="command" value="test --package workflow --lib runtime::tests::runtime_updates_request -- --exact" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
-      <envs />
-      <option name="emulateTerminal" value="true" />
-      <option name="channel" value="DEFAULT" />
-      <option name="requiredFeatures" value="true" />
-      <option name="allFeatures" value="false" />
-      <option name="withSudo" value="false" />
-      <option name="buildTarget" value="REMOTE" />
-      <option name="backtrace" value="SHORT" />
-      <option name="isRedirectInput" value="false" />
-      <option name="redirectInputPath" value="" />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="Test tests::simple_workflow_runs" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="buildProfileId" value="test" />
       <option name="command" value="test --package workflow_simple --bin workflow_simple tests::simple_workflow_runs -- --exact" />
@@ -253,11 +266,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Cargo.Test context::tests::single_call_invoked" />
+        <item itemvalue="Cargo.Test context::tests::runtime_initialises_invocation" />
         <item itemvalue="Cargo.Test tests::simple_workflow_runs" />
-        <item itemvalue="Cargo.Test main::tests" />
         <item itemvalue="Cargo.Test runtime::tests::runtime_updates_existing_invocation" />
         <item itemvalue="Cargo.Test runtime::tests::runtime_fails_updating_missing_invocation" />
-        <item itemvalue="Cargo.Test runtime::tests::runtime_updates_request" />
       </list>
     </recent_temporary>
   </component>
@@ -277,6 +290,9 @@
       <workItem from="1750587773129" duration="12796000" />
       <workItem from="1750950893304" duration="17200000" />
       <workItem from="1752098175398" duration="431000" />
+      <workItem from="1752434245399" duration="6000" />
+      <workItem from="1752434363689" duration="1000" />
+      <workItem from="1752434411526" duration="7775000" />
     </task>
     <task id="LOCAL-00001" summary="minor README updates">
       <option name="closed" value="true" />
@@ -295,16 +311,5 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="minor README updates" />
     <option name="LAST_COMMIT_MESSAGE" value="minor README updates" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/crates/service/src/lib.rs</url>
-          <line>3</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

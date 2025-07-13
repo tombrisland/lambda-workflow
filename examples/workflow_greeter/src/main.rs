@@ -29,7 +29,7 @@ struct SqsWorkflowResponse {
 }
 
 async fn workflow_greeter(
-    mut ctx: WorkflowContext<SqsWorkflowRequest>,
+    ctx: WorkflowContext<SqsWorkflowRequest>,
     name_service: NameService,
 ) -> Result<SqsWorkflowResponse, WorkflowError> {
     let request: &SqsWorkflowRequest = ctx.request();

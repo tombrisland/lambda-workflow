@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 use model::Error;
 use service::Dispatcher;
+use std::sync::Arc;
 
 pub struct SqsDispatcher {
     pub sqs: aws_sdk_sqs::Client,
@@ -8,8 +9,8 @@ pub struct SqsDispatcher {
 }
 
 impl SqsDispatcher {
-    pub fn new(sqs: aws_sdk_sqs::Client, queue_url: String) -> Self {
-        Self { sqs, queue_url }
+    pub fn new(sqs: aws_sdk_sqs::Client, queue_url: String) -> Arc<Self> {
+        Arc::new(Self { sqs, queue_url })
     }
 }
 

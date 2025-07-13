@@ -1,13 +1,14 @@
 use async_trait::async_trait;
 use model::Error;
 use service::Dispatcher;
+use std::sync::Arc;
 
 /// A noop dispatcher implementation which always succeeds, for use in testing.
 pub struct NoopDispatcher {}
 
 impl NoopDispatcher {
-    pub fn new() -> Self {
-        Self {}
+    pub fn new() -> Arc<Self> {
+        Arc::new(Self {})
     }
 }
 

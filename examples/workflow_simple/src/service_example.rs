@@ -1,15 +1,17 @@
-use service::{Dispatcher, Service, TaskId};
 use crate::noop_dispatcher::NoopDispatcher;
+use service::{Dispatcher, Service};
+use std::sync::Arc;
+use model::task::TaskId;
 
 /// An example service for testing which always returns OK.
 #[derive(Clone)]
 pub struct ExampleService {}
 
 #[derive(serde::Serialize)]
-pub(crate) struct ExampleServiceRequest (pub(crate) String);
+pub(crate) struct ExampleServiceRequest(pub(crate) String);
 #[derive(serde::Deserialize)]
 
-pub(crate) struct ExampleServiceResponse (pub(crate) String);
+pub(crate) struct ExampleServiceResponse(pub(crate) String);
 
 impl TaskId for ExampleServiceRequest {
     fn task_id(&self) -> &str {
@@ -28,7 +30,7 @@ impl Service<ExampleServiceRequest, ExampleServiceResponse> for ExampleService {
         "ExampleService"
     }
 
-    fn dispatcher(&self) -> impl Dispatcher {
+    fn dispatcher(&self) -> Arc<dyn Dispatcher> {
         NoopDispatcher::new()
     }
 }

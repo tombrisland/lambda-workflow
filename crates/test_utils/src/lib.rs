@@ -2,6 +2,7 @@ use aws_lambda_events::sqs::SqsMessageObj;
 use aws_sdk_sqs::operation::send_message::SendMessageOutput;
 use aws_smithy_mocks::{mock, mock_client, Rule};
 use model::env::{WORKFLOW_INPUT_QUEUE_URL, WORKFLOW_OUTPUT_QUEUE_URL};
+use model::task::TaskId;
 use model::InvocationId;
 use serde::{Deserialize, Serialize};
 use std::env;
@@ -25,19 +26,25 @@ where
     }
 }
 
-/// Request implementing InvocationId for test purposes
+/// Wrapped string implementing types for request and payload responses.
 #[derive(Serialize, Deserialize, Clone)]
-pub struct TestRequest(pub String);
+pub struct TestStr(pub String);
 
-impl InvocationId for TestRequest {
+impl InvocationId for TestStr {
     fn invocation_id(&self) -> &str {
         &self.0
     }
 }
 
-impl From<String> for TestRequest {
+impl TaskId for TestStr {
+    fn task_id(&self) -> &str {
+        &self.0
+    }
+}
+
+impl From<String> for TestStr {
     fn from(s: String) -> Self {
-        TestRequest(s)
+        TestStr(s)
     }
 }
 

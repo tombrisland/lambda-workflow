@@ -3002,6 +3002,7 @@ dependencies = [
 name = "workflow"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "aws-config",
  "aws-sdk-sqs",
  "aws-smithy-mocks",

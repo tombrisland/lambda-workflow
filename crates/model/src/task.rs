@@ -1,6 +1,10 @@
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
+pub trait TaskId {
+    fn task_id(&self) -> &str;
+}
+
 /// The event sent by a service to indicate completion.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CompletedTask {
@@ -30,8 +34,6 @@ pub struct WorkflowTask {
     // _in_progress_expiry_timestamp: u64,
     pub state: WorkflowTaskState,
 }
-
-
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum WorkflowTaskState {

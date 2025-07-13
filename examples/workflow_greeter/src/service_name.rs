@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
-use service::{Dispatcher, Service, TaskId};
+use service::{Dispatcher, Service};
 use service_sqs::SqsDispatcher;
+use std::sync::Arc;
+use model::task::TaskId;
 
 #[derive(Clone)]
 pub struct NameService {
@@ -47,7 +49,7 @@ impl Service<NameRequest, NameResponse> for NameService {
         "NameService"
     }
 
-    fn dispatcher(&self) -> impl Dispatcher {
+    fn dispatcher(&self) -> Arc<dyn Dispatcher> {
         SqsDispatcher::new(self.sqs.clone(), self.queue_url.clone())
     }
 }

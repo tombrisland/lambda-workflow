@@ -21,6 +21,7 @@ service = { path = "../service" }
 [dev-dependencies]
 tokio = { workspace = true }
 aws-sdk-sqs = {workspace = true, features = ["test-util"]}
+async-trait = {workspace = true}
 aws-smithy-mocks = {workspace = true}
 
 state_in_memory = { path = "../state_in_memory" }

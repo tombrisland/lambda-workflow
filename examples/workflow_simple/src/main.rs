@@ -1,5 +1,5 @@
-mod noop_dispatcher;
 mod service_example;
+mod noop_dispatcher;
 
 use crate::service_example::{ExampleService, ExampleServiceRequest, ExampleServiceResponse};
 use aws_config::BehaviorVersion;
@@ -38,7 +38,7 @@ impl InvocationId for ResponseExample {
 }
 
 async fn workflow_example(
-    mut ctx: WorkflowContext<RequestExample>,
+    ctx: WorkflowContext<RequestExample>,
 ) -> Result<ResponseExample, WorkflowError> {
     let request: &RequestExample = ctx.request();
     
