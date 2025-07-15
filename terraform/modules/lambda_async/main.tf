@@ -10,7 +10,8 @@ resource "aws_lambda_function" "this" {
 
   environment {
     variables = merge({
-      "SQS_INPUT_QUEUE_URL" = aws_sqs_queue.input.url
+      "SQS_WORKFLOW_INPUT_QUEUE_URL" = aws_sqs_queue.input.url
+      "SQS_WORKFLOW_OUTPUT_QUEUE_URL" = aws_sqs_queue.output.url
     }, var.environment)
   }
 }

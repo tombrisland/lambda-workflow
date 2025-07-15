@@ -39,18 +39,28 @@ async fn workflow_greeter(
     };
 
     // Make two calls to name service for first and last name
-    let first_name_fut = ctx.call(&name_service, name_request.clone());
-    let last_name_fut = ctx.call(&name_service, name_request.clone());
+    let responses: Vec<NameResponse> = futures::future::join_all([
+        // Call both services in parallel
+        ctx.call(&name_service, name_request.clone()),
+        ctx.call(&name_service, name_request.clone()),
+    ])
+    .await
+    // Collect from Vec<Result<T, E>> into Result<Vec<T>, E>
+    .into_iter()
+    .collect::<Result<Vec<NameResponse>, WorkflowError>>()?;
 
-    let first_name: NameResponse = first_name_fut.await?;
-    let last_name: NameResponse = last_name_fut.await?;
+    let name: String = responses
+        .into_iter()
+        .map(|response| response.name)
+        .collect::<Vec<String>>()
+        .join(" ");
 
-    let sentence: String = format!("Hello {} {}!", first_name.name, last_name.name);
+    let sentence: String = format!("Hello {}!", name);
 
     Ok(SqsWorkflowResponse { sentence })
 }
 
-#[tokio::main]
+#[tokio::main(flavor = "multi_thread")]
 async fn main() -> Result<(), Error> {
     tracing::init_default_subscriber();
 

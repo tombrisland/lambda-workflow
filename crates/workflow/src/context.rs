@@ -5,7 +5,8 @@ use serde::de::DeserializeOwned;
 use service::Dispatcher;
 use service::{Service, ServiceError, ServiceRequest};
 use state::{StateError, StateStore};
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
+use tokio::sync::{Mutex, MutexGuard};
 
 pub struct WorkflowContext<T: DeserializeOwned + Clone + InvocationId> {
     request: T,
@@ -50,7 +51,6 @@ impl<WorkflowRequest: DeserializeOwned + Clone + InvocationId + Send + serde::Se
         Response: DeserializeOwned + TaskId + 'static,
     >(
         &self,
-        // Must be owned to enable storing within Context
         service: &impl Service<Payload, Response>,
         payload: Payload,
     ) -> impl Future<Output = Result<Response, WorkflowError>> {
@@ -69,23 +69,15 @@ impl<WorkflowRequest: DeserializeOwned + Clone + InvocationId + Send + serde::Se
             serde_json::to_string(&request).map_err(|err| err.into());
         let dispatcher: Arc<dyn Dispatcher> = service.dispatcher().clone();
 
-        // Store the call within the context
-        match self.calls.lock() {
-            Ok(mut calls) => {
-                calls.push(Call {
-                    task_id: task_id.clone(),
-                    request,
-                    dispatcher,
-                });
-            }
-            Err(_) => {
-                tracing::error!(
-                    service = service.name(),
-                    task_id = task_id,
-                    "Service call lock failed"
-                );
-            }
-        }
+        tokio::task::block_in_place(|| {
+            let mut calls: MutexGuard<Vec<Call>> = self.calls.blocking_lock();
+            // Store the call within the context
+            calls.push(Call {
+                task_id: task_id.clone(),
+                request,
+                dispatcher,
+            });
+        });
 
         let invocation_id: String = invocation_id.to_string();
         let task_id: String = task_id.clone();
@@ -122,42 +114,38 @@ impl<WorkflowRequest: DeserializeOwned + Clone + InvocationId + Send + serde::Se
     async fn dispatch_calls(&self) -> Result<(), WorkflowError> {
         let invocation_id: String = self.request.invocation_id().to_string();
 
-        match self.calls.lock() {
-            Ok(mut calls) => {
-                for call in calls.iter() {
-                    let task_id: String = call.task_id.clone();
-                    let request: &Result<String, Error> = &call.request;
+        let mut calls: MutexGuard<Vec<Call>> = self.calls.lock().await;
+        for call in calls.iter() {
+            let task_id: String = call.task_id.clone();
+            let request: &Result<String, Error> = &call.request;
 
-                    let request: String = request
-                        .as_ref()
-                        .map_err(|err| {
-                            WorkflowError::Error(
-                                // TODO better to keep the original error
-                                ServiceError::BadRequest(Error::from(err.to_string())).into(),
-                            )
-                        })?
-                        .clone();
+            let request: String = request
+                .as_ref()
+                .map_err(|err| {
+                    WorkflowError::Error(
+                        // TODO better to keep the original error
+                        ServiceError::BadRequest(Error::from(err.to_string())).into(),
+                    )
+                })?
+                .clone();
 
-                    let running_task: WorkflowTask = WorkflowTask {
-                        invocation_id: invocation_id.to_string(),
-                        task_id: task_id.to_string(),
-                        state: WorkflowTaskState::Started,
-                    };
+            let running_task: WorkflowTask = WorkflowTask {
+                invocation_id: invocation_id.to_string(),
+                task_id: task_id.to_string(),
+                state: WorkflowTaskState::Started,
+            };
 
-                    // Store the running task and dispatch the request
-                    self.state_store
-                        .put_task(running_task)
-                        .await
-                        .map_err(|err| WorkflowError::Error(err.into()))?;
+            // Store the running task and dispatch the request
+            self.state_store
+                .put_task(running_task)
+                .await
+                .map_err(|err| WorkflowError::Error(err.into()))?;
 
-                    call.dispatcher.send_message(request.clone()).await?;
-                }
-
-                // Prevent other threads from making duplicate invocations
-                calls.clear()
-            }
-            Err(_) => {}
+            call.dispatcher.send_message(request.clone()).await?;
         }
+
+        // Prevent other threads from making duplicate invocations
+        calls.clear();
 
         Ok(())
     }
@@ -197,7 +185,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn single_call_invoked() {
         setup_default_env();
 
@@ -227,7 +215,7 @@ mod tests {
         assert!(matches!(task.state, WorkflowTaskState::Started));
     }
 
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn multiple_calls_invoked_concurrently() {
         setup_default_env();
 

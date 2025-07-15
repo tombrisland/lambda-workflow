@@ -36,16 +36,6 @@ data "aws_iam_policy_document" "this" {
   }
 }
 
-resource "aws_iam_policy" "policies" {
-  for_each = toset(concat([
-    data.aws_iam_policy_document.this.json
-    ],
-    var.aws_iam_policy_documents
-  ))
-
-  policy = each.value
-}
-
 resource "aws_iam_role_policy_attachment" "this" {
   role       = aws_iam_role.this.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"

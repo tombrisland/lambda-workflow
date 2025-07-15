@@ -1,5 +1,7 @@
 ## TODO
 1. Investigate race conditions with many concurrent async results
+2. Fix where you get duplicate invocations when making updates quickly
+   3. Name service prime example where two reqs are invoked with the same params
 ### Next
 
 1. Update DynamoDB module

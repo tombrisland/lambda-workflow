@@ -10,7 +10,7 @@ pub struct NameService {
     queue_url: String,
 }
 
-const QUEUE_URL: &'static str = "SQS_GREETER_SERVICE_QUEUE_URL";
+const QUEUE_URL: &'static str = "SQS_NAME_SERVICE_QUEUE_URL";
 
 #[derive(Serialize, Debug, Clone)]
 pub(crate) struct NameRequest {

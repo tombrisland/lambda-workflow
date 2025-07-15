@@ -8,7 +8,7 @@ const client = new SQSClient();
  * Each SQS message looks like this.
  * {
  *   "task_id": "abc1",
- *   "callback_url": "https://sqs.eu.amazon/queue-1",
+ *   "callback_queue_url": "https://sqs.eu.amazon/queue-1",
  *   "payload": {
  *     "first_letter": "a"
  *   }
@@ -24,7 +24,7 @@ exports.handler = async (event) => {
 
         console.log({messageId}, "Processing SQS record");
 
-        const QueueUrl = body.callback_url;
+        const QueueUrl = body.callback_queue_url;
 
         const {invocation_id, task_id, payload} = body;
         const {first_letter} = payload;

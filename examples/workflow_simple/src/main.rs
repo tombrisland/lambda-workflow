@@ -49,7 +49,7 @@ async fn workflow_example(
 
     let service_request: ExampleServiceRequest = ExampleServiceRequest(item_id.clone());
 
-    let result: ExampleServiceResponse = ctx.call(ExampleService {}, service_request).await?;
+    let result: ExampleServiceResponse = ctx.call(&ExampleService {}, service_request).await?;
 
     Ok(ResponseExample {
         id,
@@ -58,7 +58,7 @@ async fn workflow_example(
     })
 }
 
-#[tokio::main]
+#[tokio::main(flavor = "multi_thread")]
 async fn main() -> Result<(), Error> {
     tracing::init_default_subscriber();
 
@@ -84,7 +84,7 @@ mod tests {
     use workflow::runtime::WorkflowRuntime;
     use workflow::WorkflowLambdaEvent;
 
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn simple_workflow_runs() {
         setup_default_env();
 

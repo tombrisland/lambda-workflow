@@ -39,14 +39,27 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c43fb571-a2e5-44dc-9fde-bf0022301c76" name="Changes" comment="minor README updates">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TODO.md" beforeDir="false" afterPath="$PROJECT_DIR$/TODO.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/workflow/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/workflow/src/context.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/workflow/src/context.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/workflow_greeter/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/Cargo.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/examples/workflow_greeter/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/workflow_greeter/src/service_name.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/src/service_name.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/workflow_greeter/tests/requests/request.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/tests/requests/request.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/workflow_greeter/tests/service_name/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/tests/service_name/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/workflow_greeter/tests/terraform/main.tf" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_greeter/tests/terraform/main.tf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/workflow_simple/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/workflow_simple/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/terraform/modules/lambda_async/iam.tf" beforeDir="false" afterPath="$PROJECT_DIR$/terraform/modules/lambda_async/iam.tf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/terraform/modules/lambda_async/main.tf" beforeDir="false" afterPath="$PROJECT_DIR$/terraform/modules/lambda_async/main.tf" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="RsBuildProfile:test" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="RsBuildProfile:dev" />
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
@@ -164,7 +177,25 @@
       <recent name="$PROJECT_DIR$/examples/workflow_greeter/tests/requests" />
     </key>
   </component>
-  <component name="RunManager" selected="Cargo.Test context::tests::single_call_invoked">
+  <component name="RunManager" selected="Cargo.Run workflow_greeter">
+    <configuration name="Run workflow_greeter" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="buildProfileId" value="dev" />
+      <option name="command" value="run --package workflow_greeter --bin workflow_greeter" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <option name="emulateTerminal" value="true" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="Test context::tests::runtime_initialises_invocation" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="command" value="test --package workflow --lib context::tests::runtime_initialises_invocation -- --exact" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
@@ -184,23 +215,6 @@
     </configuration>
     <configuration name="Test context::tests::single_call_invoked" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="command" value="test --package workflow --lib context::tests::single_call_invoked -- --exact" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
-      <envs />
-      <option name="emulateTerminal" value="true" />
-      <option name="channel" value="DEFAULT" />
-      <option name="requiredFeatures" value="true" />
-      <option name="allFeatures" value="false" />
-      <option name="withSudo" value="false" />
-      <option name="buildTarget" value="REMOTE" />
-      <option name="backtrace" value="SHORT" />
-      <option name="isRedirectInput" value="false" />
-      <option name="redirectInputPath" value="" />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Test runtime::tests::runtime_fails_updating_missing_invocation" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package workflow --lib runtime::tests::runtime_fails_updating_missing_invocation -- --exact" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />
@@ -253,11 +267,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Cargo.Run workflow_greeter" />
         <item itemvalue="Cargo.Test context::tests::single_call_invoked" />
         <item itemvalue="Cargo.Test context::tests::runtime_initialises_invocation" />
         <item itemvalue="Cargo.Test tests::simple_workflow_runs" />
         <item itemvalue="Cargo.Test runtime::tests::runtime_updates_existing_invocation" />
-        <item itemvalue="Cargo.Test runtime::tests::runtime_fails_updating_missing_invocation" />
       </list>
     </recent_temporary>
   </component>
@@ -279,7 +293,7 @@
       <workItem from="1752098175398" duration="431000" />
       <workItem from="1752434245399" duration="6000" />
       <workItem from="1752434363689" duration="1000" />
-      <workItem from="1752434411526" duration="8038000" />
+      <workItem from="1752434411526" duration="13356000" />
     </task>
     <task id="LOCAL-00001" summary="minor README updates">
       <option name="closed" value="true" />

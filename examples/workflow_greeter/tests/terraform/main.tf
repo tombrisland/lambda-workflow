@@ -72,6 +72,7 @@ module "lambda_greeter_workflow" {
   source_code_hash = filemd5(var.workflow_greeter_archive)
 
   environment = {
-    SQS_GREETER_SERVICE_QUEUE_URL = module.lambda_name_service.input_sqs_queue.url,
+    SQS_NAME_SERVICE_QUEUE_URL = module.lambda_name_service.input_sqs_queue.url,
+    AWS_LAMBDA_LOG_LEVEL = "debug"
   }
 }
