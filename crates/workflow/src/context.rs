@@ -24,8 +24,17 @@ struct Call {
     dispatcher: Arc<dyn Dispatcher>,
 }
 
+#[macro_export]
+macro_rules! call {
+    ($ctx:expr, $service:expr, $payload:expr) => {{
+        let id: String = format!("{}{}{}", file!(), line!(), column!());
+
+        $ctx.call($service, id, $payload)
+    }};
+}
+
 impl<WorkflowRequest: DeserializeOwned + Clone + InvocationId + Send + serde::Serialize>
-    WorkflowContext<WorkflowRequest>
+WorkflowContext<WorkflowRequest>
 {
     pub fn new(
         request: WorkflowRequest,
@@ -52,17 +61,20 @@ impl<WorkflowRequest: DeserializeOwned + Clone + InvocationId + Send + serde::Se
     >(
         &self,
         service: &impl Service<Payload, Response>,
+        // A unique id for this particular call
+        unique_id: String,
         payload: Payload,
-    ) -> impl Future<Output = Result<Response, WorkflowError>> {
-        let invocation_id: &str = self.request.invocation_id();
-        let task_id: String = payload.task_id().to_string();
+    ) -> impl Future<Output=Result<Response, WorkflowError>> {
+        let invocation_id: String = self.request.invocation_id().to_string();
+        let task_id: String = unique_id + payload.task_id();
 
-        tracing::debug!(service = service.name(), task_id = task_id, "Service call");
+        tracing::info!(service = service.name(), task_id = task_id, "Service call");
 
         let request: ServiceRequest<Payload> = ServiceRequest::new(
-            payload,
             invocation_id.to_string(),
+            task_id.clone(),
             self.callback_queue_url.clone(),
+            payload,
         );
         // Convert the call payload to a string for storage
         let request: Result<String, Error> =
@@ -79,8 +91,6 @@ impl<WorkflowRequest: DeserializeOwned + Clone + InvocationId + Send + serde::Se
             });
         });
 
-        let invocation_id: String = invocation_id.to_string();
-        let task_id: String = task_id.clone();
         let state_store: Arc<dyn StateStore<WorkflowRequest>> = self.state_store.clone();
 
         // Return a future which will make all calls before suspending
@@ -190,6 +200,7 @@ mod tests {
         setup_default_env();
 
         let state_store: Arc<InMemoryStateStore<TestStr>> = Arc::new(InMemoryStateStore::default());
+        let unique_id: String = "example".to_string();
         let request: TestStr = TestStr("test 1".to_string());
 
         let ctx: WorkflowContext<TestStr> =
@@ -197,10 +208,16 @@ mod tests {
 
         let test_service: TestService = TestService {};
 
-        let response_fut = ctx.call(&test_service, request.clone());
+        let response_fut = ctx.call(
+            &test_service,
+            unique_id.clone(),
+            request.clone(),
+        );
+
+        let task_id: String = unique_id + request.task_id();
 
         let task: Result<WorkflowTask, StateError> = state_store
-            .get_task(request.invocation_id(), request.task_id())
+            .get_task(request.invocation_id(), task_id.as_str())
             .await;
         // Task should not exist before the future is awaited
         assert!(task.is_err());
@@ -208,7 +225,7 @@ mod tests {
         let _response = response_fut.await;
 
         let task: WorkflowTask = state_store
-            .get_task(request.invocation_id(), request.task_id())
+            .get_task(request.invocation_id(), task_id.as_str())
             .await
             .expect("The second time the task should exist");
 
@@ -220,6 +237,7 @@ mod tests {
         setup_default_env();
 
         let state_store: Arc<InMemoryStateStore<TestStr>> = Arc::new(InMemoryStateStore::default());
+        let unique_id: String = "example".to_string();
         let request_one: TestStr = TestStr("test 1".to_string());
         let request_two: TestStr = TestStr("test 2".to_string());
 
@@ -228,18 +246,26 @@ mod tests {
 
         let test_service: TestService = TestService {};
 
-        let response_fut_1 = ctx.call(&test_service, request_one.clone());
-        let response_fut_2 = ctx.call(&test_service, request_two.clone());
+        let response_fut_1 = ctx.call(
+            &test_service,
+            unique_id.clone(),
+            request_one.clone(),
+        );
+        let response_fut_2 = ctx.call(
+            &test_service,
+            unique_id.clone(),
+            request_two.clone(),
+        );
 
         // Both futures joined concurrently
         futures::future::join_all(vec![response_fut_1, response_fut_2]).await;
 
         state_store
-            .get_task(request_one.invocation_id(), request_one.task_id())
+            .get_task(request_one.invocation_id(), &*(unique_id.clone() + request_one.task_id()))
             .await
             .expect("The first task should exist");
         state_store
-            .get_task(request_one.invocation_id(), request_two.task_id())
+            .get_task(request_one.invocation_id(), &*(unique_id + request_two.task_id()))
             .await
             .expect("The second task should also exist");
     }

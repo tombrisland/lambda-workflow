@@ -1,8 +1,8 @@
 use async_trait::async_trait;
-use model::Error;
 use model::task::TaskId;
-use serde::Serialize;
+use model::Error;
 use serde::de::DeserializeOwned;
+use serde::Serialize;
 use std::fmt::{Display, Formatter};
 use std::sync::Arc;
 
@@ -17,12 +17,15 @@ pub struct ServiceRequest<Request: serde::Serialize> {
 }
 
 impl<Request: serde::Serialize + TaskId> ServiceRequest<Request> {
-    pub fn new(payload: Request, invocation_id: String, callback_queue_url: String) -> Self {
-        let task_id: String = payload.task_id().to_string();
-
+    pub fn new(
+        invocation_id: String,
+        task_id: String,
+        callback_queue_url: String,
+        payload: Request,
+    ) -> Self {
         Self {
-            task_id,
             invocation_id,
+            task_id,
             callback_queue_url,
             payload,
         }

@@ -10,7 +10,7 @@ use state_in_memory::InMemoryStateStore;
 use std::sync::Arc;
 use workflow::context::WorkflowContext;
 use workflow::runtime::WorkflowRuntime;
-use workflow::workflow_fn;
+use workflow::{call, workflow_fn};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct RequestExample {
@@ -49,7 +49,7 @@ async fn workflow_example(
 
     let service_request: ExampleServiceRequest = ExampleServiceRequest(item_id.clone());
 
-    let result: ExampleServiceResponse = ctx.call(&ExampleService {}, service_request).await?;
+    let result: ExampleServiceResponse = call!(ctx, &ExampleService {}, service_request).await?;
 
     Ok(ResponseExample {
         id,

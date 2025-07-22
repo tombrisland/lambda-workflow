@@ -9,7 +9,7 @@ use state_in_memory::InMemoryStateStore;
 use std::sync::Arc;
 use workflow::context::WorkflowContext;
 use workflow::runtime::WorkflowRuntime;
-use workflow::workflow_fn;
+use workflow::{call, workflow_fn};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct SqsWorkflowRequest {
@@ -41,8 +41,8 @@ async fn workflow_greeter(
     // Make two calls to name service for first and last name
     let responses: Vec<NameResponse> = futures::future::join_all([
         // Call both services in parallel
-        ctx.call(&name_service, name_request.clone()),
-        ctx.call(&name_service, name_request.clone()),
+        call!(ctx, &name_service, name_request.clone()),
+        call!(ctx, &name_service, name_request.clone()),
     ])
     .await
     // Collect from Vec<Result<T, E>> into Result<Vec<T>, E>

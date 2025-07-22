@@ -73,6 +73,6 @@ module "lambda_greeter_workflow" {
 
   environment = {
     SQS_NAME_SERVICE_QUEUE_URL = module.lambda_name_service.input_sqs_queue.url,
-    AWS_LAMBDA_LOG_LEVEL = "debug"
+    # AWS_LAMBDA_LOG_LEVEL = "debug"
   }
 }
