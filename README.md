@@ -2,14 +2,14 @@
 
 ## Features
 
-*lambda-workflow* is a serverless workflow runtime. The project enables the writing of lambda functions which orchestrate any number of asynchronous services without running into function timeouts.
+lambda-workflow is a serverless workflow runtime. The project enables the writing of lambda functions which orchestrate any number of asynchronous services without running into function timeouts.
 
 * Write workflows as code
 * Execute workflows with a serverless technology
 * Avoid expensive serverless orchestrators (*aaS*)
 
 ### How it works
-1. Make an asynchronous call using `WorkflowContext::call()`
+1. Make an asynchronous call using `WorkflowContext::call()` or the `call!` macro
 2. The lambda *suspends* by returning `WorkflowError::Suspended`
 3. A service re-invokes the lambda by callback, storing the result in a state store.
    1. All results are then replayed when the user code is invoked
@@ -21,7 +21,6 @@ Serverless orchestrators like Step Functions already exist, which are great for 
 AWS Lambda is great for short-running tasks (*sub 15 minutes*), but the runtime limitation makes it unsuitable for orchestrating longer running tasks or decoupled services. This project aims to enable workflows of any duration to run in Lambda.
 
 
-
 ## Example
 
 Define a workflow in Rust code and run it as a Lambda. See the implementations in [examples](./examples).
@@ -29,20 +28,25 @@ Define a workflow in Rust code and run it as a Lambda. See the implementations i
 ```rust
 // Define a workflow with a defined request and response type
 async fn workflow_example(
-    ctx: WorkflowContext<RequestExample>,
+   ctx: WorkflowContext<RequestExample>,
 ) -> Result<ResponseExample, WorkflowError> {
-    let request: &RequestExample = ctx.request();
-  
-    let service_request: ExampleServiceRequest = ExampleServiceRequest(request.item_id.clone());
-    // Make asynchronous requests to external services
-    // The workflow will suspend until the request returns
-    let result: ExampleServiceResponse = ctx.call(&ExampleService {}, service_request).await?;
+   let request: &RequestExample = ctx.request();
 
-    // The response from the workflow is delivered to an output queue
-    Ok(ResponseExample {
-        id: request.id.clone(),
-        item_id: request.item_id.clone(),
-        payload: result.0,
-    })
+   let id: String = request.id.clone();
+   let item_id: String = request.item_id.clone();
+
+   tracing::info!("Making a request in an example workflow: {:?}", request);
+
+   let service_request: ExampleServiceRequest = ExampleServiceRequest(item_id.clone());
+
+   // Make requests to asynchronous services
+   // The function will suspend until the call returns
+   let result: ExampleServiceResponse = call!(ctx, &ExampleService {}, service_request).await?;
+
+   Ok(ResponseExample {
+      id,
+      item_id,
+      payload: result.0,
+   })
 }
 ```
