@@ -149,7 +149,7 @@ where
         };
 
         // Operate handler on each message
-        Box::pin(handle_sqs_batch(handler, request, self.runtime.publish.clone()))
+        Box::pin(handle_sqs_batch(handler, request, self.runtime.publisher.clone()))
     }
 }
 

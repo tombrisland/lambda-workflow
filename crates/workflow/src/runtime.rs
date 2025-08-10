@@ -16,7 +16,7 @@ pub struct WorkflowRuntime<
     // How a service re-invokes this workflow
     input_queue_url: String,
     // Output message client
-    pub(crate) publish: SqsBatchPublisher<WorkflowResponse>,
+    pub(crate) publisher: SqsBatchPublisher<WorkflowResponse>,
 }
 
 impl<
@@ -38,7 +38,7 @@ impl<
         WorkflowRuntime {
             state_store,
             input_queue_url,
-            publish: SqsBatchPublisher::new(sqs, output_queue_url),
+            publisher: SqsBatchPublisher::new(sqs, output_queue_url),
         }
     }
 

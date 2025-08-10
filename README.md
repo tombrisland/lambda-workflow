@@ -6,7 +6,7 @@ lambda-workflow is a serverless workflow runtime. The project enables the writin
 
 * Write workflows as code
 * Execute workflows with a serverless technology
-* Avoid expensive serverless orchestrators (*aaS*)
+* Less expensive than serverless orchestrators (aaS)
 
 ### How it works
 1. Make an asynchronous call using `WorkflowContext::call()` or the `call!` macro

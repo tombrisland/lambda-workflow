@@ -3005,7 +3005,6 @@ dependencies = [
  "async-trait",
  "aws-config",
  "aws-sdk-sqs",
- "aws-smithy-mocks",
  "aws_lambda_events",
  "futures",
  "lambda_runtime",

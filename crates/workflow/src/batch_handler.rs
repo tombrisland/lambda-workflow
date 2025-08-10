@@ -15,12 +15,31 @@ use std::vec::IntoIter;
 pub struct SqsBatchPublisher<Message: Serialize> {
     queue_url: String,
     sqs: aws_sdk_sqs::Client,
-    _response: PhantomData<Message>
+    _response: PhantomData<Message>,
+}
+
+impl<Message: Serialize> SqsBatchPublisher<Message> {
+    async fn publish(&self, message: &Message) -> Result<(), WorkflowError> {
+        self.sqs
+            .send_message()
+            .queue_url(&self.queue_url)
+            .message_body(serde_json::to_string(message).unwrap())
+            .send()
+            .await
+            // Emit the SDK error if publishing fails
+            .map_err(|err| WorkflowError::Error(err.into()))?;
+
+        Ok(())
+    }
 }
 
 impl<T: Serialize> SqsBatchPublisher<T> {
     pub fn new(sqs: aws_sdk_sqs::Client, queue_url: String) -> Self {
-        Self { sqs, queue_url, _response: Default::default() }
+        Self {
+            sqs,
+            queue_url,
+            _response: Default::default(),
+        }
     }
 }
 
@@ -29,7 +48,7 @@ pub(crate) async fn handle_sqs_batch<Handler, HandlerFuture, Payload, Response: 
     handler: Handler,
     event: LambdaEvent<SqsEventObj<Payload>>,
     // The responses from the handler are output to SQS
-    publish: SqsBatchPublisher<Response>,
+    publisher: SqsBatchPublisher<Response>,
 ) -> Result<SqsBatchResponse, Error>
 where
     Handler: Fn(Payload) -> HandlerFuture,
@@ -50,7 +69,17 @@ where
 
             let message_span: Span = tracing::span!(tracing::Level::INFO, "SQS", message_id);
 
-            let task: Instrumented<_> = async { handler(body).await }.instrument(message_span);
+            let task: Instrumented<_> = async {
+                let result: Result<Response, WorkflowError> = handler(body).await;
+
+                // Output the workflow response on SQS
+                if let Ok(response) = &result {
+                    publisher.publish(response).await?;
+                }
+
+                result
+            }
+            .instrument(message_span);
 
             (message_id, task)
         })
@@ -60,44 +89,18 @@ where
     let results: Vec<Result<Response, WorkflowError>> =
         futures::future::join_all(workflow_tasks).await;
 
-    // Partition into two lists - keeping references to message_id
-
-    // Use the same handler function for both success and failures
-    // Avoids multiple zips
-    // Send SQS batch messages in one go and then use batchItemFailures for any message ids which fail
-
-    // Output all the successful messages
-    // TODO do SQS message batching here
-    // Emit items on the specified output queue
-    let sqs_tasks: Vec<_> = results
-        .iter()
-        .filter_map(|result: &Result<Response, WorkflowError>| match result {
-            Ok(response) => Some(
-                publish
-                    .sqs
-                    .send_message()
-                    .queue_url(&publish.queue_url)
-                    .message_body(serde_json::to_string(response).unwrap())
-                    .send(),
-            ),
-            Err(_) => None,
-        })
-        .collect();
-    futures::future::join_all(sqs_tasks).await;
-
     let batch_item_failures: Vec<BatchItemFailure> =
-        handle_batch_failures(message_ids.iter().zip(results));
+        collect_batch_failures(message_ids.iter().zip(results));
 
     Ok(SqsBatchResponse {
         batch_item_failures,
     })
 }
 
-// Send any successful messages to SQS
-// Return ay
-pub fn handle_batch_failures<Response>(
+pub fn collect_batch_failures<Response>(
     results: Zip<Iter<String>, IntoIter<Result<Response, WorkflowError>>>,
 ) -> Vec<BatchItemFailure> {
+    // Collect the message ids of all failed items
     results
         .filter_map(
             // Keep message ids only where failure was not Suspended
