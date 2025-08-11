@@ -3,7 +3,7 @@ rustc-ice*
 .terraform
 terraform.tfstate
 terraform.tfstate.backup
-.idea
+.idea/
 
 # Don't commit any accidental node stuff
 node_modules

@@ -24,6 +24,10 @@ struct Call {
     dispatcher: Arc<dyn Dispatcher>,
 }
 
+/// Wrapper macro for the `WorkflowContext::call()` function.
+/// 
+/// Will generate a unique task_id based on the file and line number.
+/// Therefore, it must only be used outside loops.
 #[macro_export]
 macro_rules! call {
     ($ctx:expr, $service:expr, $payload:expr) => {{

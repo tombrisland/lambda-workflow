@@ -6,7 +6,7 @@ lambda-workflow is a serverless workflow runtime. The project enables the writin
 
 * Write workflows as code
 * Execute workflows with a serverless technology
-* Less expensive than serverless orchestrators (aaS)
+* Less expensive than orchestrator cloud services
 
 ### How it works
 1. Make an asynchronous call using `WorkflowContext::call()` or the `call!` macro
@@ -25,28 +25,43 @@ AWS Lambda is great for short-running tasks (*sub 15 minutes*), but the runtime 
 
 Define a workflow in Rust code and run it as a Lambda. See the implementations in [examples](./examples).
 
+Below is an example around a simple bank transaction workflow.
+
 ```rust
-// Define a workflow with a defined request and response type
-async fn workflow_example(
-   ctx: WorkflowContext<RequestExample>,
-) -> Result<ResponseExample, WorkflowError> {
-   let request: &RequestExample = ctx.request();
+async fn make_transaction(
+   ctx: WorkflowContext<BankTransaction>,
+   // Services can be passed in
+   balance_service: BalanceService,
+   fraud_service: FraudService,
+   transaction_service: TransactionService,
+) -> Result<TransactionResult, WorkflowError> {
+   let transaction: &BankTransaction = ctx.request();
 
-   let id: String = request.id.clone();
-   let item_id: String = request.item_id.clone();
+   // Both checks can be executed in parallel
+   let (balance_result, fraud_result) = join!(
+        // Retrieve the account balance
+        call!(ctx, &balance_service, transaction.clone()),
+        // Check the transaction for indicators of fraud
+        call!(ctx, &fraud_service, transaction.clone())
+    );
 
-   tracing::info!("Making a request in an example workflow: {:?}", request);
+   // If we don't have enough money
+   if balance_result?.balance < transaction.amount
+           // Or the transaction is fraudulent
+           || fraud_result?.is_likely_fraud {
+      // Fail the transaction
+      return Ok(TransactionResult::Failure);
+   }
 
-   let service_request: ExampleServiceRequest = ExampleServiceRequest(item_id.clone());
+   // Otherwise we're good to make it
+   call!(ctx, &transaction_service, transaction.clone()).await?;
 
-   // Make requests to asynchronous services
-   // The function will suspend until the call returns
-   let result: ExampleServiceResponse = call!(ctx, &ExampleService {}, service_request).await?;
-
-   Ok(ResponseExample {
-      id,
-      item_id,
-      payload: result.0,
-   })
+   Ok(TransactionResult::Success)
 }
 ```
+
+### Deployment
+
+A lambda-workflow should be deployed with a FIFO queue as the input.
+This is important as the concurrency guarantees provided by `MessageGroupId` are integral to it's operation.
+Multiple updates from a single invocation *cannot* be processed in parallel.

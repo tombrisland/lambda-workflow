@@ -1,5 +1,5 @@
-mod service_example;
 mod noop_dispatcher;
+mod service_example;
 
 use crate::service_example::{ExampleService, ExampleServiceRequest, ExampleServiceResponse};
 use aws_config::BehaviorVersion;
@@ -8,6 +8,7 @@ use model::{Error, InvocationId, WorkflowError};
 use serde::{Deserialize, Serialize};
 use state_in_memory::InMemoryStateStore;
 use std::sync::Arc;
+use tokio::join;
 use workflow::context::WorkflowContext;
 use workflow::runtime::WorkflowRuntime;
 use workflow::{call, workflow_fn};
@@ -41,7 +42,7 @@ async fn workflow_example(
     ctx: WorkflowContext<RequestExample>,
 ) -> Result<ResponseExample, WorkflowError> {
     let request: &RequestExample = ctx.request();
-    
+
     let id: String = request.id.clone();
     let item_id: String = request.item_id.clone();
 
@@ -81,8 +82,8 @@ mod tests {
     use state_in_memory::InMemoryStateStore;
     use std::sync::Arc;
     use test_utils::{create_mock_sqs_client, setup_default_env, sqs_message_with_body};
-    use workflow::runtime::WorkflowRuntime;
     use workflow::WorkflowLambdaEvent;
+    use workflow::runtime::WorkflowRuntime;
 
     #[tokio::test(flavor = "multi_thread")]
     async fn simple_workflow_runs() {
